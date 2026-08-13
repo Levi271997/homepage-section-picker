@@ -8,9 +8,9 @@ export type TestimonialsChoice = {
   rows: string
 }
 
-const GREEN = '#3f6b30'
+const GREEN = 'var(--brand,#3f6b30)'
 const GOLD = '#f5c02c'
-const TAN = '#a1806a'
+const TAN = 'var(--brand-accent,#a1806a)'
 const AVATAR = '#d7e9fb'
 
 /** Four gold stars and one grey, as in the design. */
@@ -142,7 +142,7 @@ export default function TestimonialsPreview({ layout, mark, card, header, rows }
               <span
                 key={i}
                 className="size-[1.3cqw] rounded-full"
-                style={{ background: i === 0 ? GREEN : '#8cbb7c' }}
+                style={{ background: i === 0 ? GREEN : 'var(--brand-dim,#8cbb7c)' }}
               />
             ))}
           </span>

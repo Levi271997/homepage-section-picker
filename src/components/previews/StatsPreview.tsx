@@ -7,8 +7,8 @@ export type StatsChoice = {
   columns: string
 }
 
-const FIGURE_GREEN = '#5f9147'
-const BAND_GREEN = '#4d7c35'
+const FIGURE_GREEN = 'var(--brand-figure,#5f9147)'
+const BAND_GREEN = 'var(--brand-band,#4d7c35)'
 
 function Stat({ layout, onGreen }: { layout: string; onGreen: boolean }) {
   return (

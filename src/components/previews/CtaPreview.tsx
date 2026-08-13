@@ -9,9 +9,9 @@ export type CtaChoice = {
   list: string
 }
 
-const GREEN = '#3f6b30'
-const BAND_GREEN = '#4d7c35'
-const TAN = '#a1806a'
+const GREEN = 'var(--brand,#3f6b30)'
+const BAND_GREEN = 'var(--brand-band,#4d7c35)'
+const TAN = 'var(--brand-accent,#a1806a)'
 
 /** Bar colours flip on the dark backgrounds. */
 function palette(band: string) {

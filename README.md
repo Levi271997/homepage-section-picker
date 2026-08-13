@@ -71,6 +71,8 @@ A parser does the extraction and the model does the judging. `extractPage.ts` fi
 
 The model call is confined to the route handler, so swapping providers touches one file — everything either side of it is provider-agnostic.
 
+**Brand colour reaches every section through CSS variables, not props.** Each preview draws its greens from `var(--brand, #3f6b30)` and friends, and `brandVariables()` declares those on the shell once the site has been read — so all fourteen sections, the row thumbnails and the picker cards recolour together. The tints (`--brand-band`, `--brand-figure`, `--brand-dim`, `--brand-soft`) are mixed from the single colour the analyser is confident about, via `color-mix()`. With no site analysed the variables are absent and every fallback is the template's own palette, so nothing changes.
+
 Two rules keep the output trustworthy:
 
 - **URLs are picked from candidates, never generated.** The route re-checks every URL the model returns against the list it was given, so a hallucinated address can't reach an `<img>` tag.

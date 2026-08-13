@@ -81,7 +81,7 @@ export function Dots({ count = 5 }: { count?: number }) {
         <span
           key={i}
           className="size-[1.3cqw] rounded-full"
-          style={{ background: i === 0 ? '#3f6b30' : '#8cbb7c' }}
+          style={{ background: i === 0 ? 'var(--brand,#3f6b30)' : 'var(--brand-dim,#8cbb7c)' }}
         />
       ))}
     </span>
@@ -92,7 +92,7 @@ export function Dots({ count = 5 }: { count?: number }) {
  * The bars below take an optional label or colour so the same preview can
  * render either the wireframe or the client's own words and brand colour.
  */
-const GREEN = '#3f6b30'
+const GREEN = 'var(--brand,#3f6b30)'
 
 export function FilledButton({ label, color = GREEN }: { label?: string | null; color?: string }) {
   if (label) {
@@ -123,7 +123,7 @@ export function OutlineButton({ label, color = GREEN }: { label?: string | null;
 }
 
 /** Small tan kicker above a heading ("Some text here"). */
-export function Eyebrow({ text, color = '#a1806a' }: { text?: string | null; color?: string }) {
+export function Eyebrow({ text, color = 'var(--brand-accent,#a1806a)' }: { text?: string | null; color?: string }) {
   if (text) {
     return (
       <span className="text-[1.6cqw] leading-none font-medium tracking-[0.12em] uppercase" style={{ color }}>

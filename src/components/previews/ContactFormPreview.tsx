@@ -7,7 +7,7 @@ export type ContactFormChoice = {
   fields: string
 }
 
-const GREEN = '#3f6b30'
+const GREEN = 'var(--brand,#3f6b30)'
 const PANEL_GREEN = '#e3edd8'
 const FIELD_GREY = '#f1efec'
 

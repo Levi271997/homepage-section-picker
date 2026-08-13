@@ -8,8 +8,8 @@ export type ContentSectionChoice = {
   items: string
 }
 
-const GREEN = '#3f6b30'
-const TAN = '#a1806a'
+const GREEN = 'var(--brand,#3f6b30)'
+const TAN = 'var(--brand-accent,#a1806a)'
 
 const SPLIT_LAYOUTS = ['copy', 'checklist', 'media-list', 'stats', 'mini-cards']
 

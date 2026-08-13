@@ -8,7 +8,7 @@ export type BlogsChoice = {
   more: string
 }
 
-const GREEN = '#3f6b30'
+const GREEN = 'var(--brand,#3f6b30)'
 const CHIP = '#dcecd2'
 const MUTED = '#a89890'
 

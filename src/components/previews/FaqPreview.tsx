@@ -8,7 +8,7 @@ export type FaqChoice = {
   items: string
 }
 
-const GREEN = '#3f6b30'
+const GREEN = 'var(--brand,#3f6b30)'
 
 /** One question row: the question and its green plus. */
 function QuestionRow({ style }: { style: string }) {

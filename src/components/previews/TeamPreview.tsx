@@ -7,7 +7,7 @@ export type TeamChoice = {
   columns: string
 }
 
-const TAN = '#a1806a'
+const TAN = 'var(--brand-accent,#a1806a)'
 
 function Member({ layout, card, align }: { layout: string; card: string; align: string }) {
   const centered = align === 'center'

@@ -7,9 +7,9 @@ export type PricingChoice = {
   highlight: string
 }
 
-const GREEN = '#3f6b30'
-const PRICE_GREEN = '#5f9147'
-const TAN = '#a1806a'
+const GREEN = 'var(--brand,#3f6b30)'
+const PRICE_GREEN = 'var(--brand-figure,#5f9147)'
+const TAN = 'var(--brand-accent,#a1806a)'
 const BADGE = '#f0b323'
 const FILL = '#eef4ea'
 

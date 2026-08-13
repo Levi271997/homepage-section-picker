@@ -36,6 +36,25 @@ export type SiteProfile = {
 /** The subset a preview needs. Null means "draw the wireframe". */
 export type SiteContent = SiteProfile | null
 
+/**
+ * Brand colours as CSS variables. Every preview reads `var(--brand, <template
+ * green>)`, so declaring these on any ancestor recolours all fourteen sections
+ * at once — and omitting them leaves the template's own palette untouched.
+ * The tints are mixed from the single colour the analyser is confident about.
+ */
+export function brandVariables(profile: SiteContent): Record<string, string> | undefined {
+  const brand = profile?.brand.primary
+  if (!brand) return undefined
+  return {
+    '--brand': brand,
+    '--brand-band': `color-mix(in srgb, ${brand} 92%, white)`,
+    '--brand-figure': `color-mix(in srgb, ${brand} 80%, white)`,
+    '--brand-dim': `color-mix(in srgb, ${brand} 50%, white)`,
+    '--brand-soft': `color-mix(in srgb, ${brand} 18%, white)`,
+    ...(profile?.brand.accent ? { '--brand-accent': profile.brand.accent } : {}),
+  }
+}
+
 /** A usable hex colour, or null — guards against the model inventing a value. */
 export const hexOrNull = (value: unknown): string | null =>
   typeof value === 'string' && /^#[0-9a-f]{6}$/i.test(value.trim()) ? value.trim().toLowerCase() : null

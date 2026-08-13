@@ -1,11 +1,13 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import type { CSSProperties } from 'react'
 import PagePreview from '@/components/PagePreview'
 import SectionRow from '@/components/SectionRow'
 import SectionMenu from '@/components/SectionMenu'
 import { Icon } from '@/components/icons'
 import { CATALOG, SUGGESTED_IDS, byId, choiceOf, describeChoice } from '@/lib/sections'
+import { brandVariables } from '@/lib/siteProfile'
 import type { Choice } from '@/lib/sections'
 import type { SiteProfile } from '@/lib/siteProfile'
 
@@ -24,6 +26,9 @@ export default function SectionPicker() {
   const [dragIndex, setDragIndex] = useState<number | null>(null)
   const [overIndex, setOverIndex] = useState<number | null>(null)
   const cardRef = useRef<HTMLDivElement>(null)
+
+  /** The analysed site, but only while it's relevant and was readable. */
+  const activeProfile = hasSite === 'yes' && profile && !profile.error ? profile : null
 
   const closeAll = () => {
     setSwapping(null)
@@ -123,14 +128,20 @@ export default function SectionPicker() {
   }
 
   return (
-    <div ref={cardRef} className="flex w-full max-w-[1500px] flex-col items-start gap-6 lg:flex-row">
+    <div
+      ref={cardRef}
+      // The client's brand colours cascade from here, so the row thumbnails and
+      // the picker cards recolour along with the big preview.
+      style={brandVariables(activeProfile) as CSSProperties | undefined}
+      className="flex w-full max-w-[1500px] flex-col items-start gap-6 lg:flex-row"
+    >
       {/* Left: the page as it currently stands. Right: what builds it. */}
       <PagePreview
         ids={ids}
         layouts={layouts}
         activeId={choosingLayout}
         address={hasSite === 'yes' ? profile?.url || siteUrl : ''}
-        content={hasSite === 'yes' && profile && !profile.error ? profile : null}
+        content={activeProfile}
       />
 
       <div className="w-full shrink-0 rounded-2xl border border-hairline bg-card p-5 shadow-2xl shadow-black/40 sm:p-6 lg:w-190">

@@ -8,8 +8,8 @@ export type FooterChoice = {
   subscribe: string
 }
 
-const GREEN = '#3f6b30'
-const TAN = '#a1806a'
+const GREEN = 'var(--brand,#3f6b30)'
+const TAN = 'var(--brand-accent,#a1806a)'
 const MUTED = '#b3a7a1'
 
 function Logo({ className = 'h-[5cqw] w-[17cqw]' }: { className?: string }) {

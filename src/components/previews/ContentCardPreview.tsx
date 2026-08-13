@@ -6,7 +6,7 @@ export type ContentCardChoice = {
   rows: string
 }
 
-const GREEN = '#3f6b30'
+const GREEN = 'var(--brand,#3f6b30)'
 const NUMERAL = '#5f8f4e'
 
 function Label() {

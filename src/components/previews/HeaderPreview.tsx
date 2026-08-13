@@ -7,14 +7,14 @@ export type HeaderChoice = {
   cta: string
 }
 
-const GREEN = '#3f6b30'
+const GREEN = 'var(--brand,#3f6b30)'
 const BROWN = '#553f39'
-const TAN = '#a1806a'
+const TAN = 'var(--brand-accent,#a1806a)'
 
 const BAND_FILL: Record<string, string | undefined> = {
   white: undefined,
   dark: BROWN,
-  green: '#dceccf',
+  green: 'var(--brand-soft,#dceccf)',
 }
 
 function Logo({ src }: { src?: string | null }) {
