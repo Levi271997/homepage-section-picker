@@ -1,4 +1,4 @@
-import Anthropic from '@anthropic-ai/sdk'
+import OpenAI from 'openai'
 import { extractSignals, fetchPage } from '@/lib/extractPage'
 import { hexOrNull, normalizeUrl, textOrNull, urlOrNull } from '@/lib/siteProfile'
 import type { SiteProfile } from '@/lib/siteProfile'
@@ -84,8 +84,8 @@ export async function POST(request: Request) {
     return Response.json(failure('', 'That doesn’t look like a web address.'), { status: 400 })
   }
 
-  if (!process.env.ANTHROPIC_API_KEY) {
-    return Response.json(failure(url, 'ANTHROPIC_API_KEY is not set on the server.'), { status: 500 })
+  if (!process.env.OPENAI_API_KEY) {
+    return Response.json(failure(url, 'OPENAI_API_KEY is not set on the server.'), { status: 500 })
   }
 
   let signals
@@ -99,23 +99,28 @@ export async function POST(request: Request) {
     return Response.json(failure(url, reason), { status: 200 })
   }
 
-  const client = new Anthropic()
+  const client = new OpenAI()
 
   try {
-    const response = await client.messages.create({
-      model: 'claude-opus-5',
-      max_tokens: 16000,
-      system: SYSTEM,
-      output_config: {
-        effort: 'low',
-        format: { type: 'json_schema', schema: SITE_PROFILE_SCHEMA },
+    const response = await client.responses.create({
+      model: 'gpt-5.6',
+      instructions: SYSTEM,
+      // Extraction, not deep reasoning — the cheap tier is the right one here.
+      reasoning: { effort: 'low' },
+      text: {
+        format: {
+          type: 'json_schema',
+          name: 'site_profile',
+          strict: true,
+          schema: SITE_PROFILE_SCHEMA,
+        },
       },
-      messages: [
+      input: [
         {
           role: 'user',
           content: [
             {
-              type: 'text',
+              type: 'input_text',
               text: [
                 `Page: ${signals.finalUrl}`,
                 `Title: ${signals.title ?? '(none)'}`,
@@ -140,8 +145,7 @@ export async function POST(request: Request) {
       ],
     })
 
-    const text = response.content.find((block) => block.type === 'text')
-    const parsed = text && text.type === 'text' ? (JSON.parse(text.text) as Record<string, unknown>) : {}
+    const parsed = (JSON.parse(response.output_text || '{}') ?? {}) as Record<string, unknown>
 
     // The model is asked to copy URLs from the candidates; enforce it, so a
     // hallucinated address can never reach an <img> tag.

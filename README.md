@@ -10,7 +10,7 @@ npm run build
 Reading a client's existing site needs an API key in `.env.local` (git-ignored):
 
 ```
-ANTHROPIC_API_KEY=sk-ant-...
+OPENAI_API_KEY=sk-proj-...
 ```
 
 Without it every other feature works; the analyser reports that the key is missing and the previews stay as wireframes.
@@ -58,7 +58,7 @@ Without it every other feature works; the analyser reports that the key is missi
 | [src/components/OptionPicker.tsx](src/components/OptionPicker.tsx) | Inline radiogroups — preview cards and chip rows — for a section's option axes |
 | [src/components/previews/](src/components/previews/) | Miniature page wireframes — shared `parts.tsx`, one file per section, dispatched by `SectionPreview.tsx` |
 | [src/components/icons.tsx](src/components/icons.tsx) | Inline SVG icon set (no icon dependency) |
-| [src/app/api/analyze/route.ts](src/app/api/analyze/route.ts) | `POST { url }` → `SiteProfile`; fetches the page, then asks Claude for the judgement calls |
+| [src/app/api/analyze/route.ts](src/app/api/analyze/route.ts) | `POST { url }` → `SiteProfile`; fetches the page, then asks the model for the judgement calls |
 | [src/lib/extractPage.ts](src/lib/extractPage.ts) | Deterministic half: fetch, strip, and pull out titles, icons, images and candidate colours |
 | [src/lib/siteProfile.ts](src/lib/siteProfile.ts) | The `SiteProfile` shape plus the guards that keep model output honest |
 | [src/app/globals.css](src/app/globals.css) | Theme colors as Tailwind v4 `@theme` tokens |
@@ -67,7 +67,9 @@ Colors live entirely in the `@theme` block — `--color-row`, `--color-go`, etc.
 
 ## How the site analysis is split
 
-A parser does the extraction and the model does the judging. `extractPage.ts` finds what a regex can find reliably — `<title>`, meta tags, icon links, `<img>` sources, every hex colour and its frequency, and the visible text with tags stripped. Claude then answers only the questions that need judgement: which candidate colour is *the* brand colour, which heading is the hero, which image is the hero image, what the nav labels are.
+A parser does the extraction and the model does the judging. `extractPage.ts` finds what a regex can find reliably — `<title>`, meta tags, icon links, `<img>` sources, every hex colour and its frequency, and the visible text with tags stripped. The model then answers only the questions that need judgement: which candidate colour is *the* brand colour, which heading is the hero, which image is the hero image, what the nav labels are.
+
+The model call is confined to the route handler, so swapping providers touches one file — everything either side of it is provider-agnostic.
 
 Two rules keep the output trustworthy:
 
