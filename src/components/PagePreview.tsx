@@ -5,6 +5,7 @@ import SectionPreview from '@/components/previews/SectionPreview'
 import { PreviewFrame } from '@/components/previews/parts'
 import { byId, choiceOf } from '@/lib/sections'
 import type { Choice } from '@/lib/sections'
+import type { SiteContent } from '@/lib/siteProfile'
 
 /**
  * Roughly how tall each section stands relative to its width, so the stack
@@ -35,13 +36,15 @@ type Props = {
   activeId: string | null
   /** Shown in the address bar; falls back to a placeholder domain. */
   address?: string
+  /** The client's existing site, once analysed — previews render their content. */
+  content?: SiteContent
 }
 
 /** Bare domain for the address bar — no scheme, no trailing slash. */
 const tidy = (address: string) => address.trim().replace(/^https?:\/\//i, '').replace(/\/+$/, '')
 
 /** The whole homepage, assembled from the current order and layout choices. */
-export default function PagePreview({ ids, layouts, activeId, address = '' }: Props) {
+export default function PagePreview({ ids, layouts, activeId, address = '', content = null }: Props) {
   const rows = useRef(new Map<string, HTMLDivElement>())
 
   // Bring whatever is being edited into view, so the effect of a choice is visible.
@@ -80,7 +83,7 @@ export default function PagePreview({ ids, layouts, activeId, address = '' }: Pr
               className="group/section relative"
             >
               <PreviewFrame aspect={aspectFor(id, choice)}>
-                <SectionPreview sectionId={id} choice={choice} />
+                <SectionPreview sectionId={id} choice={choice} content={content} />
               </PreviewFrame>
 
               {/* Ring and label on the section currently being edited. */}

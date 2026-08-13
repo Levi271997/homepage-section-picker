@@ -7,9 +7,18 @@ npm run dev     # http://localhost:3000
 npm run build
 ```
 
+Reading a client's existing site needs an API key in `.env.local` (git-ignored):
+
+```
+ANTHROPIC_API_KEY=sk-ant-...
+```
+
+Without it every other feature works; the analyser reports that the key is missing and the previews stay as wireframes.
+
 ## What it does
 
 - **Live page preview on the left.** The whole homepage is assembled from the current order and layout choices, so every pick on the right updates it immediately. The section being edited is ringed and scrolled into view; hovering any section names it. Each section gets a ratio roughly matching its real height (a header is 16:5, a full content block 16:10) so the stack reads like a page. It sticks to the top of the viewport on wide screens and drops above the card on narrow ones.
+- **Reads the client's existing site.** Answer "yes" to the existing-website question, enter the address, and **Read my site** pulls their brand colour, logo, navigation, hero copy and hero image into the live preview — their own content, in the layouts we propose. The contrast is the pitch, so copy is used verbatim and never rewritten. Anything we can't read falls back to the wireframe, section by section.
 - Lists the suggested sections; `required` ones show a badge instead of buttons.
 - **Drag to reorder** (native HTML5 drag events, no library). A blue line shows where it will land. Two flags govern a row: `required` hides its Swap/Remove buttons in favour of a badge, and `pinned` makes it an anchor that never moves and that nothing can be dropped onto — so the header and hero stay first and the footer stays last. The contact form is required but not pinned: it can't be removed, but it can still be dragged anywhere.
 - Keyboard equivalent: focus a row's grip handle (<kbd>Tab</kbd>) and press <kbd>↑</kbd>/<kbd>↓</kbd>. Note that HTML5 drag events don't fire on touchscreens; the grip keys are the fallback there.
@@ -49,6 +58,20 @@ npm run build
 | [src/components/OptionPicker.tsx](src/components/OptionPicker.tsx) | Inline radiogroups — preview cards and chip rows — for a section's option axes |
 | [src/components/previews/](src/components/previews/) | Miniature page wireframes — shared `parts.tsx`, one file per section, dispatched by `SectionPreview.tsx` |
 | [src/components/icons.tsx](src/components/icons.tsx) | Inline SVG icon set (no icon dependency) |
+| [src/app/api/analyze/route.ts](src/app/api/analyze/route.ts) | `POST { url }` → `SiteProfile`; fetches the page, then asks Claude for the judgement calls |
+| [src/lib/extractPage.ts](src/lib/extractPage.ts) | Deterministic half: fetch, strip, and pull out titles, icons, images and candidate colours |
+| [src/lib/siteProfile.ts](src/lib/siteProfile.ts) | The `SiteProfile` shape plus the guards that keep model output honest |
 | [src/app/globals.css](src/app/globals.css) | Theme colors as Tailwind v4 `@theme` tokens |
 
 Colors live entirely in the `@theme` block — `--color-row`, `--color-go`, etc. — so restyling means editing that one block.
+
+## How the site analysis is split
+
+A parser does the extraction and the model does the judging. `extractPage.ts` finds what a regex can find reliably — `<title>`, meta tags, icon links, `<img>` sources, every hex colour and its frequency, and the visible text with tags stripped. Claude then answers only the questions that need judgement: which candidate colour is *the* brand colour, which heading is the hero, which image is the hero image, what the nav labels are.
+
+Two rules keep the output trustworthy:
+
+- **URLs are picked from candidates, never generated.** The route re-checks every URL the model returns against the list it was given, so a hallucinated address can't reach an `<img>` tag.
+- **Copy is verbatim.** The model is told not to rewrite, improve or summarise — a client has to recognise their own words for the comparison to land.
+
+Failures are not error states: an unreachable site, a missing key, or a field the model wasn't sure about all resolve to `null`, and the affected preview simply draws its wireframe. Only the large left-hand preview receives real content — at 64 px a row thumbnail would render real text as illegible mush, so those stay abstract.

@@ -16,13 +16,23 @@ import type { HeroLayout } from '@/components/previews/HeroPreview'
 import type { LogoLayout } from '@/components/previews/LogoStripPreview'
 import { imageFor } from '@/lib/previewImages'
 import type { Choice } from '@/lib/sections'
+import type { SiteContent } from '@/lib/siteProfile'
 
 /**
  * Picks the right miniature for a section's current choice.
  * The option ids live in the catalog as plain strings, so this is the one
  * place where they're narrowed back to a section's own layout union.
  */
-export default function SectionPreview({ sectionId, choice }: { sectionId: string; choice: Choice }) {
+export default function SectionPreview({
+  sectionId,
+  choice,
+  content,
+}: {
+  sectionId: string
+  choice: Choice
+  /** The client's own site, when we've read it. Only the large preview passes this. */
+  content?: SiteContent
+}) {
   // A real screenshot wins over the wireframe wherever one has been supplied.
   const image = imageFor(sectionId, choice)
   if (image) {
@@ -38,10 +48,11 @@ export default function SectionPreview({ sectionId, choice }: { sectionId: strin
           nav={choice.nav}
           band={choice.band}
           cta={choice.cta}
+          content={content}
         />
       )
     case 'hero-logo':
-      return <HeroPreview layout={choice.layout as HeroLayout} />
+      return <HeroPreview layout={choice.layout as HeroLayout} content={content} />
     case 'logo-strip':
       return <LogoStripPreview layout={choice.layout as LogoLayout} />
     case 'cta':

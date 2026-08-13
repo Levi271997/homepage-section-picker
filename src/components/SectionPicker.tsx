@@ -7,6 +7,7 @@ import SectionMenu from '@/components/SectionMenu'
 import { Icon } from '@/components/icons'
 import { CATALOG, SUGGESTED_IDS, byId, choiceOf, describeChoice } from '@/lib/sections'
 import type { Choice } from '@/lib/sections'
+import type { SiteProfile } from '@/lib/siteProfile'
 
 export default function SectionPicker() {
   const [ids, setIds] = useState<string[]>(SUGGESTED_IDS)
@@ -18,6 +19,8 @@ export default function SectionPicker() {
   const [built, setBuilt] = useState(false)
   const [hasSite, setHasSite] = useState<'yes' | 'no' | null>(null)
   const [siteUrl, setSiteUrl] = useState('')
+  const [profile, setProfile] = useState<SiteProfile | null>(null)
+  const [analyzing, setAnalyzing] = useState(false)
   const [dragIndex, setDragIndex] = useState<number | null>(null)
   const [overIndex, setOverIndex] = useState<number | null>(null)
   const cardRef = useRef<HTMLDivElement>(null)
@@ -78,6 +81,31 @@ export default function SectionPicker() {
       return next
     })
 
+  /** Reads the client's existing site and feeds its content into the preview. */
+  const analyze = async () => {
+    if (!siteUrl.trim() || analyzing) return
+    setAnalyzing(true)
+    try {
+      const response = await fetch('/api/analyze', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ url: siteUrl }),
+      })
+      setProfile((await response.json()) as SiteProfile)
+    } catch {
+      setProfile({
+        url: siteUrl,
+        brand: { name: null, primary: null, accent: null, logoUrl: null },
+        nav: [],
+        hero: { eyebrow: null, headline: null, subcopy: null, ctaLabel: null, imageUrl: null },
+        detected: [],
+        error: 'Couldn’t reach the analyser.',
+      })
+    } finally {
+      setAnalyzing(false)
+    }
+  }
+
   const endDrag = () => {
     setDragIndex(null)
     setOverIndex(null)
@@ -101,7 +129,8 @@ export default function SectionPicker() {
         ids={ids}
         layouts={layouts}
         activeId={choosingLayout}
-        address={hasSite === 'yes' ? siteUrl : ''}
+        address={hasSite === 'yes' ? profile?.url || siteUrl : ''}
+        content={hasSite === 'yes' && profile && !profile.error ? profile : null}
       />
 
       <div className="w-full shrink-0 rounded-2xl border border-hairline bg-card p-5 shadow-2xl shadow-black/40 sm:p-6 lg:w-190">
@@ -190,20 +219,66 @@ export default function SectionPicker() {
             <label htmlFor="site-url" className="text-xs text-ink-muted">
               What&rsquo;s the address?
             </label>
-            <input
-              id="site-url"
-              type="text"
-              inputMode="url"
-              autoComplete="url"
-              spellCheck={false}
-              value={siteUrl}
-              onChange={(e) => setSiteUrl(e.target.value)}
-              placeholder="yoursite.com"
-              className="mt-1.5 w-full rounded-lg border border-hairline bg-card px-3 py-2 text-sm text-ink placeholder:text-ink-faint focus-visible:border-ink-faint focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-badge-ink"
-            />
-            <p className="mt-1.5 text-xs text-ink-muted">
-              We&rsquo;ll audit it first and carry over anything worth keeping.
-            </p>
+            <div className="mt-1.5 flex gap-2">
+              <input
+                id="site-url"
+                type="text"
+                inputMode="url"
+                autoComplete="url"
+                spellCheck={false}
+                value={siteUrl}
+                onChange={(e) => setSiteUrl(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') analyze()
+                }}
+                placeholder="yoursite.com"
+                className="min-w-0 flex-1 rounded-lg border border-hairline bg-card px-3 py-2 text-sm text-ink placeholder:text-ink-faint focus-visible:border-ink-faint focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-badge-ink"
+              />
+              <button
+                type="button"
+                onClick={analyze}
+                disabled={!siteUrl.trim() || analyzing}
+                className="shrink-0 rounded-lg border border-hairline bg-card px-3.5 py-2 text-sm text-ink transition-colors hover:bg-row-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-badge-ink disabled:cursor-not-allowed disabled:text-ink-faint disabled:hover:bg-card"
+              >
+                {analyzing ? 'Reading…' : 'Read my site'}
+              </button>
+            </div>
+
+            {analyzing ? (
+              <p className="mt-1.5 text-xs text-ink-muted">
+                Fetching the page and pulling out your brand, copy and images&hellip;
+              </p>
+            ) : profile?.error ? (
+              <p className="mt-1.5 text-xs text-ink-muted">
+                Couldn&rsquo;t read it &mdash; {profile.error} The preview stays as an outline.
+              </p>
+            ) : profile ? (
+              <p className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-ink-muted">
+                {profile.brand.primary && (
+                  <span
+                    aria-hidden="true"
+                    className="size-3 shrink-0 rounded-full border border-hairline"
+                    style={{ background: profile.brand.primary }}
+                  />
+                )}
+                <span>
+                  Using {profile.brand.name ?? 'your site'}&rsquo;s{' '}
+                  {[
+                    profile.brand.logoUrl && 'logo',
+                    profile.brand.primary && 'colour',
+                    profile.hero.headline && 'headline',
+                    profile.hero.imageUrl && 'hero image',
+                  ]
+                    .filter(Boolean)
+                    .join(', ') || 'details'}{' '}
+                  in the preview.
+                </span>
+              </p>
+            ) : (
+              <p className="mt-1.5 text-xs text-ink-muted">
+                We&rsquo;ll audit it first and carry over anything worth keeping.
+              </p>
+            )}
           </div>
         )}
       </div>

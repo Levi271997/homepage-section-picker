@@ -1,3 +1,5 @@
+import type { SiteContent } from '@/lib/siteProfile'
+
 export type HeaderChoice = {
   structure: string
   nav: string
@@ -15,20 +17,58 @@ const BAND_FILL: Record<string, string | undefined> = {
   green: '#dceccf',
 }
 
-function Logo() {
+function Logo({ src }: { src?: string | null }) {
+  if (src) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element -- a third-party URL from the client's own site
+      <img
+        src={src}
+        alt=""
+        loading="lazy"
+        onError={(e) => {
+          e.currentTarget.style.visibility = 'hidden'
+        }}
+        className="block h-[4.5cqw] w-auto max-w-[24cqw] object-contain object-left"
+      />
+    )
+  }
   return <span className="block h-[4cqw] w-[15cqw] rounded-[1px] bg-neutral-300" />
 }
 
 /** Four nav links; the first is "active" — darker with an underline. */
-function Nav({ onDark }: { onDark?: boolean }) {
+function Nav({ onDark, labels, accent = GREEN }: { onDark?: boolean; labels?: string[]; accent?: string }) {
   const link = onDark ? 'bg-neutral-100' : 'bg-neutral-600'
+
+  if (labels?.length) {
+    return (
+      <span className="flex items-center gap-[2.6cqw]">
+        {labels.map((label, i) => (
+          <span key={label} className="flex flex-col items-center gap-[0.6cqw]">
+            <span
+              className="text-[1.7cqw] leading-none whitespace-nowrap"
+              style={{ color: onDark ? '#ffffff' : i === 0 ? '#1c1c1c' : '#525252' }}
+            >
+              {label}
+            </span>
+            {i === 0 && (
+              <span
+                className="h-[0.5cqw] w-full rounded-full"
+                style={{ background: onDark ? '#ffffff' : accent }}
+              />
+            )}
+          </span>
+        ))}
+      </span>
+    )
+  }
+
   return (
     <span className="flex items-center gap-[3cqw]">
       <span className="flex flex-col items-center gap-[0.7cqw]">
         <span className={`h-[1.2cqw] w-[6cqw] rounded-full ${onDark ? 'bg-white' : 'bg-neutral-800'}`} />
         <span
           className="h-[0.5cqw] w-[6cqw] rounded-full"
-          style={{ background: onDark ? '#ffffff' : GREEN }}
+          style={{ background: onDark ? '#ffffff' : accent }}
         />
       </span>
       <span className={`h-[1.2cqw] w-[7cqw] rounded-full ${link}`} />
@@ -38,12 +78,12 @@ function Nav({ onDark }: { onDark?: boolean }) {
   )
 }
 
-function Cta({ kind }: { kind: string }) {
+function Cta({ kind, accent = GREEN }: { kind: string; accent?: string }) {
   if (kind === 'none') return null
   return kind === 'solid' ? (
-    <span className="h-[4.4cqw] w-[16cqw] rounded-[2px]" style={{ background: GREEN }} />
+    <span className="h-[4.4cqw] w-[16cqw] rounded-xs" style={{ background: accent }} />
   ) : (
-    <span className="h-[4.4cqw] w-[16cqw] rounded-[2px] border" style={{ borderColor: GREEN }} />
+    <span className="h-[4.4cqw] w-[16cqw] rounded-xs border" style={{ borderColor: accent }} />
   )
 }
 
@@ -81,7 +121,19 @@ function CallUs({ greenNumber }: { greenNumber?: boolean }) {
 }
 
 /** The nav row — used on its own or as the lower tier under a utility bar. */
-function NavRow({ nav, band, cta }: { nav: string; band: string; cta: string }) {
+function NavRow({
+  nav,
+  band,
+  cta,
+  labels,
+  accent,
+}: {
+  nav: string
+  band: string
+  cta: string
+  labels?: string[]
+  accent?: string
+}) {
   const fill = BAND_FILL[band]
   const onDark = band === 'dark'
   const shell = 'flex items-center px-[5cqw] py-[2.5cqw]'
@@ -91,10 +143,10 @@ function NavRow({ nav, band, cta }: { nav: string; band: string; cta: string }) 
       <div className={`${shell} grid grid-cols-3`} style={{ background: fill }}>
         <span />
         <span className="flex justify-center">
-          <Nav onDark={onDark} />
+          <Nav onDark={onDark} labels={labels} accent={accent} />
         </span>
         <span className="flex justify-end">
-          <Cta kind={cta} />
+          <Cta kind={cta} accent={accent} />
         </span>
       </div>
     )
@@ -102,10 +154,10 @@ function NavRow({ nav, band, cta }: { nav: string; band: string; cta: string }) 
 
   return (
     <div className={`${shell} justify-between gap-[3cqw]`} style={{ background: fill }}>
-      {nav === 'right' ? <span /> : <Nav onDark={onDark} />}
+      {nav === 'right' ? <span /> : <Nav onDark={onDark} labels={labels} accent={accent} />}
       <span className="flex items-center gap-[3cqw]">
-        {nav === 'right' && <Nav onDark={onDark} />}
-        <Cta kind={cta} />
+        {nav === 'right' && <Nav onDark={onDark} labels={labels} accent={accent} />}
+        <Cta kind={cta} accent={accent} />
       </span>
     </div>
   )
@@ -122,18 +174,29 @@ function PageHint() {
 }
 
 /** Miniature of what the site header will look like on the page. */
-export default function HeaderPreview({ structure, nav, band, cta }: HeaderChoice) {
+export default function HeaderPreview({
+  structure,
+  nav,
+  band,
+  cta,
+  content,
+}: HeaderChoice & { content?: SiteContent }) {
+  const logo = content?.brand.logoUrl ?? null
+  const accent = content?.brand.primary ?? GREEN
+  // Four labels is what the wireframe shows; more would crowd the bar.
+  const labels = content?.nav.length ? content.nav.slice(0, 4) : undefined
+
   if (structure === 'stacked') {
     return (
       <div className="flex h-full flex-col">
         <div className="flex items-start justify-between gap-[3cqw] px-[5cqw] pt-[4cqw] pb-[3cqw]">
           <span className="flex flex-col gap-[2.5cqw]">
-            <Logo />
-            <Nav />
+            <Logo src={logo} />
+            <Nav labels={labels} accent={accent} />
           </span>
           <span className="flex flex-col items-end gap-[2cqw]">
             <CallUs greenNumber />
-            <Cta kind={cta} />
+            <Cta kind={cta} accent={accent} />
           </span>
         </div>
         <span className="h-px w-full bg-neutral-200" />
@@ -150,28 +213,28 @@ export default function HeaderPreview({ structure, nav, band, cta }: HeaderChoic
         <div className="flex items-center px-[5cqw] py-[3cqw]" style={{ background: fill }}>
           {nav === 'center' ? (
             <span className="grid w-full grid-cols-3 items-center">
-              <Logo />
+              <Logo src={logo} />
               <span className="flex justify-center">
-                <Nav onDark={onDark} />
+                <Nav onDark={onDark} labels={labels} accent={accent} />
               </span>
               <span className="flex justify-end">
-                <Cta kind={cta} />
+                <Cta kind={cta} accent={accent} />
               </span>
             </span>
           ) : nav === 'left' ? (
             <span className="flex w-full items-center gap-[4cqw]">
-              <Logo />
-              <Nav onDark={onDark} />
+              <Logo src={logo} />
+              <Nav onDark={onDark} labels={labels} accent={accent} />
               <span className="ml-auto">
-                <Cta kind={cta} />
+                <Cta kind={cta} accent={accent} />
               </span>
             </span>
           ) : (
             <span className="flex w-full items-center">
-              <Logo />
+              <Logo src={logo} />
               <span className="ml-auto flex items-center gap-[4cqw]">
-                <Nav onDark={onDark} />
-                <Cta kind={cta} />
+                <Nav onDark={onDark} labels={labels} accent={accent} />
+                <Cta kind={cta} accent={accent} />
               </span>
             </span>
           )}
@@ -189,7 +252,7 @@ export default function HeaderPreview({ structure, nav, band, cta }: HeaderChoic
         <div className="grid grid-cols-3 items-center px-[5cqw] py-[3cqw]">
           <EmailLine />
           <span className="flex justify-center">
-            <Logo />
+            <Logo src={logo} />
           </span>
           <span className="flex justify-end">
             <Socials />
@@ -197,12 +260,12 @@ export default function HeaderPreview({ structure, nav, band, cta }: HeaderChoic
         </div>
       ) : (
         <div className="flex items-center justify-between px-[5cqw] py-[3cqw]">
-          <Logo />
+          <Logo src={logo} />
           <CallUs />
         </div>
       )}
 
-      <NavRow nav={nav} band={band} cta={cta} />
+      <NavRow nav={nav} band={band} cta={cta} labels={labels} accent={accent} />
       <PageHint />
     </div>
   )

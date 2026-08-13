@@ -25,8 +25,32 @@ export function PreviewFrame({
   return <div className={`@container ${aspect} w-full overflow-hidden bg-white ${className}`}>{children}</div>
 }
 
-/** Checkerboard standing in for a photo, as the placeholders appear in the design file. */
-export function ImageBlock({ className = '' }: { className?: string }) {
+/**
+ * Checkerboard standing in for a photo, as the placeholders appear in the
+ * design file — or the client's own image once we've read their site.
+ */
+export function ImageBlock({ className = '', src }: { className?: string; src?: string | null }) {
+  if (src) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element -- a third-party URL from the client's own site; next/image would need every client domain whitelisted
+      <img
+        src={src}
+        alt=""
+        loading="lazy"
+        // Hotlink protection and dead URLs are common; fall back to the checkerboard.
+        onError={(e) => {
+          const el = e.currentTarget
+          el.style.display = 'none'
+          el.insertAdjacentHTML(
+            'afterend',
+            `<div class="${el.className}" style="background-image:repeating-conic-gradient(#e9e9e9 0% 25%,#fafafa 0% 50%);background-size:4cqw 4cqw"></div>`,
+          )
+        }}
+        className={`rounded-xs border border-neutral-200 object-cover ${className}`}
+      />
+    )
+  }
+
   return (
     <div
       className={`rounded-xs border border-neutral-200 ${className}`}
@@ -64,23 +88,64 @@ export function Dots({ count = 5 }: { count?: number }) {
   )
 }
 
-export function FilledButton() {
-  return <span className="h-[3.4cqw] w-[11cqw] rounded-xs bg-[#3f6b30]" />
+/**
+ * The bars below take an optional label or colour so the same preview can
+ * render either the wireframe or the client's own words and brand colour.
+ */
+const GREEN = '#3f6b30'
+
+export function FilledButton({ label, color = GREEN }: { label?: string | null; color?: string }) {
+  if (label) {
+    return (
+      <span
+        className="inline-flex h-[4cqw] items-center rounded-xs px-[2.5cqw] text-[1.9cqw] leading-none font-medium text-white"
+        style={{ background: color }}
+      >
+        {label}
+      </span>
+    )
+  }
+  return <span className="h-[3.4cqw] w-[11cqw] rounded-xs" style={{ background: color }} />
 }
 
-export function OutlineButton() {
-  return <span className="h-[3.4cqw] w-[11cqw] rounded-xs border border-[#3f6b30] bg-white" />
+export function OutlineButton({ label, color = GREEN }: { label?: string | null; color?: string }) {
+  if (label) {
+    return (
+      <span
+        className="inline-flex h-[4cqw] items-center rounded-xs border bg-white px-[2.5cqw] text-[1.9cqw] leading-none font-medium"
+        style={{ borderColor: color, color }}
+      >
+        {label}
+      </span>
+    )
+  }
+  return <span className="h-[3.4cqw] w-[11cqw] rounded-xs border bg-white" style={{ borderColor: color }} />
 }
 
 /** Small tan kicker above a heading ("Some text here"). */
-export function Eyebrow() {
-  return <span className="h-[1cqw] w-[13cqw] rounded-full" style={{ background: '#a1806a' }} />
+export function Eyebrow({ text, color = '#a1806a' }: { text?: string | null; color?: string }) {
+  if (text) {
+    return (
+      <span className="text-[1.6cqw] leading-none font-medium tracking-[0.12em] uppercase" style={{ color }}>
+        {text}
+      </span>
+    )
+  }
+  return <span className="h-[1cqw] w-[13cqw] rounded-full" style={{ background: color }} />
 }
 
-export function HeadlineLine({ className = '' }: { className?: string }) {
+export function HeadlineLine({ className = '', text }: { className?: string; text?: string | null }) {
+  if (text) {
+    return (
+      <span className={`block text-[3.4cqw] leading-[1.15] font-semibold text-neutral-900 ${className}`}>{text}</span>
+    )
+  }
   return <span className={`h-[1.9cqw] rounded-full bg-neutral-800 ${className}`} />
 }
 
-export function BodyLine({ className = '' }: { className?: string }) {
+export function BodyLine({ className = '', text }: { className?: string; text?: string | null }) {
+  if (text) {
+    return <span className={`block text-[1.8cqw] leading-[1.45] text-neutral-600 ${className}`}>{text}</span>
+  }
   return <span className={`h-[1cqw] rounded-full bg-neutral-300 ${className}`} />
 }
