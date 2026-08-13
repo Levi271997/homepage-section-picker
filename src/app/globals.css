@@ -1,0 +1,32 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-canvas: #191919;
+  --color-card: #232323;
+  --color-row: #2b2b2b;
+  --color-row-hover: #323232;
+  --color-hairline: #383838;
+  --color-ink: #ededed;
+  --color-ink-muted: #a0a0a0;
+  --color-ink-faint: #7c7c7c;
+  --color-badge: #1c3a63;
+  --color-badge-ink: #8ab8f0;
+  --color-go: #17361f;
+  --color-go-hover: #1d4327;
+  --color-go-ink: #b7e9c3;
+}
+
+html {
+  color-scheme: dark;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background: var(--color-canvas);
+  color: var(--color-ink);
+  -webkit-font-smoothing: antialiased;
+}
