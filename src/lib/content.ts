@@ -69,6 +69,12 @@ export const CONTENT: Record<string, Schema> = {
       cta('Button label'),
       { id: 'phone', label: 'Phone number', kind: 'text', hint: 'Shown by the phone utility bar and the stacked header.' },
       { id: 'email', label: 'Email address', kind: 'text', hint: 'Shown by the social utility bar.' },
+      {
+        id: 'socialLinks',
+        label: 'Social links',
+        kind: 'lines',
+        hint: 'Facebook, Instagram, X, LinkedIn — one URL per line, in that order.',
+      },
     ],
     defaults: {
       image: LOGO,
@@ -77,6 +83,8 @@ export const CONTENT: Record<string, Schema> = {
       cta: 'Get in touch',
       phone: '(123) 456-7890',
       email: 'hello@yourcompany.com',
+      socialLinks:
+        'https://facebook.com/yourcompany\nhttps://instagram.com/yourcompany\nhttps://x.com/yourcompany\nhttps://linkedin.com/company/yourcompany',
     },
   },
 

@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { linesOf } from '@/lib/content'
 import type { SectionContent } from '@/lib/content'
 
@@ -169,11 +170,11 @@ function Cta({ kind, accent = GREEN, label }: { kind: string; accent?: string; l
   )
 }
 
-/** "contact@…" with its envelope. */
+/** "contact@…" with its envelope, opening a mail client in the page view. */
 function EmailLine({ text }: { text?: string }) {
   const ink = '#3f3330'
-  return (
-    <span className="flex items-center gap-[1.2cqw]">
+  const inner = (
+    <>
       <svg viewBox="0 0 18 13" className="h-[1.8cqw] w-[2.5cqw]" aria-hidden="true">
         <rect x="0.5" y="0.5" width="17" height="12" rx="1.4" fill={ink} />
         <path d="M1.6 2L9 7.2 16.4 2" fill="none" stroke="#fff" strokeWidth="1.2" strokeLinejoin="round" />
@@ -185,7 +186,19 @@ function EmailLine({ text }: { text?: string }) {
       ) : (
         <span className="h-[1.2cqw] w-[16cqw] rounded-full" style={{ background: ink }} />
       )}
-    </span>
+    </>
+  )
+
+  if (!text) return <span className="flex items-center gap-[1.2cqw]">{inner}</span>
+
+  return (
+    <a
+      href={`mailto:${text}`}
+      data-role="ext-link"
+      className="flex items-center gap-[1.2cqw] no-underline"
+    >
+      {inner}
+    </a>
   )
 }
 
@@ -193,32 +206,77 @@ function EmailLine({ text }: { text?: string }) {
  * The four social marks from the design, drawn as simple glyphs rather than
  * brand logos — recognisable at this size without shipping icon assets.
  */
-function Socials() {
+function Socials({ links }: { links?: string[] }) {
   const ink = '#3f3330'
+
+  const glyphs: { name: string; path: ReactNode }[] = [
+    {
+      name: 'Facebook',
+      path: (
+        <>
+          <circle cx="8" cy="8" r="8" fill={ink} />
+          <path d="M9.4 8.3h1.2l.2-1.7H9.4V5.6c0-.5.1-.8.8-.8h.7V3.3h-1.3c-1.5 0-2.1.8-2.1 2.1v1.2H6.3v1.7h1.2v4.4h1.9z" fill="#fff" />
+        </>
+      ),
+    },
+    {
+      name: 'Instagram',
+      path: (
+        <>
+          <rect x="0.8" y="0.8" width="14.4" height="14.4" rx="4.2" fill={ink} />
+          <circle cx="8" cy="8" r="3.4" fill="none" stroke="#fff" strokeWidth="1.3" />
+          <circle cx="12.1" cy="4" r="1" fill="#fff" />
+        </>
+      ),
+    },
+    {
+      name: 'X',
+      path: (
+        <path d="M1.5 1.5l5.6 7.2-5.4 5.8h1.8l4.5-4.8 3.7 4.8h4.3L10 7.6l5-5.4h-1.8L9.2 6.6 5.8 1.5z" fill={ink} />
+      ),
+    },
+    {
+      name: 'LinkedIn',
+      path: (
+        <>
+          <rect x="0.5" y="0.5" width="15" height="15" rx="2.4" fill={ink} />
+          <circle cx="4.2" cy="4.2" r="1.2" fill="#fff" />
+          <rect x="3.2" y="6.2" width="2" height="6.6" fill="#fff" />
+          <path d="M6.6 6.2h1.9v.9c.3-.6 1-1.1 2-1.1 1.6 0 2.4 1 2.4 2.9v3.9h-2V9.3c0-.9-.3-1.4-1.1-1.4-.7 0-1.2.5-1.2 1.5v3.4h-2z" fill="#fff" />
+        </>
+      ),
+    },
+  ]
+
   return (
     <span className="flex items-center gap-[1.4cqw]" style={{ color: ink }}>
-      {/* Facebook: filled circle with a cut-out f */}
-      <svg viewBox="0 0 16 16" className="size-[2.2cqw]" aria-hidden="true">
-        <circle cx="8" cy="8" r="8" fill={ink} />
-        <path d="M9.4 8.3h1.2l.2-1.7H9.4V5.6c0-.5.1-.8.8-.8h.7V3.3h-1.3c-1.5 0-2.1.8-2.1 2.1v1.2H6.3v1.7h1.2v4.4h1.9z" fill="#fff" />
-      </svg>
-      {/* Instagram: rounded square with a lens */}
-      <svg viewBox="0 0 16 16" className="size-[2.2cqw]" aria-hidden="true">
-        <rect x="0.8" y="0.8" width="14.4" height="14.4" rx="4.2" fill={ink} />
-        <circle cx="8" cy="8" r="3.4" fill="none" stroke="#fff" strokeWidth="1.3" />
-        <circle cx="12.1" cy="4" r="1" fill="#fff" />
-      </svg>
-      {/* X */}
-      <svg viewBox="0 0 16 16" className="size-[2.2cqw]" aria-hidden="true">
-        <path d="M1.5 1.5l5.6 7.2-5.4 5.8h1.8l4.5-4.8 3.7 4.8h4.3L10 7.6l5-5.4h-1.8L9.2 6.6 5.8 1.5z" fill={ink} />
-      </svg>
-      {/* LinkedIn */}
-      <svg viewBox="0 0 16 16" className="size-[2.2cqw]" aria-hidden="true">
-        <rect x="0.5" y="0.5" width="15" height="15" rx="2.4" fill={ink} />
-        <circle cx="4.2" cy="4.2" r="1.2" fill="#fff" />
-        <rect x="3.2" y="6.2" width="2" height="6.6" fill="#fff" />
-        <path d="M6.6 6.2h1.9v.9c.3-.6 1-1.1 2-1.1 1.6 0 2.4 1 2.4 2.9v3.9h-2V9.3c0-.9-.3-1.4-1.1-1.4-.7 0-1.2.5-1.2 1.5v3.4h-2z" fill="#fff" />
-      </svg>
+      {glyphs.map((glyph, i) => {
+        const icon = (
+          <svg viewBox="0 0 16 16" className="size-[2.2cqw]" aria-hidden="true">
+            {glyph.path}
+          </svg>
+        )
+        const href = links?.[i]
+
+        // A profile the client hasn't given us stays a plain mark.
+        return href ? (
+          <a
+            key={glyph.name}
+            href={href}
+            data-role="ext-link"
+            target="_blank"
+            rel="noreferrer"
+            aria-label={glyph.name}
+            className="flex"
+          >
+            {icon}
+          </a>
+        ) : (
+          <span key={glyph.name} className="flex">
+            {icon}
+          </span>
+        )
+      })}
     </span>
   )
 }
@@ -308,6 +366,8 @@ export default function HeaderPreview({
   const accent = GREEN
   const ctaLabel = content?.cta || undefined
   // Five fits the centred nav in the design; more crowds the bar.
+  const socials = linesOf(content?.socialLinks)
+  const socialLinks = socials.length ? socials : undefined
   const menuItems = linesOf(content?.navMenu)
   const menu = menuItems.length ? menuItems : undefined
   const navLabels = linesOf(content?.nav).slice(0, 5)
@@ -380,7 +440,7 @@ export default function HeaderPreview({
             <Logo src={logo} />
           </span>
           <span className="flex justify-end">
-            <Socials />
+            <Socials links={socialLinks} />
           </span>
         </div>
       ) : (

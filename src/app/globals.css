@@ -56,6 +56,23 @@ html {
 .page-view [data-role='nav'] {
   cursor: pointer;
 }
+
+/*
+ * Real anchors — mailto and social profiles. They are inert everywhere by
+ * default so a stray click on a 64px thumbnail can't open a mail client, and
+ * only become live inside the full-page view.
+ */
+[data-role='ext-link'] {
+  pointer-events: none;
+}
+.page-view [data-role='ext-link'] {
+  pointer-events: auto;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+.page-view [data-role='ext-link']:hover {
+  opacity: 0.65;
+}
 .page-view [data-role='menu'] {
   visibility: hidden;
   opacity: 0;
