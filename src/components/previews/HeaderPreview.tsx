@@ -36,29 +36,45 @@ function Logo({ src }: { src?: string | null }) {
   return <span className="block h-[4cqw] w-[15cqw] rounded-[1px] bg-neutral-300" />
 }
 
-/** Four nav links; the first is "active" — darker with an underline. */
+/** The small caret marking a nav item that opens a dropdown. */
+function Caret({ color }: { color: string }) {
+  return (
+    <svg viewBox="0 0 10 6" className="h-[1cqw] w-[1.6cqw]" fill="none" aria-hidden="true">
+      <path d="M1 1l4 4 4-4" stroke={color} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  )
+}
+
+/** Nav links; the first is "active" — darker with an underline. */
 function Nav({ onDark, labels, accent = GREEN }: { onDark?: boolean; labels?: string[]; accent?: string }) {
   const link = onDark ? 'bg-neutral-100' : 'bg-neutral-600'
 
   if (labels?.length) {
     return (
       <span className="flex items-center gap-[2.6cqw]">
-        {labels.map((label, i) => (
-          <span key={label} className="flex flex-col items-center gap-[0.6cqw]">
-            <span
-              className="text-[1.7cqw] leading-none whitespace-nowrap"
-              style={{ color: onDark ? '#ffffff' : i === 0 ? '#1c1c1c' : '#525252' }}
-            >
-              {label}
+        {labels.map((raw, i) => {
+          // A trailing caret in the field marks a link that opens a menu.
+          const dropdown = raw.endsWith('^')
+          const label = dropdown ? raw.slice(0, -1).trim() : raw
+          const color = onDark ? '#ffffff' : i === 0 ? '#2b2320' : '#4a413d'
+
+          return (
+            <span key={`${label}-${i}`} className="flex flex-col items-center gap-[0.7cqw]">
+              <span className="flex items-center gap-[0.8cqw]">
+                <span className="text-[1.8cqw] leading-none whitespace-nowrap" style={{ color }}>
+                  {label}
+                </span>
+                {dropdown && <Caret color={color} />}
+              </span>
+              {i === 0 && (
+                <span
+                  className="h-[0.4cqw] w-full rounded-full"
+                  style={{ background: onDark ? '#ffffff' : accent }}
+                />
+              )}
             </span>
-            {i === 0 && (
-              <span
-                className="h-[0.5cqw] w-full rounded-full"
-                style={{ background: onDark ? '#ffffff' : accent }}
-              />
-            )}
-          </span>
-        ))}
+          )
+        })}
       </span>
     )
   }
@@ -83,15 +99,31 @@ function Cta({ kind, accent = GREEN, label }: { kind: string; accent?: string; l
   if (kind === 'none') return null
 
   if (label) {
+    // Every button in the design carries a trailing arrow.
     const shell =
-      'inline-flex h-[4.4cqw] items-center justify-center rounded-xs px-[3cqw] text-[1.7cqw] leading-none font-medium whitespace-nowrap'
+      'inline-flex h-[5cqw] items-center justify-center gap-[1.2cqw] rounded-sm px-[3cqw] text-[1.8cqw] leading-none font-medium whitespace-nowrap'
+    const inner = (color: string) => (
+      <>
+        {label}
+        <svg viewBox="0 0 14 10" className="h-[1.4cqw] w-[2cqw]" fill="none" aria-hidden="true">
+          <path
+            d="M1 5h11M8.5 1.5L12 5l-3.5 3.5"
+            stroke={color}
+            strokeWidth="1.4"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </>
+    )
+
     return kind === 'solid' ? (
       <span className={shell} style={{ background: accent, color: '#ffffff' }}>
-        {label}
+        {inner('#ffffff')}
       </span>
     ) : (
       <span className={`${shell} border`} style={{ borderColor: accent, color: accent }}>
-        {label}
+        {inner(accent)}
       </span>
     )
   }
@@ -105,24 +137,54 @@ function Cta({ kind, accent = GREEN, label }: { kind: string; accent?: string; l
 
 /** "contact@…" with its envelope. */
 function EmailLine({ text }: { text?: string }) {
+  const ink = '#3f3330'
   return (
     <span className="flex items-center gap-[1.2cqw]">
-      <span className="h-[1.6cqw] w-[2.2cqw] rounded-[1px] bg-neutral-700" />
+      <svg viewBox="0 0 18 13" className="h-[1.8cqw] w-[2.5cqw]" aria-hidden="true">
+        <rect x="0.5" y="0.5" width="17" height="12" rx="1.4" fill={ink} />
+        <path d="M1.6 2L9 7.2 16.4 2" fill="none" stroke="#fff" strokeWidth="1.2" strokeLinejoin="round" />
+      </svg>
       {text ? (
-        <span className="text-[1.5cqw] leading-none whitespace-nowrap text-neutral-700">{text}</span>
+        <span className="text-[1.6cqw] leading-none whitespace-nowrap" style={{ color: ink }}>
+          {text}
+        </span>
       ) : (
-        <span className="h-[1.2cqw] w-[16cqw] rounded-full bg-neutral-700" />
+        <span className="h-[1.2cqw] w-[16cqw] rounded-full" style={{ background: ink }} />
       )}
     </span>
   )
 }
 
+/**
+ * The four social marks from the design, drawn as simple glyphs rather than
+ * brand logos — recognisable at this size without shipping icon assets.
+ */
 function Socials() {
+  const ink = '#3f3330'
   return (
-    <span className="flex items-center gap-[1.4cqw]">
-      {Array.from({ length: 4 }, (_, i) => (
-        <span key={i} className="size-[2cqw] rounded-full bg-neutral-800" />
-      ))}
+    <span className="flex items-center gap-[1.4cqw]" style={{ color: ink }}>
+      {/* Facebook: filled circle with a cut-out f */}
+      <svg viewBox="0 0 16 16" className="size-[2.2cqw]" aria-hidden="true">
+        <circle cx="8" cy="8" r="8" fill={ink} />
+        <path d="M9.4 8.3h1.2l.2-1.7H9.4V5.6c0-.5.1-.8.8-.8h.7V3.3h-1.3c-1.5 0-2.1.8-2.1 2.1v1.2H6.3v1.7h1.2v4.4h1.9z" fill="#fff" />
+      </svg>
+      {/* Instagram: rounded square with a lens */}
+      <svg viewBox="0 0 16 16" className="size-[2.2cqw]" aria-hidden="true">
+        <rect x="0.8" y="0.8" width="14.4" height="14.4" rx="4.2" fill={ink} />
+        <circle cx="8" cy="8" r="3.4" fill="none" stroke="#fff" strokeWidth="1.3" />
+        <circle cx="12.1" cy="4" r="1" fill="#fff" />
+      </svg>
+      {/* X */}
+      <svg viewBox="0 0 16 16" className="size-[2.2cqw]" aria-hidden="true">
+        <path d="M1.5 1.5l5.6 7.2-5.4 5.8h1.8l4.5-4.8 3.7 4.8h4.3L10 7.6l5-5.4h-1.8L9.2 6.6 5.8 1.5z" fill={ink} />
+      </svg>
+      {/* LinkedIn */}
+      <svg viewBox="0 0 16 16" className="size-[2.2cqw]" aria-hidden="true">
+        <rect x="0.5" y="0.5" width="15" height="15" rx="2.4" fill={ink} />
+        <circle cx="4.2" cy="4.2" r="1.2" fill="#fff" />
+        <rect x="3.2" y="6.2" width="2" height="6.6" fill="#fff" />
+        <path d="M6.6 6.2h1.9v.9c.3-.6 1-1.1 2-1.1 1.6 0 2.4 1 2.4 2.9v3.9h-2V9.3c0-.9-.3-1.4-1.1-1.4-.7 0-1.2.5-1.2 1.5v3.4h-2z" fill="#fff" />
+      </svg>
     </span>
   )
 }
@@ -219,7 +281,8 @@ export default function HeaderPreview({
   const accent = GREEN
   const ctaLabel = content?.cta || undefined
   // Four labels is what the wireframe shows; more would crowd the bar.
-  const navLabels = linesOf(content?.nav).slice(0, 4)
+  // Five fits the centred nav in the design; more crowds the bar.
+  const navLabels = linesOf(content?.nav).slice(0, 5)
   const labels = navLabels.length ? navLabels : undefined
 
   if (structure === 'stacked') {

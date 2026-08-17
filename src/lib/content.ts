@@ -54,14 +54,19 @@ export const CONTENT: Record<string, Schema> = {
   'site-header': {
     fields: [
       image('Logo'),
-      { id: 'nav', label: 'Navigation', kind: 'lines', hint: 'One link per line. The first is shown as the current page.' },
+      {
+        id: 'nav',
+        label: 'Navigation',
+        kind: 'lines',
+        hint: 'One link per line. The first shows as the current page; end a line with ^ to give it a dropdown arrow.',
+      },
       cta('Button label'),
       { id: 'phone', label: 'Phone number', kind: 'text', hint: 'Shown by the phone utility bar and the stacked header.' },
       { id: 'email', label: 'Email address', kind: 'text', hint: 'Shown by the social utility bar.' },
     ],
     defaults: {
       image: LOGO,
-      nav: 'Home\nServices\nAbout\nContact',
+      nav: 'Home\nServices^\nAbout Us\nPricing',
       cta: 'Get in touch',
       phone: '(123) 456-7890',
       email: 'hello@yourcompany.com',
