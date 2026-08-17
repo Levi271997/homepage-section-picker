@@ -16,7 +16,8 @@ import type { SectionContent } from "@/lib/content"
 function aspectFor(id: string, choice: Choice) {
   switch (id) {
     case 'site-header':
-      return 'aspect-16/5'
+      // A single bar is a thin strip; the two-tier and stacked ones need room.
+      return choice.structure === 'single' ? 'aspect-16/3' : 'aspect-16/5'
     case 'logo-strip':
       return choice.layout === 'carousel' ? 'aspect-16/4' : 'aspect-16/7'
     case 'stats':

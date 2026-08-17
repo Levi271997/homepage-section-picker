@@ -258,15 +258,6 @@ function NavRow({
   )
 }
 
-/** Faint suggestion of the page below, so the header reads as a header. */
-function PageHint() {
-  return (
-    <div className="flex flex-1 flex-col items-center justify-center gap-[2cqw] px-[10cqw] opacity-25">
-      <span className="h-[2.4cqw] w-[45%] rounded-full bg-neutral-400" />
-      <span className="h-[1.2cqw] w-[65%] rounded-full bg-neutral-300" />
-    </div>
-  )
-}
 
 /** Miniature of what the site header will look like on the page. */
 export default function HeaderPreview({
@@ -280,7 +271,6 @@ export default function HeaderPreview({
   // Brand colour arrives through the --brand custom property, not as a prop.
   const accent = GREEN
   const ctaLabel = content?.cta || undefined
-  // Four labels is what the wireframe shows; more would crowd the bar.
   // Five fits the centred nav in the design; more crowds the bar.
   const navLabels = linesOf(content?.nav).slice(0, 5)
   const labels = navLabels.length ? navLabels : undefined
@@ -299,7 +289,6 @@ export default function HeaderPreview({
           </span>
         </div>
         <span className="h-px w-full bg-neutral-200" />
-        <PageHint />
       </div>
     )
   }
@@ -339,7 +328,6 @@ export default function HeaderPreview({
           )}
         </div>
         <span className="h-px w-full bg-neutral-200" />
-        <PageHint />
       </div>
     )
   }
@@ -365,7 +353,6 @@ export default function HeaderPreview({
       )}
 
       <NavRow nav={nav} band={band} cta={cta} ctaLabel={ctaLabel} labels={labels} accent={accent} />
-      <PageHint />
     </div>
   )
 }
