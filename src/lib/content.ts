@@ -56,13 +56,15 @@ export const CONTENT: Record<string, Schema> = {
       image('Logo'),
       { id: 'nav', label: 'Navigation', kind: 'lines', hint: 'One link per line. The first is shown as the current page.' },
       cta('Button label'),
-      { id: 'phone', label: 'Phone number', kind: 'text' },
+      { id: 'phone', label: 'Phone number', kind: 'text', hint: 'Shown by the phone utility bar and the stacked header.' },
+      { id: 'email', label: 'Email address', kind: 'text', hint: 'Shown by the social utility bar.' },
     ],
     defaults: {
       image: LOGO,
       nav: 'Home\nServices\nAbout\nContact',
       cta: 'Get in touch',
       phone: '(123) 456-7890',
+      email: 'hello@yourcompany.com',
     },
   },
 

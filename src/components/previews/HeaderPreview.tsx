@@ -104,11 +104,15 @@ function Cta({ kind, accent = GREEN, label }: { kind: string; accent?: string; l
 }
 
 /** "contact@…" with its envelope. */
-function EmailLine() {
+function EmailLine({ text }: { text?: string }) {
   return (
     <span className="flex items-center gap-[1.2cqw]">
       <span className="h-[1.6cqw] w-[2.2cqw] rounded-[1px] bg-neutral-700" />
-      <span className="h-[1.2cqw] w-[16cqw] rounded-full bg-neutral-700" />
+      {text ? (
+        <span className="text-[1.5cqw] leading-none whitespace-nowrap text-neutral-700">{text}</span>
+      ) : (
+        <span className="h-[1.2cqw] w-[16cqw] rounded-full bg-neutral-700" />
+      )}
     </span>
   )
 }
@@ -282,7 +286,7 @@ export default function HeaderPreview({
     <div className="flex h-full flex-col">
       {structure === 'utility-social' ? (
         <div className="grid grid-cols-3 items-center px-[5cqw] py-[3cqw]">
-          <EmailLine />
+          <EmailLine text={content?.email} />
           <span className="flex justify-center">
             <Logo src={logo} />
           </span>
