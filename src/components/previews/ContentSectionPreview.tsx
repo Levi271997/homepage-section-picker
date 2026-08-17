@@ -15,11 +15,11 @@ const TAN = 'var(--brand-accent,#a1806a)'
 
 const SPLIT_LAYOUTS = ['copy', 'checklist', 'media-list', 'stats', 'mini-cards']
 
-function Buttons({ label }: { label?: string }) {
+function Buttons({ primary, secondary }: { primary?: string; secondary?: string }) {
   return (
     <span className="mt-[1cqw] flex items-center gap-[1.5cqw]">
-      <FilledButton label={label} />
-      <OutlineButton />
+      <FilledButton label={primary} />
+      <OutlineButton label={secondary} />
     </span>
   )
 }
@@ -203,7 +203,7 @@ function Copy({ layout, items, content }: { layout: string; items: number; conte
         </span>
       )}
 
-      <Buttons label={content?.cta} />
+      <Buttons primary={content?.cta} secondary={content?.cta2} />
     </span>
   )
 }
