@@ -15,8 +15,9 @@ import CtaPreview from '@/components/previews/CtaPreview'
 import type { HeroLayout } from '@/components/previews/HeroPreview'
 import type { LogoLayout } from '@/components/previews/LogoStripPreview'
 import { imageFor } from '@/lib/previewImages'
+import { defaultContent } from '@/lib/content'
+import type { SectionContent } from '@/lib/content'
 import type { Choice } from '@/lib/sections'
-import type { SiteContent } from '@/lib/siteProfile'
 
 /**
  * Picks the right miniature for a section's current choice.
@@ -30,8 +31,8 @@ export default function SectionPreview({
 }: {
   sectionId: string
   choice: Choice
-  /** The client's own site, when we've read it. Only the large preview passes this. */
-  content?: SiteContent
+  /** The section's words and pictures; placeholders when not supplied. */
+  content?: SectionContent
 }) {
   // A real screenshot wins over the wireframe wherever one has been supplied.
   const image = imageFor(sectionId, choice)
@@ -39,6 +40,8 @@ export default function SectionPreview({
     // eslint-disable-next-line @next/next/no-img-element -- static asset in a fixed-ratio frame, no layout shift to guard against
     return <img src={image} alt="" className="h-full w-full object-cover object-top" />
   }
+
+  const c = content ?? defaultContent(sectionId)
 
   switch (sectionId) {
     case 'site-header':
@@ -48,13 +51,13 @@ export default function SectionPreview({
           nav={choice.nav}
           band={choice.band}
           cta={choice.cta}
-          content={content}
+          content={c}
         />
       )
     case 'hero-logo':
-      return <HeroPreview layout={choice.layout as HeroLayout} content={content} />
+      return <HeroPreview layout={choice.layout as HeroLayout} content={c} />
     case 'logo-strip':
-      return <LogoStripPreview layout={choice.layout as LogoLayout} />
+      return <LogoStripPreview layout={choice.layout as LogoLayout} content={c} />
     case 'cta':
       return (
         <CtaPreview
@@ -64,11 +67,18 @@ export default function SectionPreview({
           side={choice.side}
           align={choice.align}
           list={choice.list}
+          content={c}
         />
       )
     case 'stats':
       return (
-        <StatsPreview layout={choice.layout} header={choice.header} band={choice.band} columns={choice.columns} />
+        <StatsPreview
+          layout={choice.layout}
+          header={choice.header}
+          band={choice.band}
+          columns={choice.columns}
+          content={c}
+        />
       )
     case 'faq':
       return (
@@ -78,11 +88,18 @@ export default function SectionPreview({
           columns={choice.columns}
           header={choice.header}
           items={choice.items}
+          content={c}
         />
       )
     case 'about-team':
       return (
-        <TeamPreview layout={choice.layout} card={choice.card} align={choice.align} columns={choice.columns} />
+        <TeamPreview
+          layout={choice.layout}
+          card={choice.card}
+          align={choice.align}
+          columns={choice.columns}
+          content={c}
+        />
       )
     case 'client-quote':
       return (
@@ -92,6 +109,7 @@ export default function SectionPreview({
           card={choice.card}
           header={choice.header}
           rows={choice.rows}
+          content={c}
         />
       )
     case 'pricing':
@@ -101,6 +119,7 @@ export default function SectionPreview({
           ticks={choice.ticks}
           card={choice.card}
           highlight={choice.highlight}
+          content={c}
         />
       )
     case 'blogs':
@@ -111,6 +130,7 @@ export default function SectionPreview({
           header={choice.header}
           rows={choice.rows}
           more={choice.more}
+          content={c}
         />
       )
     case 'contact-form':
@@ -120,6 +140,7 @@ export default function SectionPreview({
           side={choice.side}
           list={choice.list}
           fields={choice.fields}
+          content={c}
         />
       )
     case 'site-footer':
@@ -129,6 +150,7 @@ export default function SectionPreview({
           content={choice.content}
           columns={choice.columns}
           subscribe={choice.subscribe}
+          copy={c}
         />
       )
     case 'content-section':
@@ -139,10 +161,11 @@ export default function SectionPreview({
           image={choice.image}
           header={choice.header}
           items={choice.items}
+          content={c}
         />
       )
     case 'content-card':
-      return <ContentCardPreview style={choice.style} header={choice.header} rows={choice.rows} />
+      return <ContentCardPreview style={choice.style} header={choice.header} rows={choice.rows} content={c} />
     default:
       return <div className="h-full bg-white" />
   }

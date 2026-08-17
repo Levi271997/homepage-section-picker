@@ -4,10 +4,13 @@ import { Icon } from '@/components/icons'
 import type { Choice, OptionGroup } from '@/lib/sections'
 import type { Section } from '@/lib/sections'
 import { activeGroups } from '@/lib/sections'
+import type { SectionContent } from '@/lib/content'
 
 type Props = {
   section: Section
   choice: Choice
+  /** The section's words and pictures, so the option cards preview real content. */
+  content?: SectionContent
   onPick: (groupId: string, optionId: string) => void
 }
 
@@ -16,7 +19,7 @@ type Props = {
  * the list stays visible while comparing. Each preview card renders the option
  * combined with the section's other current choices, not in isolation.
  */
-export default function OptionPicker({ section, choice, onPick }: Props) {
+export default function OptionPicker({ section, choice, content, onPick }: Props) {
   const sectionId = section.id
   // Groups the current layout makes no use of are hidden rather than shown inert.
   const groups: OptionGroup[] = activeGroups(section, choice)
@@ -69,7 +72,7 @@ export default function OptionPicker({ section, choice, onPick }: Props) {
                   <span className="relative block">
                     <PreviewFrame>
                       {/* the option previewed against the section's other current choices */}
-                      <SectionPreview sectionId={sectionId} choice={{ ...choice, [group.id]: option.id }} />
+                      <SectionPreview sectionId={sectionId} choice={{ ...choice, [group.id]: option.id }} content={content} />
                     </PreviewFrame>
                     {selected && (
                       <span className="absolute top-1.5 right-1.5 flex size-5 items-center justify-center rounded-full bg-badge-ink text-canvas">

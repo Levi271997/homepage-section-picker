@@ -8,6 +8,8 @@ import SectionMenu from '@/components/SectionMenu'
 import { Icon } from '@/components/icons'
 import { CATALOG, SUGGESTED_IDS, byId, choiceOf, describeChoice } from '@/lib/sections'
 import { brandVariables } from '@/lib/siteProfile'
+import { contentOf, profileToContent } from '@/lib/content'
+import type { SectionContent } from '@/lib/content'
 import type { Choice } from '@/lib/sections'
 import type { SiteProfile } from '@/lib/siteProfile'
 
@@ -15,6 +17,9 @@ export default function SectionPicker() {
   const [ids, setIds] = useState<string[]>(SUGGESTED_IDS)
   const [layouts, setLayouts] = useState<Record<string, Choice>>({})
   const [choosingLayout, setChoosingLayout] = useState<string | null>(null)
+  const [panelTab, setPanelTab] = useState<'layout' | 'content'>('layout')
+  /** Edited words and pictures, per section. Unset fields fall back to placeholders. */
+  const [contentStore, setContentStore] = useState<Record<string, SectionContent>>({})
   const [swapping, setSwapping] = useState<string | null>(null)
   const [adding, setAdding] = useState(false)
   const [cardMenu, setCardMenu] = useState(false)
@@ -100,7 +105,20 @@ export default function SectionPicker() {
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ url: siteUrl }),
       })
-      setProfile((await response.json()) as SiteProfile)
+      const result = (await response.json()) as SiteProfile
+      setProfile(result)
+      // Whatever we could read overwrites the placeholders; the rest stays put,
+      // and anything the client has already edited by hand is left alone.
+      if (!result.error) {
+        const fromSite = profileToContent(result)
+        setContentStore((prev) => {
+          const next = { ...prev }
+          for (const [sectionId, values] of Object.entries(fromSite)) {
+            next[sectionId] = { ...values, ...prev[sectionId] }
+          }
+          return next
+        })
+      }
     } catch {
       setProfile({
         url: siteUrl,
@@ -145,7 +163,7 @@ export default function SectionPicker() {
         layouts={layouts}
         activeId={choosingLayout}
         address={hasSite === 'yes' ? profile?.url || siteUrl : ''}
-        content={activeProfile}
+        contentStore={contentStore}
       />
 
       <div className="w-full shrink-0 rounded-2xl border border-hairline bg-card p-5 shadow-2xl shadow-black/40 sm:p-6 lg:w-190">
@@ -323,8 +341,23 @@ export default function SectionPicker() {
                   setCardMenu(false)
                   setAdding(false)
                   setSwapping(null)
+                  // Opening a different row starts on Layout again.
+                  setPanelTab('layout')
                   setChoosingLayout((cur) => (cur === id ? null : id))
                 }}
+                tab={panelTab}
+                onTabChange={setPanelTab}
+                content={contentOf(id, contentStore)}
+                onEditContent={(fieldId, value) =>
+                  setContentStore((prev) => ({ ...prev, [id]: { ...contentOf(id, prev), [fieldId]: value } }))
+                }
+                onResetContent={() =>
+                  setContentStore((prev) => {
+                    const next = { ...prev }
+                    delete next[id]
+                    return next
+                  })
+                }
                 // Stays open after picking so the choice can be compared against the alternatives.
                 onPickOption={(groupId, optionId) =>
                   setLayouts((prev) => ({

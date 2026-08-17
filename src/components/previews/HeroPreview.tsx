@@ -1,43 +1,25 @@
-import { BodyLine, FilledButton, HeadlineLine, ImageBlock, OutlineButton } from '@/components/previews/parts'
-import type { SiteContent } from '@/lib/siteProfile'
+import { BodyLine, Eyebrow, FilledButton, HeadlineLine, ImageBlock, OutlineButton } from '@/components/previews/parts'
+import type { SectionContent } from '@/lib/content'
 
 export type HeroLayout = 'centered' | 'image-left' | 'image-right'
 
-function Copy({ centered, content }: { centered?: boolean; content?: SiteContent }) {
-  const hero = content?.hero
-  const brand = content?.brand.primary ?? undefined
-
-  // With the client's own copy there's one headline, not two placeholder bars.
-  if (hero?.headline) {
-    return (
-      <div className={`flex flex-col gap-[1.6cqw] ${centered ? 'items-center text-center' : 'items-start'}`}>
-        <HeadlineLine text={hero.headline} />
-        {hero.subcopy && <BodyLine className={centered ? 'w-[85%]' : 'w-full'} text={hero.subcopy} />}
-        <span className="mt-[1.5cqw] flex items-center gap-[1.5cqw]">
-          <FilledButton label={hero.ctaLabel} color={brand} />
-          <OutlineButton color={brand} />
-        </span>
-      </div>
-    )
-  }
-
+function Copy({ centered, content }: { centered?: boolean; content?: SectionContent }) {
   return (
-    <div className={`flex flex-col gap-[2cqw] ${centered ? 'items-center' : 'items-start'}`}>
-      <HeadlineLine className="w-4/5" />
-      <HeadlineLine className={centered ? 'w-2/5' : 'w-3/5'} />
-      <BodyLine className="mt-[1cqw] w-full" />
-      <BodyLine className={centered ? 'w-1/2' : 'w-3/4'} />
-      <span className="mt-[1.5cqw] flex gap-[1.5cqw]">
-        <FilledButton color={brand} />
-        <OutlineButton color={brand} />
+    <div className={`flex flex-col gap-[1.6cqw] ${centered ? 'items-center text-center' : 'items-start'}`}>
+      {content?.eyebrow && <Eyebrow text={content.eyebrow} />}
+      <HeadlineLine className="w-full" text={content?.heading} />
+      <BodyLine className={centered ? 'w-[85%]' : 'w-full'} text={content?.body} />
+      <span className="mt-[1.5cqw] flex items-center gap-[1.5cqw]">
+        <FilledButton label={content?.cta} />
+        <OutlineButton label={content?.cta2} />
       </span>
     </div>
   )
 }
 
 /** Miniature of what the hero will look like on the page. */
-export default function HeroPreview({ layout, content }: { layout: HeroLayout; content?: SiteContent }) {
-  const image = content?.hero.imageUrl ?? null
+export default function HeroPreview({ layout, content }: { layout: HeroLayout; content?: SectionContent }) {
+  const image = content?.image ?? null
 
   if (layout === 'centered') {
     return (

@@ -27,6 +27,7 @@ Never move the model call into the browser to work around this: the API key woul
 
 - **Live page preview on the left.** The whole homepage is assembled from the current order and layout choices, so every pick on the right updates it immediately. The section being edited is ringed and scrolled into view; hovering any section names it. Each section gets a ratio roughly matching its real height (a header is 16:5, a full content block 16:10) so the stack reads like a page. It sticks to the top of the viewport on wide screens and drops above the card on narrow ones.
 - **Reads the client's existing site.** Answer "yes" to the existing-website question, enter the address, and **Read my site** pulls their brand colour, logo, navigation, hero copy and hero image into the live preview — their own content, in the layouts we propose. The contrast is the pitch, so copy is used verbatim and never rewritten. Anything we can't read falls back to the wireframe, section by section.
+- **Every section carries editable content.** Opening a row gives **Layout** and **Content** tabs: layout arranges the section, content fills it. Each section declares its own fields — headings, body copy, button labels, list items, images — pre-filled with placeholder copy and locally generated placeholder artwork, so a page looks finished before anyone types anything. Images take a URL or a local file, and every section has a reset that restores its placeholders.
 - Lists the suggested sections; `required` ones show a badge instead of buttons.
 - **Drag to reorder** (native HTML5 drag events, no library). A blue line shows where it will land. Two flags govern a row: `required` hides its Swap/Remove buttons in favour of a badge, and `pinned` makes it an anchor that never moves and that nothing can be dropped onto — so the header and hero stay first and the footer stays last. The contact form is required but not pinned: it can't be removed, but it can still be dragged anywhere.
 - Keyboard equivalent: focus a row's grip handle (<kbd>Tab</kbd>) and press <kbd>↑</kbd>/<kbd>↓</kbd>. Note that HTML5 drag events don't fire on touchscreens; the grip keys are the fallback there.
@@ -69,9 +70,26 @@ Never move the model call into the browser to work around this: the API key woul
 | [src/app/api/analyze/route.ts](src/app/api/analyze/route.ts) | `POST { url }` → `SiteProfile`; fetches the page, then asks the model for the judgement calls |
 | [src/lib/extractPage.ts](src/lib/extractPage.ts) | Deterministic half: fetch, strip, and pull out titles, icons, images and candidate colours |
 | [src/lib/siteProfile.ts](src/lib/siteProfile.ts) | The `SiteProfile` shape plus the guards that keep model output honest |
+| [src/lib/content.ts](src/lib/content.ts) | Per-section content fields, their placeholder copy, and the list helpers |
+| [src/lib/placeholder.ts](src/lib/placeholder.ts) | Placeholder artwork, generated as SVG data URIs — nothing is fetched |
+| [src/components/ContentEditor.tsx](src/components/ContentEditor.tsx) | The Content tab: one input per field, image URL or upload, reset |
 | [src/app/globals.css](src/app/globals.css) | Theme colors as Tailwind v4 `@theme` tokens |
 
 Colors live entirely in the `@theme` block — `--color-row`, `--color-go`, etc. — so restyling means editing that one block.
+
+## How content works
+
+A section's `Choice` says how it is arranged; its `SectionContent` says what it contains. Both are flat string maps, which keeps them easy to store, prefill and reset.
+
+Three conventions run through every section:
+
+- **Lists are one item per line**, and they **wrap**. Four card titles in a six-card grid fill all six by cycling, rather than leaving two blanks — so a client can type three services without the layout looking broken.
+- **Paired lists line up by position.** Quotes with names and roles, plans with prices, names with job titles.
+- **A `·` separates a pair inside one line** — `200+ · Projects delivered` for a figure and its label, `Insights · 12 March` for a category and date. One rule rather than a convention per section.
+
+Repeated blocks share a single body field rather than exposing one per card. Nine textareas for a nine-card grid would bury the editor, and at preview scale the repetition reads correctly as a layout.
+
+Everything degrades field by field: clear a field and that element goes back to its wireframe bar while the rest of the section keeps its content.
 
 ## How the site analysis is split
 

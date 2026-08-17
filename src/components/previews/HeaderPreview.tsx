@@ -1,4 +1,5 @@
-import type { SiteContent } from '@/lib/siteProfile'
+import { linesOf } from '@/lib/content'
+import type { SectionContent } from '@/lib/content'
 
 export type HeaderChoice = {
   structure: string
@@ -78,8 +79,23 @@ function Nav({ onDark, labels, accent = GREEN }: { onDark?: boolean; labels?: st
   )
 }
 
-function Cta({ kind, accent = GREEN }: { kind: string; accent?: string }) {
+function Cta({ kind, accent = GREEN, label }: { kind: string; accent?: string; label?: string }) {
   if (kind === 'none') return null
+
+  if (label) {
+    const shell =
+      'inline-flex h-[4.4cqw] items-center justify-center rounded-xs px-[3cqw] text-[1.7cqw] leading-none font-medium whitespace-nowrap'
+    return kind === 'solid' ? (
+      <span className={shell} style={{ background: accent, color: '#ffffff' }}>
+        {label}
+      </span>
+    ) : (
+      <span className={`${shell} border`} style={{ borderColor: accent, color: accent }}>
+        {label}
+      </span>
+    )
+  }
+
   return kind === 'solid' ? (
     <span className="h-[4.4cqw] w-[16cqw] rounded-xs" style={{ background: accent }} />
   ) : (
@@ -108,14 +124,25 @@ function Socials() {
 }
 
 /** The "CALL US / (123) 456-7890" block. */
-function CallUs({ greenNumber }: { greenNumber?: boolean }) {
+function CallUs({ greenNumber, phone }: { greenNumber?: boolean; phone?: string }) {
   return (
     <span className="flex flex-col items-end gap-[0.9cqw]">
-      <span className="h-[1.1cqw] w-[6cqw] rounded-full" style={{ background: TAN }} />
-      <span
-        className="h-[2cqw] w-[13cqw] rounded-full"
-        style={{ background: greenNumber ? GREEN : '#2b2b2b' }}
-      />
+      <span className="text-[1.3cqw] leading-none tracking-[0.12em] uppercase" style={{ color: TAN }}>
+        Call us
+      </span>
+      {phone ? (
+        <span
+          className="text-[2.2cqw] leading-none font-semibold"
+          style={{ color: greenNumber ? GREEN : '#2b2b2b' }}
+        >
+          {phone}
+        </span>
+      ) : (
+        <span
+          className="h-[2cqw] w-[13cqw] rounded-full"
+          style={{ background: greenNumber ? GREEN : '#2b2b2b' }}
+        />
+      )}
     </span>
   )
 }
@@ -125,12 +152,14 @@ function NavRow({
   nav,
   band,
   cta,
+  ctaLabel,
   labels,
   accent,
 }: {
   nav: string
   band: string
   cta: string
+  ctaLabel?: string
   labels?: string[]
   accent?: string
 }) {
@@ -146,7 +175,7 @@ function NavRow({
           <Nav onDark={onDark} labels={labels} accent={accent} />
         </span>
         <span className="flex justify-end">
-          <Cta kind={cta} accent={accent} />
+          <Cta kind={cta} accent={accent} label={ctaLabel} />
         </span>
       </div>
     )
@@ -157,7 +186,7 @@ function NavRow({
       {nav === 'right' ? <span /> : <Nav onDark={onDark} labels={labels} accent={accent} />}
       <span className="flex items-center gap-[3cqw]">
         {nav === 'right' && <Nav onDark={onDark} labels={labels} accent={accent} />}
-        <Cta kind={cta} accent={accent} />
+        <Cta kind={cta} accent={accent} label={ctaLabel} />
       </span>
     </div>
   )
@@ -180,11 +209,14 @@ export default function HeaderPreview({
   band,
   cta,
   content,
-}: HeaderChoice & { content?: SiteContent }) {
-  const logo = content?.brand.logoUrl ?? null
-  const accent = content?.brand.primary ?? GREEN
+}: HeaderChoice & { content?: SectionContent }) {
+  const logo = content?.image ?? null
+  // Brand colour arrives through the --brand custom property, not as a prop.
+  const accent = GREEN
+  const ctaLabel = content?.cta || undefined
   // Four labels is what the wireframe shows; more would crowd the bar.
-  const labels = content?.nav.length ? content.nav.slice(0, 4) : undefined
+  const navLabels = linesOf(content?.nav).slice(0, 4)
+  const labels = navLabels.length ? navLabels : undefined
 
   if (structure === 'stacked') {
     return (
@@ -195,8 +227,8 @@ export default function HeaderPreview({
             <Nav labels={labels} accent={accent} />
           </span>
           <span className="flex flex-col items-end gap-[2cqw]">
-            <CallUs greenNumber />
-            <Cta kind={cta} accent={accent} />
+            <CallUs greenNumber phone={content?.phone} />
+            <Cta kind={cta} accent={accent} label={ctaLabel} />
           </span>
         </div>
         <span className="h-px w-full bg-neutral-200" />
@@ -218,7 +250,7 @@ export default function HeaderPreview({
                 <Nav onDark={onDark} labels={labels} accent={accent} />
               </span>
               <span className="flex justify-end">
-                <Cta kind={cta} accent={accent} />
+                <Cta kind={cta} accent={accent} label={ctaLabel} />
               </span>
             </span>
           ) : nav === 'left' ? (
@@ -226,7 +258,7 @@ export default function HeaderPreview({
               <Logo src={logo} />
               <Nav onDark={onDark} labels={labels} accent={accent} />
               <span className="ml-auto">
-                <Cta kind={cta} accent={accent} />
+                <Cta kind={cta} accent={accent} label={ctaLabel} />
               </span>
             </span>
           ) : (
@@ -234,7 +266,7 @@ export default function HeaderPreview({
               <Logo src={logo} />
               <span className="ml-auto flex items-center gap-[4cqw]">
                 <Nav onDark={onDark} labels={labels} accent={accent} />
-                <Cta kind={cta} accent={accent} />
+                <Cta kind={cta} accent={accent} label={ctaLabel} />
               </span>
             </span>
           )}
@@ -261,11 +293,11 @@ export default function HeaderPreview({
       ) : (
         <div className="flex items-center justify-between px-[5cqw] py-[3cqw]">
           <Logo src={logo} />
-          <CallUs />
+          <CallUs phone={content?.phone} />
         </div>
       )}
 
-      <NavRow nav={nav} band={band} cta={cta} labels={labels} accent={accent} />
+      <NavRow nav={nav} band={band} cta={cta} ctaLabel={ctaLabel} labels={labels} accent={accent} />
       <PageHint />
     </div>
   )

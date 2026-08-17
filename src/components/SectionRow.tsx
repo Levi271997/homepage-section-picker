@@ -1,6 +1,9 @@
 import type { DragEvent } from 'react'
 import { Icon } from '@/components/icons'
+import ContentEditor from '@/components/ContentEditor'
 import OptionPicker from '@/components/OptionPicker'
+import { fieldsOf } from '@/lib/content'
+import type { SectionContent } from '@/lib/content'
 import SectionPreview from '@/components/previews/SectionPreview'
 import { PreviewFrame } from '@/components/previews/parts'
 import { describeChoice } from '@/lib/sections'
@@ -17,6 +20,13 @@ type Props = {
   optionsOpen: boolean
   onToggleOptions: () => void
   onPickOption: (groupId: string, optionId: string) => void
+  /** Which pane of the expanded panel is showing. */
+  tab: 'layout' | 'content'
+  onTabChange: (tab: 'layout' | 'content') => void
+  /** The section's words and pictures, and the handlers that change them. */
+  content: SectionContent
+  onEditContent: (fieldId: string, value: string) => void
+  onResetContent: () => void
   /** Set while this row is the one being dragged. */
   dragging: boolean
   /** 'above' | 'below' when the dragged row would land next to this one. */
@@ -39,6 +49,11 @@ export default function SectionRow({
   optionsOpen,
   onToggleOptions,
   onPickOption,
+  tab,
+  onTabChange,
+  content,
+  onEditContent,
+  onResetContent,
   dragging,
   dropEdge,
   onDragStart,
@@ -103,7 +118,7 @@ export default function SectionRow({
         {section.options && choice ? (
           <span className="w-16 shrink-0 overflow-hidden rounded border border-hairline">
             <PreviewFrame>
-              <SectionPreview sectionId={section.id} choice={choice} />
+              <SectionPreview sectionId={section.id} choice={choice} content={content} />
             </PreviewFrame>
           </span>
         ) : (
@@ -117,13 +132,13 @@ export default function SectionRow({
           {choice && <span className="truncate text-xs text-ink-muted">{describeChoice(section, choice)}</span>}
         </span>
 
-        {section.options && (
+        {(section.options || fieldsOf(section.id).length > 0) && (
           <button
             type="button"
             draggable={false}
             onClick={onToggleOptions}
             aria-expanded={optionsOpen}
-            aria-label={`Change the layout of ${section.label}`}
+            aria-label={`Edit the layout and content of ${section.label}`}
             className="mr-1 flex shrink-0 items-center gap-1 rounded-lg border border-hairline bg-card py-1.5 pr-2.5 pl-3.5 text-sm text-ink transition-colors hover:bg-row-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-badge-ink aria-expanded:border-ink-faint"
           >
             {optionsOpen ? 'Done' : 'Change'}
@@ -160,10 +175,38 @@ export default function SectionRow({
         )}
       </div>
 
-      {/* Layout choices expand in place — the list above and below stays put. */}
-      {optionsOpen && section.options && choice && (
+      {/* Layout and content expand in place — the list above and below stays put. */}
+      {optionsOpen && (
         <div className="border-t border-hairline bg-card/60 px-4 py-4">
-          <OptionPicker section={section} choice={choice} onPick={onPickOption} />
+          {section.options && choice && fieldsOf(section.id).length > 0 && (
+            <div role="tablist" aria-label={`${section.label} settings`} className="mb-4 flex gap-1">
+              {(['layout', 'content'] as const).map((value) => (
+                <button
+                  key={value}
+                  type="button"
+                  role="tab"
+                  aria-selected={tab === value}
+                  onClick={() => onTabChange(value)}
+                  className={`rounded-lg px-3 py-1.5 text-sm capitalize transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-badge-ink ${
+                    tab === value ? 'bg-badge font-medium text-badge-ink' : 'text-ink-muted hover:bg-row-hover hover:text-ink'
+                  }`}
+                >
+                  {value}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {tab === 'content' || !section.options || !choice ? (
+            <ContentEditor
+              sectionId={section.id}
+              content={content}
+              onChange={onEditContent}
+              onReset={onResetContent}
+            />
+          ) : (
+            <OptionPicker section={section} choice={choice} content={content} onPick={onPickOption} />
+          )}
         </div>
       )}
 

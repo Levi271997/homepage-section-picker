@@ -62,13 +62,26 @@ export function ImageBlock({ className = '', src }: { className?: string; src?: 
   )
 }
 
-/** A row of flat grey rectangles standing in for client logos. */
-export function LogoRow({ count = 6 }: { count?: number }) {
+/**
+ * A row of client logos — flat grey rectangles, or the client names set as
+ * wordmarks once they've been typed in. `offset` walks further down the list so
+ * a three-row grid doesn't repeat the same six names.
+ */
+export function LogoRow({ count = 6, names, offset = 0 }: { count?: number; names?: string[]; offset?: number }) {
   return (
-    <span className="grid w-full grid-cols-6 gap-[1.5cqw]">
-      {Array.from({ length: count }, (_, i) => (
-        <span key={i} className="h-[3.4cqw] rounded-[1px] bg-neutral-300" />
-      ))}
+    <span className="grid w-full grid-cols-6 items-center gap-[1.5cqw]">
+      {Array.from({ length: count }, (_, i) =>
+        names?.length ? (
+          <span
+            key={i}
+            className="truncate text-center text-[1.5cqw] leading-none font-semibold tracking-[0.06em] text-neutral-400 uppercase"
+          >
+            {names[(offset + i) % names.length]}
+          </span>
+        ) : (
+          <span key={i} className="h-[3.4cqw] rounded-[1px] bg-neutral-300" />
+        ),
+      )}
     </span>
   )
 }

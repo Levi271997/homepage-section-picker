@@ -1,3 +1,5 @@
+import { itemAt, linesOf } from '@/lib/content'
+import type { SectionContent } from '@/lib/content'
 import { BodyLine, HeadlineLine, ImageBlock, OutlineButton } from '@/components/previews/parts'
 
 export type ContentCardChoice = {
@@ -9,11 +11,19 @@ export type ContentCardChoice = {
 const GREEN = 'var(--brand,#3f6b30)'
 const NUMERAL = '#5f8f4e'
 
-function Label() {
+function Label({ text }: { text?: string }) {
+  if (text) {
+    return <span className="text-[1.8cqw] leading-tight font-semibold text-neutral-900">{text}</span>
+  }
   return <span className="h-[1.5cqw] w-[42%] rounded-full bg-neutral-800" />
 }
 
-function Copy({ centered }: { centered?: boolean }) {
+function Copy({ centered, text }: { centered?: boolean; text?: string }) {
+  if (text) {
+    return (
+      <span className={`text-[1.4cqw] leading-[1.45] text-neutral-600 ${centered ? 'text-center' : ''}`}>{text}</span>
+    )
+  }
   return (
     <span className={`flex flex-col gap-[0.8cqw] ${centered ? 'items-center' : ''}`}>
       <span className="h-[0.9cqw] w-full rounded-full bg-neutral-300" />
@@ -23,13 +33,30 @@ function Copy({ centered }: { centered?: boolean }) {
 }
 
 /** The "Learn More →" text link. */
-function LinkLine() {
+function LinkLine({ text }: { text?: string }) {
+  if (text) {
+    return (
+      <span className="text-[1.4cqw] leading-none font-medium" style={{ color: GREEN }}>
+        {text} &rarr;
+      </span>
+    )
+  }
   return <span className="h-[1cqw] w-[34%] rounded-full bg-neutral-500" />
 }
 
 /** The solid green "Learn More" button. */
-function ButtonBlock() {
-  return <span className="h-[2.8cqw] w-[42%] rounded-[2px]" style={{ background: GREEN }} />
+function ButtonBlock({ text }: { text?: string }) {
+  if (text) {
+    return (
+      <span
+        className="inline-flex h-[3.2cqw] items-center self-start rounded-xs px-[2cqw] text-[1.4cqw] leading-none font-medium text-white"
+        style={{ background: GREEN }}
+      >
+        {text}
+      </span>
+    )
+  }
+  return <span className="h-[2.8cqw] w-[42%] rounded-xs" style={{ background: GREEN }} />
 }
 
 function Numeral({ index, small }: { index: number; small?: boolean }) {
@@ -43,14 +70,28 @@ function Numeral({ index, small }: { index: number; small?: boolean }) {
   )
 }
 
-function Item({ style, index }: { style: string; index: number }) {
+function Item({
+  style,
+  index,
+  title,
+  copy,
+  link,
+  src,
+}: {
+  style: string
+  index: number
+  title?: string
+  copy?: string
+  link?: string
+  src?: string
+}) {
   const stack = 'flex flex-col gap-[1cqw]'
 
   const body = (centered?: boolean) => (
     <>
-      <Label />
-      <Copy centered={centered} />
-      {style === 'button' ? <ButtonBlock /> : <LinkLine />}
+      <Label text={title} />
+      <Copy centered={centered} text={copy} />
+      {style === 'button' ? <ButtonBlock text={link} /> : <LinkLine text={link} />}
     </>
   )
 
@@ -66,9 +107,9 @@ function Item({ style, index }: { style: string; index: number }) {
   if (style === 'numbered-footer') {
     return (
       <span className={stack}>
-        <Label />
-        <Copy />
-        <LinkLine />
+        <Label text={title} />
+        <Copy text={copy} />
+        <LinkLine text={link} />
         <span className="mt-[0.5cqw] h-px w-full bg-neutral-200" />
         <span className="flex items-center justify-between">
           <Numeral index={index} small />
@@ -83,7 +124,7 @@ function Item({ style, index }: { style: string; index: number }) {
   if (style === 'horizontal') {
     return (
       <span className="flex items-start gap-[1.5cqw]">
-        <ImageBlock className="aspect-square w-[36%] shrink-0" />
+        <ImageBlock className="aspect-square w-[36%] shrink-0" src={src} />
         <span className={`min-w-0 flex-1 ${stack}`}>{body()}</span>
       </span>
     )
@@ -92,7 +133,7 @@ function Item({ style, index }: { style: string; index: number }) {
   if (style === 'wide-image') {
     return (
       <span className={stack}>
-        <ImageBlock className="h-[7cqw] w-full" />
+        <ImageBlock className="h-[7cqw] w-full" src={src} />
         {body()}
       </span>
     )
@@ -101,7 +142,7 @@ function Item({ style, index }: { style: string; index: number }) {
   if (style === 'centered') {
     return (
       <span className={`${stack} items-center text-center`}>
-        <ImageBlock className="size-[7cqw]" />
+        <ImageBlock className="size-[7cqw]" src={src} />
         {body(true)}
       </span>
     )
@@ -111,9 +152,9 @@ function Item({ style, index }: { style: string; index: number }) {
     return (
       <span
         className={`${stack} rounded-[3px] p-[2cqw] ${style === 'bordered' ? 'border border-neutral-200' : ''}`}
-        style={style === 'tinted' ? { background: '#eef4ea' } : undefined}
+        style={style === 'tinted' ? { background: 'var(--brand-soft,#eef4ea)' } : undefined}
       >
-        <ImageBlock className="size-[6cqw]" />
+        <ImageBlock className="size-[6cqw]" src={src} />
         {body()}
       </span>
     )
@@ -122,39 +163,55 @@ function Item({ style, index }: { style: string; index: number }) {
   // 'plain' and 'button'
   return (
     <span className={stack}>
-      <ImageBlock className="size-[7cqw]" />
+      <ImageBlock className="size-[7cqw]" src={src} />
       {body()}
     </span>
   )
 }
 
 /** Miniature of what the content card grid will look like on the page. */
-export default function ContentCardPreview({ style, header, rows }: ContentCardChoice) {
+export default function ContentCardPreview({
+  style,
+  header,
+  rows,
+  content,
+}: ContentCardChoice & { content?: SectionContent }) {
   const count = Number(rows) * 3
+  const titles = linesOf(content?.items)
+  // "Learn more" is the card link; the header button carries its own label.
+  const link = titles.length ? 'Learn more' : undefined
 
   return (
     <div className="flex h-full flex-col gap-[3cqw] p-[4cqw]">
       {header === 'left' ? (
         <div className="flex flex-col gap-[1.2cqw]">
           <div className="flex items-center justify-between gap-[2cqw]">
-            <HeadlineLine className="w-[22%]" />
-            <OutlineButton />
+            <HeadlineLine className={content?.heading ? 'w-[60%]' : 'w-[22%]'} text={content?.heading} />
+            <OutlineButton label={content?.cta} />
           </div>
-          <BodyLine className="w-[54%]" />
+          <BodyLine className="w-[54%]" text={content?.body} />
         </div>
       ) : (
-        <div className="flex flex-col items-center gap-[1.2cqw]">
-          <HeadlineLine className="w-[30%]" />
-          <BodyLine className="w-[60%]" />
+        <div className="flex flex-col items-center gap-[1.2cqw] text-center">
+          <HeadlineLine className={content?.heading ? 'w-[70%]' : 'w-[30%]'} text={content?.heading} />
+          <BodyLine className="w-[60%]" text={content?.body} />
           <span className="mt-[0.5cqw]">
-            <OutlineButton />
+            <OutlineButton label={content?.cta} />
           </span>
         </div>
       )}
 
       <div className="grid grid-cols-3 gap-x-[3cqw] gap-y-[2.5cqw]">
         {Array.from({ length: count }, (_, i) => (
-          <Item key={i} style={style} index={i} />
+          <Item
+            key={i}
+            style={style}
+            index={i}
+            title={titles.length ? itemAt(content?.items, i) : undefined}
+            copy={content?.itemBody}
+            link={link}
+            src={content?.image}
+          />
         ))}
       </div>
     </div>
