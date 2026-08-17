@@ -30,6 +30,10 @@ export default function SectionPicker() {
   /** The analysed site, but only while it's relevant and was readable. */
   const activeProfile = hasSite === 'yes' && profile && !profile.error ? profile : null
 
+  // The static GitHub Pages build has no server to run the analyser, so the
+  // control is hidden there rather than offered and then failing.
+  const canAnalyze = process.env.NEXT_PUBLIC_STATIC_BUILD !== 'true'
+
   const closeAll = () => {
     setSwapping(null)
     setAdding(false)
@@ -240,19 +244,21 @@ export default function SectionPicker() {
                 value={siteUrl}
                 onChange={(e) => setSiteUrl(e.target.value)}
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter') analyze()
+                  if (e.key === 'Enter' && canAnalyze) analyze()
                 }}
                 placeholder="yoursite.com"
                 className="min-w-0 flex-1 rounded-lg border border-hairline bg-card px-3 py-2 text-sm text-ink placeholder:text-ink-faint focus-visible:border-ink-faint focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-badge-ink"
               />
-              <button
-                type="button"
-                onClick={analyze}
-                disabled={!siteUrl.trim() || analyzing}
-                className="shrink-0 rounded-lg border border-hairline bg-card px-3.5 py-2 text-sm text-ink transition-colors hover:bg-row-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-badge-ink disabled:cursor-not-allowed disabled:text-ink-faint disabled:hover:bg-card"
-              >
-                {analyzing ? 'Reading…' : 'Read my site'}
-              </button>
+              {canAnalyze && (
+                <button
+                  type="button"
+                  onClick={analyze}
+                  disabled={!siteUrl.trim() || analyzing}
+                  className="shrink-0 rounded-lg border border-hairline bg-card px-3.5 py-2 text-sm text-ink transition-colors hover:bg-row-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-badge-ink disabled:cursor-not-allowed disabled:text-ink-faint disabled:hover:bg-card"
+                >
+                  {analyzing ? 'Reading…' : 'Read my site'}
+                </button>
+              )}
             </div>
 
             {analyzing ? (

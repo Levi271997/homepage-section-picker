@@ -15,6 +15,14 @@ OPENAI_API_KEY=sk-proj-...
 
 Without it every other feature works; the analyser reports that the key is missing and the previews stay as wireframes.
 
+## Deploying to GitHub Pages
+
+`.github/workflows/pages.yml` builds a static export on every push to `main` and publishes it to `https://ivelnaj.github.io/homepage-section-picker/`. Enable it once under **Settings → Pages → Source → GitHub Actions**.
+
+Pages has no server, so that build drops `src/app/api` and hides the **Read my site** button — the picker, the previews and the live page all work, but the analyser doesn't. `next.config.mjs` only switches to `output: 'export'` when `NEXT_PUBLIC_STATIC_BUILD=true`, which nothing but the workflow sets, so local development is unaffected.
+
+Never move the model call into the browser to work around this: the API key would ship inside the JavaScript bundle. A full deployment needs a host that runs Node (Vercel's free tier fits, with the key as an encrypted environment variable).
+
 ## What it does
 
 - **Live page preview on the left.** The whole homepage is assembled from the current order and layout choices, so every pick on the right updates it immediately. The section being edited is ringed and scrolled into view; hovering any section names it. Each section gets a ratio roughly matching its real height (a header is 16:5, a full content block 16:10) so the stack reads like a page. It sticks to the top of the viewport on wide screens and drops above the card on narrow ones.
