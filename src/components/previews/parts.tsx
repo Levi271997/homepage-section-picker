@@ -17,12 +17,21 @@ export function PreviewFrame({
   children,
   className = '',
   aspect = 'aspect-16/10',
+  clip = true,
 }: {
   children: ReactNode
   className?: string
   aspect?: string
+  /** Set false where something is meant to escape the frame — a header's dropdown. */
+  clip?: boolean
 }) {
-  return <div className={`@container ${aspect} w-full overflow-hidden bg-white ${className}`}>{children}</div>
+  return (
+    <div
+      className={`@container ${aspect} w-full ${clip ? 'overflow-hidden' : 'overflow-visible'} bg-white ${className}`}
+    >
+      {children}
+    </div>
+  )
 }
 
 /**
@@ -111,6 +120,7 @@ export function FilledButton({ label, color = GREEN }: { label?: string | null; 
   if (label) {
     return (
       <span
+        data-role="button"
         className="inline-flex h-[4cqw] items-center rounded-xs px-[2.5cqw] text-[1.9cqw] leading-none font-medium text-white"
         style={{ background: color }}
       >
@@ -118,13 +128,14 @@ export function FilledButton({ label, color = GREEN }: { label?: string | null; 
       </span>
     )
   }
-  return <span className="h-[3.4cqw] w-[11cqw] rounded-xs" style={{ background: color }} />
+  return <span data-role="button" className="h-[3.4cqw] w-[11cqw] rounded-xs" style={{ background: color }} />
 }
 
 export function OutlineButton({ label, color = GREEN }: { label?: string | null; color?: string }) {
   if (label) {
     return (
       <span
+        data-role="button"
         className="inline-flex h-[4cqw] items-center rounded-xs border bg-white px-[2.5cqw] text-[1.9cqw] leading-none font-medium"
         style={{ borderColor: color, color }}
       >
@@ -132,7 +143,7 @@ export function OutlineButton({ label, color = GREEN }: { label?: string | null;
       </span>
     )
   }
-  return <span className="h-[3.4cqw] w-[11cqw] rounded-xs border bg-white" style={{ borderColor: color }} />
+  return <span data-role="button" className="h-[3.4cqw] w-[11cqw] rounded-xs border bg-white" style={{ borderColor: color }} />
 }
 
 /** Small tan kicker above a heading ("Some text here"). */

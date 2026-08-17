@@ -46,7 +46,18 @@ function Caret({ color }: { color: string }) {
 }
 
 /** Nav links; the first is "active" — darker with an underline. */
-function Nav({ onDark, labels, accent = GREEN }: { onDark?: boolean; labels?: string[]; accent?: string }) {
+function Nav({
+  onDark,
+  labels,
+  accent = GREEN,
+  menu,
+}: {
+  onDark?: boolean
+  labels?: string[]
+  accent?: string
+  /** Links shown under a nav item that has a dropdown. */
+  menu?: string[]
+}) {
   const link = onDark ? 'bg-neutral-100' : 'bg-neutral-600'
 
   if (labels?.length) {
@@ -59,18 +70,41 @@ function Nav({ onDark, labels, accent = GREEN }: { onDark?: boolean; labels?: st
           const color = onDark ? '#ffffff' : i === 0 ? '#2b2320' : '#4a413d'
 
           return (
-            <span key={`${label}-${i}`} className="flex flex-col items-center gap-[0.7cqw]">
-              <span className="flex items-center gap-[0.8cqw]">
+            <span
+              key={`${label}-${i}`}
+              data-role={dropdown ? 'nav-group' : undefined}
+              tabIndex={dropdown ? 0 : undefined}
+              className="relative flex flex-col items-center gap-[0.7cqw]"
+            >
+              <span data-role="nav" className="flex items-center gap-[0.8cqw]">
                 <span className="text-[1.8cqw] leading-none whitespace-nowrap" style={{ color }}>
                   {label}
                 </span>
                 {dropdown && <Caret color={color} />}
               </span>
+
               {i === 0 && (
                 <span
                   className="h-[0.4cqw] w-full rounded-full"
                   style={{ background: onDark ? '#ffffff' : accent }}
                 />
+              )}
+
+              {dropdown && menu?.length && (
+                <span
+                  data-role="menu"
+                  className="absolute top-full left-1/2 z-20 mt-[1.5cqw] flex -translate-x-1/2 flex-col gap-[1.4cqw] rounded-sm border border-neutral-200 bg-white px-[2.5cqw] py-[2cqw] shadow-lg"
+                >
+                  {menu.map((item) => (
+                    <span
+                      key={item}
+                      data-role="link"
+                      className="text-[1.6cqw] leading-none whitespace-nowrap text-neutral-700"
+                    >
+                      {item}
+                    </span>
+                  ))}
+                </span>
               )}
             </span>
           )
@@ -118,20 +152,20 @@ function Cta({ kind, accent = GREEN, label }: { kind: string; accent?: string; l
     )
 
     return kind === 'solid' ? (
-      <span className={shell} style={{ background: accent, color: '#ffffff' }}>
+      <span data-role="button" className={shell} style={{ background: accent, color: "#ffffff" }}>
         {inner('#ffffff')}
       </span>
     ) : (
-      <span className={`${shell} border`} style={{ borderColor: accent, color: accent }}>
+      <span data-role="button" className={`${shell} border`} style={{ borderColor: accent, color: accent }}>
         {inner(accent)}
       </span>
     )
   }
 
   return kind === 'solid' ? (
-    <span className="h-[4.4cqw] w-[16cqw] rounded-xs" style={{ background: accent }} />
+    <span data-role="button" className="h-[4.4cqw] w-[16cqw] rounded-xs" style={{ background: accent }} />
   ) : (
-    <span className="h-[4.4cqw] w-[16cqw] rounded-xs border" style={{ borderColor: accent }} />
+    <span data-role="button" className="h-[4.4cqw] w-[16cqw] rounded-xs border" style={{ borderColor: accent }} />
   )
 }
 
@@ -220,6 +254,7 @@ function NavRow({
   cta,
   ctaLabel,
   labels,
+  menu,
   accent,
 }: {
   nav: string
@@ -227,6 +262,7 @@ function NavRow({
   cta: string
   ctaLabel?: string
   labels?: string[]
+  menu?: string[]
   accent?: string
 }) {
   const fill = BAND_FILL[band]
@@ -238,7 +274,7 @@ function NavRow({
       <div className={`${shell} grid grid-cols-3`} style={{ background: fill }}>
         <span />
         <span className="flex justify-center">
-          <Nav onDark={onDark} labels={labels} accent={accent} />
+          <Nav onDark={onDark} labels={labels} accent={accent} menu={menu} />
         </span>
         <span className="flex justify-end">
           <Cta kind={cta} accent={accent} label={ctaLabel} />
@@ -249,9 +285,9 @@ function NavRow({
 
   return (
     <div className={`${shell} justify-between gap-[3cqw]`} style={{ background: fill }}>
-      {nav === 'right' ? <span /> : <Nav onDark={onDark} labels={labels} accent={accent} />}
+      {nav === 'right' ? <span /> : <Nav onDark={onDark} labels={labels} accent={accent} menu={menu} />}
       <span className="flex items-center gap-[3cqw]">
-        {nav === 'right' && <Nav onDark={onDark} labels={labels} accent={accent} />}
+        {nav === 'right' && <Nav onDark={onDark} labels={labels} accent={accent} menu={menu} />}
         <Cta kind={cta} accent={accent} label={ctaLabel} />
       </span>
     </div>
@@ -272,6 +308,8 @@ export default function HeaderPreview({
   const accent = GREEN
   const ctaLabel = content?.cta || undefined
   // Five fits the centred nav in the design; more crowds the bar.
+  const menuItems = linesOf(content?.navMenu)
+  const menu = menuItems.length ? menuItems : undefined
   const navLabels = linesOf(content?.nav).slice(0, 5)
   const labels = navLabels.length ? navLabels : undefined
 
@@ -281,7 +319,7 @@ export default function HeaderPreview({
         <div className="flex items-start justify-between gap-[3cqw] px-[5cqw] pt-[4cqw] pb-[3cqw]">
           <span className="flex flex-col gap-[2.5cqw]">
             <Logo src={logo} />
-            <Nav labels={labels} accent={accent} />
+            <Nav labels={labels} accent={accent} menu={menu} />
           </span>
           <span className="flex flex-col items-end gap-[2cqw]">
             <CallUs greenNumber phone={content?.phone} />
@@ -303,7 +341,7 @@ export default function HeaderPreview({
             <span className="grid w-full grid-cols-3 items-center">
               <Logo src={logo} />
               <span className="flex justify-center">
-                <Nav onDark={onDark} labels={labels} accent={accent} />
+                <Nav onDark={onDark} labels={labels} accent={accent} menu={menu} />
               </span>
               <span className="flex justify-end">
                 <Cta kind={cta} accent={accent} label={ctaLabel} />
@@ -312,7 +350,7 @@ export default function HeaderPreview({
           ) : nav === 'left' ? (
             <span className="flex w-full items-center gap-[4cqw]">
               <Logo src={logo} />
-              <Nav onDark={onDark} labels={labels} accent={accent} />
+              <Nav onDark={onDark} labels={labels} accent={accent} menu={menu} />
               <span className="ml-auto">
                 <Cta kind={cta} accent={accent} label={ctaLabel} />
               </span>
@@ -321,7 +359,7 @@ export default function HeaderPreview({
             <span className="flex w-full items-center">
               <Logo src={logo} />
               <span className="ml-auto flex items-center gap-[4cqw]">
-                <Nav onDark={onDark} labels={labels} accent={accent} />
+                <Nav onDark={onDark} labels={labels} accent={accent} menu={menu} />
                 <Cta kind={cta} accent={accent} label={ctaLabel} />
               </span>
             </span>
@@ -352,7 +390,7 @@ export default function HeaderPreview({
         </div>
       )}
 
-      <NavRow nav={nav} band={band} cta={cta} ctaLabel={ctaLabel} labels={labels} accent={accent} />
+      <NavRow nav={nav} band={band} cta={cta} ctaLabel={ctaLabel} labels={labels} accent={accent} menu={menu} />
     </div>
   )
 }

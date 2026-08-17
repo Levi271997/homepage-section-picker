@@ -34,7 +34,7 @@ function QuestionRow({
   const showAnswer = open && answer
 
   return (
-    <span className={`flex flex-col gap-[1.4cqw] ${shell}`}>
+    <span data-role="row" className={`flex flex-col gap-[1.4cqw] ${shell}`}>
       <span className="flex items-start justify-between gap-[2cqw]">
         {question ? (
           <span className="text-[1.7cqw] leading-tight font-medium text-neutral-900">{question}</span>

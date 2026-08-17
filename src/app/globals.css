@@ -20,6 +20,55 @@ html {
   color-scheme: dark;
 }
 
+/*
+ * Interactive affordances for the full-page view only.
+ *
+ * The previews are the same components everywhere, so the behaviour is applied
+ * by scope rather than by prop: inside `.page-view` a button looks pressable and
+ * a nav item opens its menu, while the 64px row thumbnails stay inert — hover
+ * states on something that small are noise.
+ */
+.page-view [data-role='button'] {
+  cursor: pointer;
+  transition:
+    filter 0.15s ease,
+    transform 0.15s ease;
+}
+.page-view [data-role='button']:hover {
+  filter: brightness(0.92);
+}
+.page-view [data-role='button']:active {
+  transform: translateY(1px);
+}
+
+.page-view [data-role='link'],
+.page-view [data-role='row'] {
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+.page-view [data-role='link']:hover {
+  text-decoration: underline;
+}
+.page-view [data-role='row']:hover {
+  opacity: 0.7;
+}
+
+.page-view [data-role='nav'] {
+  cursor: pointer;
+}
+.page-view [data-role='menu'] {
+  visibility: hidden;
+  opacity: 0;
+  transition:
+    opacity 0.15s ease,
+    visibility 0.15s ease;
+}
+.page-view [data-role='nav-group']:hover [data-role='menu'],
+.page-view [data-role='nav-group']:focus-within [data-role='menu'] {
+  visibility: visible;
+  opacity: 1;
+}
+
 html,
 body {
   height: 100%;

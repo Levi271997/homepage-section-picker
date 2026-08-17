@@ -60,6 +60,12 @@ export const CONTENT: Record<string, Schema> = {
         kind: 'lines',
         hint: 'One link per line. The first shows as the current page; end a line with ^ to give it a dropdown arrow.',
       },
+      {
+        id: 'navMenu',
+        label: 'Dropdown links',
+        kind: 'lines',
+        hint: 'Shown on hover under any nav item marked with ^.',
+      },
       cta('Button label'),
       { id: 'phone', label: 'Phone number', kind: 'text', hint: 'Shown by the phone utility bar and the stacked header.' },
       { id: 'email', label: 'Email address', kind: 'text', hint: 'Shown by the social utility bar.' },
@@ -67,6 +73,7 @@ export const CONTENT: Record<string, Schema> = {
     defaults: {
       image: LOGO,
       nav: 'Home\nServices^\nAbout Us\nPricing',
+      navMenu: 'Strategy\nDesign\nBuild\nSupport',
       cta: 'Get in touch',
       phone: '(123) 456-7890',
       email: 'hello@yourcompany.com',

@@ -36,7 +36,7 @@ function Copy({ centered, text }: { centered?: boolean; text?: string }) {
 function LinkLine({ text }: { text?: string }) {
   if (text) {
     return (
-      <span className="text-[1.4cqw] leading-none font-medium" style={{ color: GREEN }}>
+      <span data-role="link" className="text-[1.4cqw] leading-none font-medium" style={{ color: GREEN }}>
         {text} &rarr;
       </span>
     )

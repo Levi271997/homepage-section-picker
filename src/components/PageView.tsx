@@ -73,7 +73,7 @@ export default function PageView({
       role="dialog"
       aria-modal="true"
       aria-label="Your homepage"
-      className="fixed inset-0 z-50 flex flex-col bg-canvas"
+      className="page-view fixed inset-0 z-50 flex flex-col bg-canvas"
     >
       <div className="flex shrink-0 items-center gap-3 border-b border-hairline bg-card px-4 py-3">
         <span className="text-sm font-medium text-ink">{domain || 'Your homepage'}</span>
@@ -103,14 +103,18 @@ export default function PageView({
 
       <div className="flex-1 overflow-y-auto" style={brandStyle}>
         {/* A page-width column, so sections render at the proportions they'd have on a real site. */}
-        <div className="mx-auto w-full max-w-[1200px] bg-white shadow-2xl shadow-black/40">
+        <div className="mx-auto w-full max-w-300 bg-white shadow-2xl shadow-black/40">
           {ids.map((id) => {
             const section = byId(id)
             const choice = choiceOf(section, layouts)
+            // The header's dropdown has to escape its frame and sit above what follows.
+            const isHeader = id === 'site-header'
             return (
-              <PreviewFrame key={id} aspect={aspectFor(id, choice)}>
-                <SectionPreview sectionId={id} choice={choice} content={contentOf(id, contentStore)} />
-              </PreviewFrame>
+              <div key={id} className={isHeader ? 'relative z-10' : undefined}>
+                <PreviewFrame aspect={aspectFor(id, choice)} clip={!isHeader}>
+                  <SectionPreview sectionId={id} choice={choice} content={contentOf(id, contentStore)} />
+                </PreviewFrame>
+              </div>
             )
           })}
         </div>
