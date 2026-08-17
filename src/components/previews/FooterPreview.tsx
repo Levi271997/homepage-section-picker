@@ -152,15 +152,6 @@ function Newsletter({ subscribe, copy }: { subscribe: string; copy?: SectionCont
   )
 }
 
-/** Faint suggestion of the page above, so the footer reads as a footer. */
-function PageHint() {
-  return (
-    <div className="flex flex-1 flex-col items-center justify-center gap-[2cqw] px-[10cqw] opacity-25">
-      <span className="h-[2.4cqw] w-[45%] rounded-full bg-neutral-400" />
-      <span className="h-[1.2cqw] w-[65%] rounded-full bg-neutral-300" />
-    </div>
-  )
-}
 
 /** Miniature of what the site footer will look like on the page. */
 export default function FooterPreview({
@@ -177,11 +168,8 @@ export default function FooterPreview({
 
   if (layout === 'logo-only') {
     return (
-      <div className="flex h-full flex-col">
-        <PageHint />
-        <div className="flex justify-center px-[5cqw] py-[6cqw]">
-          <Logo className="h-[9cqw] w-[24cqw]" src={src} />
-        </div>
+      <div className="flex h-full items-center justify-center px-[5cqw] py-[6cqw]">
+        <Logo className="h-[9cqw] w-[24cqw]" src={src} />
       </div>
     )
   }
@@ -204,11 +192,8 @@ export default function FooterPreview({
     }
 
     return (
-      <div className="flex h-full flex-col">
-        <PageHint />
-        <div className="flex items-center justify-between gap-[3cqw] px-[5cqw] py-[5cqw]">
-          {slots[content] ?? slots.links}
-        </div>
+      <div className="flex h-full items-center justify-between gap-[3cqw] px-[5cqw] py-[5cqw]">
+        {slots[content] ?? slots.links}
       </div>
     )
   }
@@ -218,9 +203,7 @@ export default function FooterPreview({
   const headings = linesOf(copy?.items)
 
   return (
-    <div className="flex h-full flex-col">
-      <PageHint />
-
+    <div className="flex h-full flex-col justify-center">
       <div className="flex flex-col gap-[3.5cqw] px-[5cqw] pt-[4cqw] pb-[3cqw]">
         <div
           className="grid gap-[4cqw]"

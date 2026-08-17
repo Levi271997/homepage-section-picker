@@ -25,7 +25,8 @@ function aspectFor(id: string, choice: Choice) {
     case 'cta':
       return choice.layout === 'banner' ? 'aspect-16/6' : 'aspect-16/9'
     case 'site-footer':
-      return choice.layout === 'bar' || choice.layout === 'logo-only' ? 'aspect-16/4' : 'aspect-16/8'
+      // A legal bar or a lone logo is a strip; link columns need the height.
+      return choice.layout === 'bar' || choice.layout === 'logo-only' ? 'aspect-16/3' : 'aspect-16/7'
     default:
       return 'aspect-16/10'
   }
