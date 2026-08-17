@@ -3,34 +3,11 @@
 import { useEffect, useRef } from 'react'
 import SectionPreview from '@/components/previews/SectionPreview'
 import { PreviewFrame } from '@/components/previews/parts'
+import { aspectFor } from '@/components/previews/aspect'
 import { byId, choiceOf } from '@/lib/sections'
 import type { Choice } from '@/lib/sections'
 import { contentOf } from "@/lib/content"
 import type { SectionContent } from "@/lib/content"
-
-/**
- * Roughly how tall each section stands relative to its width, so the stack
- * reads like a page rather than a run of identical panels. Sections that carry
- * a full block of content keep the 16:10 the thumbnails use.
- */
-function aspectFor(id: string, choice: Choice) {
-  switch (id) {
-    case 'site-header':
-      // A single bar is a thin strip; the two-tier and stacked ones need room.
-      return choice.structure === 'single' ? 'aspect-16/3' : 'aspect-16/5'
-    case 'logo-strip':
-      return choice.layout === 'carousel' ? 'aspect-16/4' : 'aspect-16/7'
-    case 'stats':
-      return choice.header === 'none' ? 'aspect-16/5' : 'aspect-16/9'
-    case 'cta':
-      return choice.layout === 'banner' ? 'aspect-16/6' : 'aspect-16/9'
-    case 'site-footer':
-      // A legal bar or a lone logo is a strip; link columns need the height.
-      return choice.layout === 'bar' || choice.layout === 'logo-only' ? 'aspect-16/3' : 'aspect-16/7'
-    default:
-      return 'aspect-16/10'
-  }
-}
 
 type Props = {
   ids: string[]

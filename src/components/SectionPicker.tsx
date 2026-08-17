@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import type { CSSProperties } from 'react'
 import PagePreview from '@/components/PagePreview'
+import PageView from '@/components/PageView'
 import SectionRow from '@/components/SectionRow'
 import SectionMenu from '@/components/SectionMenu'
 import { Icon } from '@/components/icons'
@@ -38,6 +39,25 @@ export default function SectionPicker() {
   // The static GitHub Pages build has no server to run the analyser, so the
   // control is hidden there rather than offered and then failing.
   const canAnalyze = process.env.NEXT_PUBLIC_STATIC_BUILD !== 'true'
+
+  /** The agreed build in one line — what the page view copies to the clipboard. */
+  const spec = [
+    hasSite === 'yes'
+      ? `Rebuilding ${siteUrl.trim() || 'their existing site'}.`
+      : hasSite === 'no'
+        ? 'Building from scratch.'
+        : '',
+    'Sections: ' +
+      ids
+        .map((id) => {
+          const section = byId(id)
+          if (!section.options) return section.label
+          return `${section.label} (${describeChoice(section, choiceOf(section, layouts))})`
+        })
+        .join(' → '),
+  ]
+    .filter(Boolean)
+    .join(' ')
 
   const closeAll = () => {
     setSwapping(null)
@@ -431,24 +451,19 @@ export default function SectionPicker() {
         </p>
       </div>
 
-      {built && (
-        <p className="mt-4 rounded-lg border border-hairline bg-row px-3 py-2 text-sm text-ink-muted">
-          {hasSite === 'yes' ? (
-            <>Rebuilding {siteUrl.trim() || 'their existing site'}. </>
-          ) : hasSite === 'no' ? (
-            <>Building from scratch. </>
-          ) : null}
-          Sections:{' '}
-          {ids
-            .map((id) => {
-              const section = byId(id)
-              if (!section.options) return section.label
-              return `${section.label} (${describeChoice(section, choiceOf(section, layouts))})`
-            })
-            .join(' → ')}
-        </p>
-      )}
       </div>
+
+      {built && (
+        <PageView
+          ids={ids}
+          layouts={layouts}
+          contentStore={contentStore}
+          brandStyle={brandVariables(activeProfile) as CSSProperties | undefined}
+          address={hasSite === 'yes' ? profile?.url || siteUrl : ''}
+          spec={spec}
+          onClose={() => setBuilt(false)}
+        />
+      )}
     </div>
   )
 }
