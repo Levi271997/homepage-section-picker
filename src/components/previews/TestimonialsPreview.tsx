@@ -1,3 +1,6 @@
+'use client'
+
+import { useCarousel } from '@/components/previews/useCarousel'
 import { itemAt, linesOf } from '@/lib/content'
 import type { SectionContent } from '@/lib/content'
 import { BodyLine, Eyebrow, FilledButton, HeadlineLine } from '@/components/previews/parts'
@@ -35,6 +38,21 @@ function QuoteMark() {
 
 function Mark({ mark }: { mark: string }) {
   return mark === 'quote' ? <QuoteMark /> : <Stars />
+}
+
+/** The chevron inside a carousel arrow button. */
+function Arrow({ direction }: { direction: 'left' | 'right' }) {
+  return (
+    <svg viewBox="0 0 10 14" className="h-[2cqw] w-[1.6cqw]" fill="none" aria-hidden="true">
+      <path
+        d={direction === 'left' ? 'M7 1L2 7l5 6' : 'M3 1l5 6-5 6'}
+        stroke={GREEN}
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
 }
 
 function QuoteLines({ centered, text }: { centered?: boolean; text?: string }) {
@@ -192,6 +210,18 @@ export default function TestimonialsPreview({
   const centered = header === 'centered'
   const quotes = linesOf(content?.items)
 
+  // One slide per quote. With no quotes typed the wireframe still shows the
+  // design's five dots, so the carousel reads as a carousel either way.
+  const slides = quotes.length || 5
+
+  // Only the carousel moves. The grid and the image-and-quote pairs are static
+  // blocks of text, and text that reshuffles itself is hard to read.
+  const isCarousel = layout === 'carousel'
+  const { slide, setSlide, step, containerProps, motion } = useCarousel({
+    slides,
+    enabled: isCarousel,
+  })
+
   /** Everything one testimonial needs, wrapping so short lists still fill a grid. */
   const at = (i: number) => ({
     quote: quotes.length ? itemAt(content?.items, i) : undefined,
@@ -216,25 +246,54 @@ export default function TestimonialsPreview({
       {heading}
 
       {layout === 'carousel' && (
-        <div className="flex flex-col items-center gap-[2.5cqw]">
+        <div {...containerProps} className={`flex flex-col items-center gap-[2.5cqw] ${containerProps.className}`}>
           <span className="flex w-full items-center gap-[2.5cqw]">
-            <span className="size-[5cqw] shrink-0 rounded-xs border" style={{ borderColor: GREEN }} />
             <span
-              className="flex flex-1 flex-col items-center gap-[2cqw] rounded-sm px-[8cqw] py-[3.5cqw]"
+              data-role="control"
+              aria-label="Previous testimonial"
+              onClick={() => setSlide((n) => (n - 1 + slides) % slides)}
+              className="flex size-[5cqw] shrink-0 items-center justify-center rounded-xs border"
+              style={{ borderColor: GREEN }}
+            >
+              <Arrow direction="left" />
+            </span>
+
+            <span
+              className="flex flex-1 flex-col items-center gap-[2cqw] overflow-hidden rounded-sm px-[8cqw] py-[3.5cqw]"
               style={{ background: 'var(--brand-soft,#eef4ea)' }}
             >
-              <Mark mark={mark} />
-              <QuoteLines centered text={at(0).quote} />
-              <Attribution stacked name={at(0).name} role={at(0).role} src={at(0).src} />
+              {/* Keyed on the slide so the transition replays each time it changes. */}
+              <span
+                key={slide}
+                {...motion}
+                className={`${motion.className} flex flex-col items-center gap-[2cqw]`}
+              >
+                <Mark mark={mark} />
+                <QuoteLines centered text={at(slide).quote} />
+                <Attribution stacked name={at(slide).name} role={at(slide).role} src={at(slide).src} />
+              </span>
             </span>
-            <span className="size-[5cqw] shrink-0 rounded-xs border" style={{ borderColor: GREEN }} />
+
+            <span
+              data-role="control"
+              aria-label="Next testimonial"
+              onClick={() => setSlide((n) => (n + 1) % slides)}
+              className="flex size-[5cqw] shrink-0 items-center justify-center rounded-xs border"
+              style={{ borderColor: GREEN }}
+            >
+              <Arrow direction="right" />
+            </span>
           </span>
+
           <span className="flex items-center gap-[1.2cqw]">
-            {Array.from({ length: 5 }, (_, i) => (
+            {Array.from({ length: slides }, (_, i) => (
               <span
                 key={i}
+                data-role="control"
+                aria-label={`Testimonial ${i + 1}`}
+                onClick={() => setSlide(i)}
                 className="size-[1.3cqw] rounded-full"
-                style={{ background: i === 0 ? GREEN : 'var(--brand-dim,#8cbb7c)' }}
+                style={{ background: i === slide ? GREEN : 'var(--brand-dim,#8cbb7c)' }}
               />
             ))}
           </span>

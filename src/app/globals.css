@@ -58,6 +58,50 @@ html {
 }
 
 /*
+ * A slide arriving in a carousel: it enters from the right and settles, so the
+ * content reads as moving leftwards. Keyed on the slide index, so the animation
+ * replays every time it changes.
+ */
+@keyframes preview-slide-left {
+  from {
+    opacity: 0;
+    transform: translateX(7%);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.preview-slide-left {
+  animation: preview-slide-left 0.45s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .preview-slide-left {
+    animation: none;
+  }
+}
+
+/*
+ * Carousel arrows and paging dots. Like the anchors below, they are dead
+ * everywhere except the full-page view, so a thumbnail can't be paged by a
+ * stray click while someone is dragging rows around.
+ */
+[data-role='control'] {
+  pointer-events: none;
+}
+.page-view [data-role='control'] {
+  pointer-events: auto;
+  cursor: pointer;
+  transition:
+    opacity 0.15s ease,
+    background-color 0.15s ease;
+}
+.page-view [data-role='control']:hover {
+  opacity: 0.7;
+}
+
+/*
  * Real anchors — mailto and social profiles. They are inert everywhere by
  * default so a stray click on a 64px thumbnail can't open a mail client, and
  * only become live inside the full-page view.

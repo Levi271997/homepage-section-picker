@@ -77,7 +77,7 @@ function Nav({
               tabIndex={dropdown ? 0 : undefined}
               className="relative flex flex-col items-center gap-[0.7cqw]"
             >
-              <span data-role="nav" className="flex items-center gap-[0.8cqw]">
+              <span data-role="nav" data-nav-index={i} className="flex items-center gap-[0.8cqw]">
                 <span className="text-[1.8cqw] leading-none whitespace-nowrap" style={{ color }}>
                   {label}
                 </span>

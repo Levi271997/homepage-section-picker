@@ -120,7 +120,8 @@ export const CONTENT: Record<string, Schema> = {
       heading: 'Trusted by teams like yours',
       body: 'A short line of reassurance about the company you keep.',
       cta: 'See our clients',
-      items: 'Halden Group\nNorthlight\nBasis Co\nOkafor & Sons\nMeridian\nWestbrook',
+      items:
+        'Halden Group\nNorthlight\nBasis Co\nOkafor & Sons\nMeridian\nWestbrook\nCaldwell\nAtlas Bay\nRowan & Fern\nPine Harbour\nKestrel\nLumen',
     },
   },
 
