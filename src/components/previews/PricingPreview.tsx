@@ -27,13 +27,13 @@ function BestPlanBadge({ label }: { label?: string }) {
       </span>
     )
   }
-  return <span className="h-[2.2cqw] w-[9cqw] rounded-full" style={{ background: BADGE }} />
+  return <span aria-hidden="true" className="block h-[2.2cqw] w-[9cqw] rounded-full" style={{ background: BADGE }} />
 }
 
 /** "$19  per month" */
 function Price({ amount, period }: { amount?: string; period?: string }) {
   return (
-    <span className="flex items-end gap-[1.2cqw]">
+    <p className="flex items-end gap-[1.2cqw]">
       <span className="text-[4.4cqw] leading-none font-bold" style={{ color: PRICE_GREEN }}>
         {amount || '$19'}
       </span>
@@ -42,9 +42,9 @@ function Price({ amount, period }: { amount?: string; period?: string }) {
           {period}
         </span>
       ) : (
-        <span className="mb-[0.4cqw] h-[1.1cqw] w-[8cqw] rounded-full" style={{ background: TAN }} />
+        <span aria-hidden="true" className="mb-[0.4cqw] h-[1.1cqw] w-[8cqw] rounded-full" style={{ background: TAN }} />
       )}
-    </span>
+    </p>
   )
 }
 
@@ -52,18 +52,22 @@ function Price({ amount, period }: { amount?: string; period?: string }) {
 function PlanName({ name }: { name?: string }) {
   if (name) {
     return (
-      <span className="text-[1.7cqw] leading-none font-semibold tracking-[0.06em] uppercase" style={{ color: TAN }}>
+      <h3 className="text-[1.7cqw] leading-none font-semibold tracking-[0.06em] uppercase" style={{ color: TAN }}>
         {name}
-      </span>
+      </h3>
     )
   }
-  return <span className="h-[1.4cqw] w-[24%] rounded-full" style={{ background: TAN }} />
+  return <span aria-hidden="true" className="block h-[1.4cqw] w-[24%] rounded-full" style={{ background: TAN }} />
 }
 
 /** One feature row. Inactive rows fade to tan, as in the design. */
 function FeatureRow({ side, muted, text }: { side: string; muted?: boolean; text?: string }) {
   const tick = (
-    <span className="size-[1.9cqw] shrink-0 rounded-full" style={{ background: muted ? '#cdbcb2' : GREEN }} />
+    <span
+      aria-hidden="true"
+      className="size-[1.9cqw] shrink-0 rounded-full"
+      style={{ background: muted ? '#cdbcb2' : GREEN }}
+    />
   )
   const label = text ? (
     <span
@@ -73,19 +77,19 @@ function FeatureRow({ side, muted, text }: { side: string; muted?: boolean; text
       {text}
     </span>
   ) : (
-    <span className="h-[1cqw] w-[70%] rounded-full" style={{ background: muted ? '#cdbcb2' : '#5b5b5b' }} />
+    <span aria-hidden="true" className="h-[1cqw] w-[70%] rounded-full" style={{ background: muted ? '#cdbcb2' : '#5b5b5b' }} />
   )
 
   return side === 'right' ? (
-    <span className="flex items-center justify-between gap-[1.5cqw]">
+    <li className="flex items-center justify-between gap-[1.5cqw]">
       {label}
       {tick}
-    </span>
+    </li>
   ) : (
-    <span className="flex items-center gap-[1.5cqw]">
+    <li className="flex items-center gap-[1.5cqw]">
       {tick}
       {label}
-    </span>
+    </li>
   )
 }
 
@@ -109,38 +113,38 @@ function PlanCard({
   const badge = content?.badge || undefined
 
   return (
-    <span
+    <li
       className={`flex flex-col gap-[1.6cqw] ${bordered ? 'rounded-[3px] border border-neutral-200 p-[2.5cqw]' : ''}`}
       style={filled ? { background: FILL } : undefined}
     >
       {layout === 'icon' ? (
         <>
-          <span className="flex items-start justify-between">
-            <span className="size-[7cqw] rounded-xs" style={{ background: '#d9e8f8' }} />
+          <div className="flex items-start justify-between">
+            <span aria-hidden="true" className="size-[7cqw] rounded-xs" style={{ background: '#d9e8f8' }} />
             {showBadge && <BestPlanBadge label={badge} />}
-          </span>
+          </div>
           <Price amount={price} period={content?.period} />
           <PlanName name={name} />
         </>
       ) : (
         <>
-          <span className="flex items-center justify-between gap-[2cqw]">
+          <div className="flex items-center justify-between gap-[2cqw]">
             <PlanName name={name} />
             {showBadge && <BestPlanBadge label={badge} />}
-          </span>
+          </div>
           <Price amount={price} period={content?.period} />
         </>
       )}
 
-      <span className="flex flex-col gap-[0.8cqw]">
+      <div className="flex flex-col gap-[0.8cqw]">
         <BodyLine className="w-full" text={content?.planBody} />
         {!content?.planBody && <BodyLine className="w-[85%]" />}
-      </span>
+      </div>
 
-      <span className="h-px w-full bg-neutral-200" />
+      <span aria-hidden="true" className="h-px w-full bg-neutral-200" />
 
       {layout !== 'simple' && (
-        <span className="flex flex-col gap-[1.1cqw]">
+        <ul className="flex flex-col gap-[1.1cqw]">
           {Array.from({ length: 5 }, (_, i) => (
             <FeatureRow
               key={i}
@@ -149,13 +153,13 @@ function PlanCard({
               text={features.length ? itemAt(content?.features, i) : undefined}
             />
           ))}
-        </span>
+        </ul>
       )}
 
-      <span className="mt-[0.4cqw]">
+      <div className="mt-[0.4cqw]">
         <FilledButton label={content?.cta} />
-      </span>
-    </span>
+      </div>
+    </li>
   )
 }
 
@@ -168,14 +172,14 @@ export default function PricingPreview({
   content,
 }: PricingChoice & { content?: SectionContent }) {
   return (
-    <div className="flex h-full flex-col gap-[3.5cqw] px-[5cqw] py-[4cqw]">
-      <span className="flex flex-col items-center gap-[1.4cqw] text-center">
+    <section aria-label="Pricing" className="flex h-full flex-col gap-[3.5cqw] px-[5cqw] py-[4cqw]">
+      <div className="flex flex-col items-center gap-[1.4cqw] text-center">
         <Eyebrow text={content?.eyebrow} />
         <HeadlineLine className={content?.heading ? 'w-[60%]' : 'w-[32%]'} text={content?.heading} />
         <BodyLine className="w-[64%]" text={content?.body} />
-      </span>
+      </div>
 
-      <div className="grid grid-cols-3 items-start gap-[3cqw]">
+      <ul className="grid grid-cols-3 items-start gap-[3cqw]">
         {Array.from({ length: 3 }, (_, i) => (
           <PlanCard
             key={i}
@@ -188,7 +192,7 @@ export default function PricingPreview({
             content={content}
           />
         ))}
-      </div>
-    </div>
+      </ul>
+    </section>
   )
 }

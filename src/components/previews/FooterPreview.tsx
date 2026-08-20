@@ -28,38 +28,43 @@ function Logo({ className = 'h-[5cqw] w-[17cqw]', src }: { className?: string; s
 function Copyright({ text }: { text?: string }) {
   if (text) {
     return (
-      <span className="truncate text-[1.3cqw] leading-none" style={{ color: MUTED }}>
+      <p className="truncate text-[1.3cqw] leading-none" style={{ color: MUTED }}>
         {text}
-      </span>
+      </p>
     )
   }
-  return <span className="h-[1.2cqw] w-[26cqw] rounded-full" style={{ background: MUTED }} />
+  return <span aria-hidden="true" className="block h-[1.2cqw] w-[26cqw] rounded-full" style={{ background: MUTED }} />
 }
 
 /** "Terms and Conditions   Privacy Policy" */
 function LegalLinks({ items }: { items?: string[] }) {
   if (items?.length) {
     return (
-      <span className="flex items-center gap-[3cqw]">
-        {items.slice(0, 3).map((label) => (
-          <span key={label} className="text-[1.3cqw] leading-none whitespace-nowrap text-neutral-700">
-            {label}
-          </span>
-        ))}
-      </span>
+      <nav aria-label="Legal">
+        <ul className="flex items-center gap-[3cqw]">
+          {items.slice(0, 3).map((label) => (
+            <li key={label}>
+              <a href="#" data-role="link" className="text-[1.3cqw] leading-none whitespace-nowrap text-neutral-700">
+                {label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
     )
   }
   return (
-    <span className="flex items-center gap-[3cqw]">
+    <span aria-hidden="true" className="flex items-center gap-[3cqw]">
       <span className="h-[1.2cqw] w-[13cqw] rounded-full bg-neutral-700" />
       <span className="h-[1.2cqw] w-[9cqw] rounded-full bg-neutral-700" />
     </span>
   )
 }
 
+/** The four social marks. Drawn as plain discs at this size. */
 function Socials() {
   return (
-    <span className="flex items-center gap-[1.6cqw]">
+    <span aria-hidden="true" className="flex items-center gap-[1.6cqw]">
       {Array.from({ length: 4 }, (_, i) => (
         <span key={i} className="size-[2.2cqw] rounded-full" style={{ background: GREEN }} />
       ))}
@@ -70,45 +75,49 @@ function Socials() {
 /** A "Label" heading over five item links. */
 function LinkColumn({ heading, links }: { heading?: string; links?: string[] }) {
   return (
-    <span className="flex flex-col gap-[1.4cqw]">
+    <nav className="flex flex-col gap-[1.4cqw]" aria-label={heading || undefined}>
       {heading ? (
-        <span className="text-[1.5cqw] leading-none font-semibold" style={{ color: TAN }}>
+        <h3 className="text-[1.5cqw] leading-none font-semibold" style={{ color: TAN }}>
           {heading}
-        </span>
+        </h3>
       ) : (
-        <span className="h-[1.3cqw] w-[50%] rounded-full" style={{ background: TAN }} />
+        <span aria-hidden="true" className="h-[1.3cqw] w-[50%] rounded-full" style={{ background: TAN }} />
       )}
 
-      {Array.from({ length: 5 }, (_, i) =>
-        links?.length ? (
-          <span key={i} className="truncate text-[1.3cqw] leading-none text-neutral-600">
-            {links[i % links.length]}
-          </span>
-        ) : (
-          <span key={i} className="h-[1cqw] w-[62%] rounded-full bg-neutral-600" />
-        ),
-      )}
-    </span>
+      <ul className="flex flex-col gap-[1.4cqw]">
+        {Array.from({ length: 5 }, (_, i) =>
+          links?.length ? (
+            <li key={i}>
+              <a href="#" data-role="link" className="block truncate text-[1.3cqw] leading-none text-neutral-600">
+                {links[i % links.length]}
+              </a>
+            </li>
+          ) : (
+            <li key={i} aria-hidden="true" className="h-[1cqw] w-[62%] rounded-full bg-neutral-600" />
+          ),
+        )}
+      </ul>
+    </nav>
   )
 }
 
 /** Logo, a line of copy and the social icons. */
 function BrandColumn({ src, tagline }: { src?: string; tagline?: string }) {
   return (
-    <span className="flex flex-col gap-[2cqw]">
+    <div className="flex flex-col gap-[2cqw]">
       <Logo src={src} />
       {tagline ? (
-        <span className="text-[1.3cqw] leading-[1.45]" style={{ color: MUTED }}>
+        <p className="text-[1.3cqw] leading-[1.45]" style={{ color: MUTED }}>
           {tagline}
-        </span>
+        </p>
       ) : (
-        <span className="flex flex-col gap-[0.9cqw]">
+        <span aria-hidden="true" className="flex flex-col gap-[0.9cqw]">
           <span className="h-[1cqw] w-full rounded-full" style={{ background: MUTED }} />
           <span className="h-[1cqw] w-[70%] rounded-full" style={{ background: MUTED }} />
         </span>
       )}
       <Socials />
-    </span>
+    </div>
   )
 }
 
@@ -116,13 +125,13 @@ function Newsletter({ subscribe, copy }: { subscribe: string; copy?: SectionCont
   const blurb = copy?.newsletter
 
   return (
-    <span className="flex flex-col gap-[1.6cqw]">
+    <form aria-label="Newsletter" onSubmit={(e) => e.preventDefault()} className="flex flex-col gap-[1.6cqw]">
       {blurb ? (
-        <span className="text-[1.3cqw] leading-[1.45]" style={{ color: MUTED }}>
+        <p className="text-[1.3cqw] leading-[1.45]" style={{ color: MUTED }}>
           {blurb}
-        </span>
+        </p>
       ) : (
-        <span className="flex flex-col gap-[0.9cqw]">
+        <span aria-hidden="true" className="flex flex-col gap-[0.9cqw]">
           <span className="h-[1cqw] w-full rounded-full" style={{ background: MUTED }} />
           <span className="h-[1cqw] w-[75%] rounded-full" style={{ background: MUTED }} />
         </span>
@@ -131,27 +140,41 @@ function Newsletter({ subscribe, copy }: { subscribe: string; copy?: SectionCont
       {subscribe === 'inline' ? (
         <>
           <span className="flex items-stretch">
-            <span
+            <input
+              type="email"
+              readOnly
+              aria-label="Email address"
               className="h-[5cqw] flex-1 rounded-l-xs"
               style={{ background: 'var(--brand-soft,#eef4ea)' }}
             />
-            <span className="h-[5cqw] w-[6cqw] rounded-r-xs" style={{ background: GREEN }} />
+            <button
+              type="submit"
+              data-role="button"
+              aria-label="Subscribe"
+              className="h-[5cqw] w-[6cqw] rounded-r-xs"
+              style={{ background: GREEN }}
+            />
           </span>
-          <span className="flex items-center gap-[1.2cqw]">
+          <span aria-hidden="true" className="flex items-center gap-[1.2cqw]">
             <span className="size-[1.8cqw] rounded-full" style={{ background: GREEN }} />
             <span className="h-[1cqw] w-[60%] rounded-full bg-neutral-600" />
           </span>
         </>
       ) : (
         <>
-          <span className="h-[5cqw] w-full rounded-xs" style={{ background: 'var(--brand-soft,#eef4ea)' }} />
+          <input
+            type="email"
+            readOnly
+            aria-label="Email address"
+            className="h-[5cqw] w-full rounded-xs"
+            style={{ background: 'var(--brand-soft,#eef4ea)' }}
+          />
           <FilledButton label={copy?.cta} />
         </>
       )}
-    </span>
+    </form>
   )
 }
-
 
 /** Miniature of what the site footer will look like on the page. */
 export default function FooterPreview({
@@ -168,9 +191,9 @@ export default function FooterPreview({
 
   if (layout === 'logo-only') {
     return (
-      <div className="flex h-full items-center justify-center px-[5cqw] py-[6cqw]">
+      <footer className="flex h-full items-center justify-center px-[5cqw] py-[6cqw]">
         <Logo className="h-[9cqw] w-[24cqw]" src={src} />
-      </div>
+      </footer>
     )
   }
 
@@ -192,9 +215,9 @@ export default function FooterPreview({
     }
 
     return (
-      <div className="flex h-full items-center justify-between gap-[3cqw] px-[5cqw] py-[5cqw]">
+      <footer className="flex h-full items-center justify-between gap-[3cqw] px-[5cqw] py-[5cqw]">
         {slots[content] ?? slots.links}
-      </div>
+      </footer>
     )
   }
 
@@ -203,7 +226,7 @@ export default function FooterPreview({
   const headings = linesOf(copy?.items)
 
   return (
-    <div className="flex h-full flex-col justify-center">
+    <footer className="flex h-full flex-col justify-center">
       <div className="flex flex-col gap-[3.5cqw] px-[5cqw] pt-[4cqw] pb-[3cqw]">
         <div
           className="grid gap-[4cqw]"
@@ -222,13 +245,13 @@ export default function FooterPreview({
           {layout === 'newsletter' && <Newsletter subscribe={subscribe} copy={copy} />}
         </div>
 
-        <span className="h-px w-full bg-neutral-200" />
+        <span aria-hidden="true" className="h-px w-full bg-neutral-200" />
 
         <div className="flex items-center gap-[5cqw]">
           <Copyright text={legal} />
           <LegalLinks items={legalLinks} />
         </div>
       </div>
-    </div>
+    </footer>
   )
 }

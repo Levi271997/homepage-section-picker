@@ -51,8 +51,8 @@ export default function SectionMenu({ title, options, emptyLabel, layouts, onPag
                 >
                   {choice ? (
                     <span className="w-16 shrink-0 overflow-hidden rounded border border-hairline">
-                      <PreviewFrame>
-                        <SectionPreview sectionId={option.id} choice={choice} />
+                      <PreviewFrame decorative>
+                        <SectionPreview sectionId={option.id} choice={choice} screenshot />
                       </PreviewFrame>
                     </span>
                   ) : (

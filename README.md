@@ -26,6 +26,7 @@ Never move the model call into the browser to work around this: the API key woul
 ## What it does
 
 - **Live page preview on the left.** The whole homepage is assembled from the current order and layout choices, so every pick on the right updates it immediately. The section being edited is ringed and scrolled into view; hovering any section names it. Each section gets a ratio roughly matching its real height (a header is 16:5, a full content block 16:10) so the stack reads like a page. It sticks to the top of the viewport on wide screens and drops above the card on narrow ones.
+- **The finished page opens in its own window.** **Build my homepage** — and **New window** in the preview's chrome — open the assembled page on `/preview`, sized to the screen and running the full width of it, so it reads as the site rather than as a preview of one. It follows along: every change republishes, and the window re-renders. See [Two windows](#two-windows).
 - **Reads the client's existing site.** Answer "yes" to the existing-website question, enter the address, and **Read my site** pulls their brand colour, logo, navigation, hero copy and hero image into the live preview — their own content, in the layouts we propose. The contrast is the pitch, so copy is used verbatim and never rewritten. Anything we can't read falls back to the wireframe, section by section.
 - **Every section carries editable content.** Opening a row gives **Layout** and **Content** tabs: layout arranges the section, content fills it. Each section declares its own fields — headings, body copy, button labels, list items, images — pre-filled with placeholder copy and locally generated placeholder artwork, so a page looks finished before anyone types anything. Images take a URL or a local file, and every section has a reset that restores its placeholders.
 - Lists the suggested sections; `required` ones show a badge instead of buttons.
@@ -37,7 +38,7 @@ Never move the model call into the browser to work around this: the API key woul
   | Section | Axes |
   | --- | --- |
   | Site header | Structure (4) × Nav position (3) × Nav band (3) × Button (3) |
-  | Hero | Layout: centred / image left / image right |
+  | Hero | Design: the 23-strong V1…V28 set — see [Design sets](#design-sets) |
   | Logo strip | Layout: carousel / headed grid / headed carousel |
   | Content card | Card style (9) × Header (2) × Rows (3) |
   | Content section | Layout (8) × Image side (2) × Image (2) × Header (2) × Items (3) |
@@ -62,6 +63,9 @@ Never move the model call into the browser to work around this: the API key woul
 | [src/lib/sections.ts](src/lib/sections.ts) | The approved sections, their option groups, and the suggested default order |
 | [src/components/SectionPicker.tsx](src/components/SectionPicker.tsx) | Two-column shell, state, swap/add/remove logic |
 | [src/components/PagePreview.tsx](src/components/PagePreview.tsx) | The assembled page on the left, in browser chrome |
+| [src/components/PageBody.tsx](src/components/PageBody.tsx) | The page behaving like a website — shared by the full-screen view and the second window |
+| [src/app/preview/page.tsx](src/app/preview/page.tsx) | The page on its own, for a second window or screen |
+| [src/lib/share.ts](src/lib/share.ts) | Hands the page between windows through `localStorage` |
 | [src/components/SectionRow.tsx](src/components/SectionRow.tsx) | One row: icon, label, badge or buttons |
 | [src/components/SectionMenu.tsx](src/components/SectionMenu.tsx) | Overlay list used by both swap and add |
 | [src/components/OptionPicker.tsx](src/components/OptionPicker.tsx) | Inline radiogroups — preview cards and chip rows — for a section's option axes |
@@ -72,10 +76,55 @@ Never move the model call into the browser to work around this: the API key woul
 | [src/lib/siteProfile.ts](src/lib/siteProfile.ts) | The `SiteProfile` shape plus the guards that keep model output honest |
 | [src/lib/content.ts](src/lib/content.ts) | Per-section content fields, their placeholder copy, and the list helpers |
 | [src/lib/placeholder.ts](src/lib/placeholder.ts) | Placeholder artwork, generated as SVG data URIs — nothing is fetched |
+| [src/lib/previewImages.ts](src/lib/previewImages.ts) | Maps a chosen design to its artwork under `public/design-sets/` |
+| [src/lib/asset.ts](src/lib/asset.ts) | URLs for our own files in `public/` — basePath and percent-encoding |
 | [src/components/ContentEditor.tsx](src/components/ContentEditor.tsx) | The Content tab: one input per field, image URL or upload, reset |
 | [src/app/globals.css](src/app/globals.css) | Theme colors as Tailwind v4 `@theme` tokens |
 
 Colors live entirely in the `@theme` block — `--color-row`, `--color-go`, etc. — so restyling means editing that one block.
+
+## Two windows
+
+The editing view keeps the shape it always had — preview left, picker right — and the finished page lives in a second window at `/preview`. **Build my homepage** opens it; so does **New window** in the preview's chrome. Both reuse one named window, so clicking again brings the existing one forward rather than opening a second.
+
+That window runs the page at the full width of the screen, where the in-app view caps it at a page-width column (`PageBody`'s `width` prop). Everything inside a section is sized in `cqw`, so the wider column scales the whole page rather than reflowing it.
+
+Pop-up blockers are common enough that **Build my homepage** checks: if the window is refused, it falls back to the full-screen in-app view, so the button always does something.
+
+The picker's state lives in React, which another window can't reach, so the editing window publishes the page to `localStorage` on every change and the second window reads it and listens for `storage` events. That event fires in every *other* document on the origin, which is the direction needed here: the window doing the editing doesn't need telling what it just did. Publishing happens on every change rather than only while a window is open, so one opened later starts on the current state instead of an empty page.
+
+Both the window and the in-app fallback render through the same [PageBody](src/components/PageBody.tsx), so they can't drift apart. It also carries the `page-view` class the behaving-like-a-website rules in `globals.css` hang off — hover states, the nav underline, keeping dropdowns shut until they're pointed at — so neither caller can render the page without them.
+
+The one failure worth knowing about: uploaded images are stored as data URIs, and a few large ones will exhaust the storage quota. [share.ts](src/lib/share.ts) reports that rather than throwing, and the picker says so under the preview — otherwise a second window would sit frozen on old content with nothing to explain why.
+
+## Markup
+
+The previews are written as documents, not as drawings. Each section returns a real landmark — `<header>`, `<section>`, `<footer>` — with a heading outline under it: the hero carries the page's one `<h1>`, section headings are `<h2>`, and card and column titles are `<h3>`. Card grids, tick lists, nav, footer columns and pricing features are `<ul>`/`<li>`; blog cards are `<article>` with a `<time>`; testimonials are `<figure>`/`<blockquote>`/`<cite>`; the FAQ is `<details>`/`<summary>`, so it actually opens rather than miming it; forms are `<form>` with `<label>`-attached inputs; buttons are `<button>` and links are `<a>`.
+
+Two rules keep that from causing trouble:
+
+**A wireframe bar is not content.** Where a field has no words yet the preview draws a grey bar. Those are `aria-hidden`, because a heading with no text or a button with no name is a drawing of one — there is nothing to announce.
+
+**A picture of a page is not a page.** The same components render at 64px in a row thumbnail and across the picker cards, where a dozen `<h1>`s and a tab stop for every button would wreck the editing screen. `PreviewFrame` takes a `decorative` prop that sets `inert` and `aria-hidden` on the whole subtree, and the thumbnail, menu, card and sidebar callers all pass it. Only [PageBody](src/components/PageBody.tsx) — the assembled page — renders without it.
+
+The effect, measured in the browser: the editor page exposes no stray headings at all (59 headings and buttons sit inside `inert` subtrees) and only its own 50 controls are reachable by keyboard, while the page itself comes out with one `h1`, ten `h2`s, thirteen `h3`s, header/nav/section/footer landmarks, 13 lists, 3 articles, 3 blockquotes and 6 labelled inputs.
+
+Preflight strips the browser's default heading and list styling, so the tags are structural only — changing a heading level never changes how a preview looks. Links point at a placeholder `#`; `PageBody` swallows the click so the page doesn't jump.
+
+## Design sets
+
+`public/design-sets/` holds the artwork exported from Figma, keeping the names it exported them with — `section-cogs/hero/Type=Hero V1.svg` and so on. The hero is the first section wired to its set: its `design` axis lists the 23 drawn heroes (V1…V8, V13…V26, V28) rather than the combinable axes the other sections use, because a design set is a fixed set and listing it verbatim keeps the picker and the design file describing the same thing.
+
+Each design appears twice over, and the two are not the same picture:
+
+- **Choosing one** — the picker cards, the row thumbnail, the swap and add menus — shows the exported SVG. That's the finished design, at full fidelity.
+- **The assembled page** shows a wireframe rebuilt from the same design in [HeroPreview.tsx](src/components/previews/HeroPreview.tsx). Only the wireframe fills with the client's own colour, logo, copy and photography, and that contrast is the pitch; the SVG is fixed lorem ipsum with a green button.
+
+`SectionPreview`'s `screenshot` prop is what separates the two, so a caller picks a side rather than the artwork leaking onto the page.
+
+The heroes are variations on three frames — copy beside media, copy above media, copy over a full-width image — so `HeroPreview` describes them in a `SPECS` table (media side, what fills the media slot, contained or bleeding, intro line, tick list, buttons or email capture) and renders from that. A newly exported design is usually one row in that table, one entry in [previewImages.ts](src/lib/previewImages.ts), one option in `HERO_GROUPS`, and its artboard ratio in [aspect.ts](src/components/previews/aspect.ts) so the page stands it at the height it was drawn at.
+
+Paths into `public/` go through [asset.ts](src/lib/asset.ts) rather than being written inline. Every image here renders through a plain `<img>` (see `parts.tsx`), so nothing else would apply the Pages `basePath`, and the Figma names need percent-encoding — Next serves `Type%3DHero%20V1.svg` but 404s on `Type=Hero%20V1.svg`, which `encodeURI` alone would leave as-is.
 
 ## How content works
 

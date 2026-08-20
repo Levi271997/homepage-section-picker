@@ -17,42 +17,42 @@ const SPLIT_LAYOUTS = ['copy', 'checklist', 'media-list', 'stats', 'mini-cards']
 
 function Buttons({ primary, secondary }: { primary?: string; secondary?: string }) {
   return (
-    <span className="mt-[1cqw] flex items-center gap-[1.5cqw]">
+    <div className="mt-[1cqw] flex items-center gap-[1.5cqw]">
       <FilledButton label={primary} />
       <OutlineButton label={secondary} />
-    </span>
+    </div>
   )
 }
 
 /** Green tick followed by a line of text. */
 function CheckRow({ text }: { text?: string }) {
   return (
-    <span className="flex items-center gap-[1.5cqw]">
-      <span className="size-[2cqw] shrink-0 rounded-full" style={{ background: GREEN }} />
+    <li className="flex items-center gap-[1.5cqw]">
+      <span aria-hidden="true" className="size-[2cqw] shrink-0 rounded-full" style={{ background: GREEN }} />
       {text ? (
         <span className="text-[1.7cqw] leading-tight text-neutral-700">{text}</span>
       ) : (
-        <span className="h-[1cqw] w-[70%] rounded-full bg-neutral-400" />
+        <span aria-hidden="true" className="h-[1cqw] w-[70%] rounded-full bg-neutral-400" />
       )}
-    </span>
+    </li>
   )
 }
 
 /** Thumbnail beside a label and two lines of copy. */
 function MediaRow({ title, body, src }: { title?: string; body?: string; src?: string }) {
   return (
-    <span className="flex items-start gap-[1.8cqw]">
+    <li className="flex items-start gap-[1.8cqw]">
       <ImageBlock className="size-[7cqw] shrink-0" src={src} />
-      <span className="flex min-w-0 flex-1 flex-col gap-[0.8cqw] pt-[0.5cqw]">
+      <div className="flex min-w-0 flex-1 flex-col gap-[0.8cqw] pt-[0.5cqw]">
         {title ? (
-          <span className="text-[1.9cqw] leading-tight font-semibold text-neutral-900">{title}</span>
+          <h3 className="text-[1.9cqw] leading-tight font-semibold text-neutral-900">{title}</h3>
         ) : (
-          <span className="h-[1.4cqw] w-[30%] rounded-full bg-neutral-800" />
+          <span aria-hidden="true" className="h-[1.4cqw] w-[30%] rounded-full bg-neutral-800" />
         )}
         <BodyLine className="w-full" text={body} />
         {!body && <BodyLine className="w-[75%]" />}
-      </span>
-    </span>
+      </div>
+    </li>
   )
 }
 
@@ -60,36 +60,36 @@ function MediaRow({ title, body, src }: { title?: string; body?: string; src?: s
 function Stat({ value }: { value?: string }) {
   if (!value) {
     return (
-      <span className="flex flex-col gap-[0.8cqw]">
+      <li aria-hidden="true" className="flex flex-col gap-[0.8cqw]">
         <span className="h-[3cqw] w-[45%] rounded-[1px] bg-neutral-900" />
         <span className="h-[1.1cqw] w-[75%] rounded-full" style={{ background: TAN }} />
-      </span>
+      </li>
     )
   }
   const { figure, label } = splitStat(value)
   return (
-    <span className="flex flex-col gap-[0.6cqw]">
-      {figure && <span className="text-[3.2cqw] leading-none font-bold text-neutral-900">{figure}</span>}
-      <span className="text-[1.5cqw] leading-tight" style={{ color: TAN }}>
+    <li className="flex flex-col gap-[0.6cqw]">
+      {figure && <p className="text-[3.2cqw] leading-none font-bold text-neutral-900">{figure}</p>}
+      <p className="text-[1.5cqw] leading-tight" style={{ color: TAN }}>
         {label}
-      </span>
-    </span>
+      </p>
+    </li>
   )
 }
 
 /** One of the small cards in the 2×2 block. */
 function MiniCard({ title, body, src }: { title?: string; body?: string; src?: string }) {
   return (
-    <span className="flex flex-col gap-[1cqw]">
+    <li className="flex flex-col gap-[1cqw]">
       <ImageBlock className="size-[7cqw]" src={src} />
       {title ? (
-        <span className="text-[1.8cqw] leading-tight font-semibold text-neutral-900">{title}</span>
+        <h3 className="text-[1.8cqw] leading-tight font-semibold text-neutral-900">{title}</h3>
       ) : (
-        <span className="h-[1.4cqw] w-[45%] rounded-full bg-neutral-800" />
+        <span aria-hidden="true" className="h-[1.4cqw] w-[45%] rounded-full bg-neutral-800" />
       )}
       <BodyLine className="w-full" text={body} />
       {!body && <BodyLine className="w-[80%]" />}
-    </span>
+    </li>
   )
 }
 
@@ -108,23 +108,23 @@ function TextColumn({
   link?: string
 }) {
   return (
-    <span className="flex flex-col gap-[1cqw]">
+    <li className="flex flex-col gap-[1cqw]">
       {withImage && <ImageBlock className="h-[9cqw] w-full" src={src} />}
       {title ? (
-        <span className="text-[1.9cqw] leading-tight font-semibold text-neutral-900">{title}</span>
+        <h3 className="text-[1.9cqw] leading-tight font-semibold text-neutral-900">{title}</h3>
       ) : (
-        <span className="h-[1.5cqw] w-[42%] rounded-full bg-neutral-800" />
+        <span aria-hidden="true" className="h-[1.5cqw] w-[42%] rounded-full bg-neutral-800" />
       )}
       <BodyLine className="w-full" text={body} />
       {!body && <BodyLine className="w-[80%]" />}
       {link ? (
-        <span className="text-[1.5cqw] leading-none font-medium" style={{ color: GREEN }}>
+        <a href="#" data-role="link" className="text-[1.5cqw] leading-none font-medium" style={{ color: GREEN }}>
           {link}
-        </span>
+        </a>
       ) : (
-        <span className="h-[1cqw] w-[34%] rounded-full bg-neutral-500" />
+        <span aria-hidden="true" className="h-[1cqw] w-[34%] rounded-full bg-neutral-500" />
       )}
-    </span>
+    </li>
   )
 }
 
@@ -135,24 +135,24 @@ function Header({ mode, content }: { mode: string; content?: SectionContent }) {
 
   if (mode === 'left') {
     return (
-      <span className="flex flex-col gap-[1.5cqw]">
-        <span className="flex items-center justify-between gap-[3cqw]">
+      <div className="flex flex-col gap-[1.5cqw]">
+        <div className="flex items-center justify-between gap-[3cqw]">
           <HeadlineLine className={heading ? 'w-[62%]' : 'w-[45%]'} text={heading} />
           <OutlineButton label={content?.cta} />
-        </span>
+        </div>
         <BodyLine className="w-[70%]" text={body} />
-      </span>
+      </div>
     )
   }
 
   return (
-    <span className="flex flex-col items-center gap-[1.5cqw] text-center">
+    <div className="flex flex-col items-center gap-[1.5cqw] text-center">
       <HeadlineLine className={heading ? 'w-[70%]' : 'w-[45%]'} text={heading} />
       <BodyLine className="w-[70%]" text={body} />
-      <span className="mt-[0.5cqw]">
+      <div className="mt-[0.5cqw]">
         <OutlineButton label={content?.cta} />
-      </span>
-    </span>
+      </div>
+    </div>
   )
 }
 
@@ -162,7 +162,7 @@ function Copy({ layout, items, content }: { layout: string; items: number; conte
   const heading = content?.heading
 
   return (
-    <span className="flex min-w-0 flex-1 flex-col gap-[1.6cqw]">
+    <div className="flex min-w-0 flex-1 flex-col gap-[1.6cqw]">
       <Eyebrow text={content?.eyebrow} />
       <HeadlineLine className={heading ? 'w-full' : 'w-[80%]'} text={heading} />
       {!heading && <HeadlineLine className="w-[45%]" />}
@@ -175,15 +175,15 @@ function Copy({ layout, items, content }: { layout: string; items: number; conte
       )}
 
       {layout === 'checklist' && (
-        <span className="mt-[0.8cqw] flex flex-col gap-[1.2cqw]">
+        <ul className="mt-[0.8cqw] flex flex-col gap-[1.2cqw]">
           {Array.from({ length: items }, (_, i) => (
             <CheckRow key={i} text={list.length ? itemAt(content?.items, i) : undefined} />
           ))}
-        </span>
+        </ul>
       )}
 
       {layout === 'media-list' && (
-        <span className="mt-[0.5cqw] flex flex-col gap-[1.8cqw]">
+        <ul className="mt-[0.5cqw] flex flex-col gap-[1.8cqw]">
           {Array.from({ length: 3 }, (_, i) => (
             <MediaRow
               key={i}
@@ -192,19 +192,19 @@ function Copy({ layout, items, content }: { layout: string; items: number; conte
               src={content?.image}
             />
           ))}
-        </span>
+        </ul>
       )}
 
       {layout === 'stats' && (
-        <span className="mt-[1cqw] grid grid-cols-2 gap-x-[3cqw] gap-y-[2cqw]">
+        <ul className="mt-[1cqw] grid grid-cols-2 gap-x-[3cqw] gap-y-[2cqw]">
           {Array.from({ length: 4 }, (_, i) => (
             <Stat key={i} value={list.length ? itemAt(content?.items, i) : undefined} />
           ))}
-        </span>
+        </ul>
       )}
 
       <Buttons primary={content?.cta} secondary={content?.cta2} />
-    </span>
+    </div>
   )
 }
 
@@ -226,7 +226,7 @@ export default function ContentSectionPreview({
 
     const visual =
       layout === 'mini-cards' ? (
-        <span className="grid w-[46%] shrink-0 grid-cols-2 gap-x-[3cqw] gap-y-[3cqw]">
+        <ul className="grid w-[46%] shrink-0 grid-cols-2 gap-x-[3cqw] gap-y-[3cqw]">
           {Array.from({ length: 4 }, (_, i) => (
             <MiniCard
               key={i}
@@ -235,7 +235,7 @@ export default function ContentSectionPreview({
               src={src}
             />
           ))}
-        </span>
+        </ul>
       ) : bleed ? (
         <ImageBlock className="h-full w-[46%] shrink-0 rounded-none border-0" src={src} />
       ) : (
@@ -245,7 +245,7 @@ export default function ContentSectionPreview({
     const imageFirst = side === 'left'
 
     return (
-      <div
+      <section
         className={`flex h-full items-center gap-[5cqw] py-[5cqw] ${
           bleed ? (imageFirst ? 'pr-[5cqw]' : 'pl-[5cqw]') : 'px-[5cqw]'
         }`}
@@ -253,13 +253,13 @@ export default function ContentSectionPreview({
         {imageFirst && visual}
         <Copy layout={layout} items={count} content={content} />
         {!imageFirst && visual}
-      </div>
+      </section>
     )
   }
 
   // Stacked layouts: a heading, then an image and/or columns beneath it.
   return (
-    <div className="flex h-full flex-col gap-[4cqw] px-[5cqw] py-[5cqw]">
+    <section className="flex h-full flex-col gap-[4cqw] px-[5cqw] py-[5cqw]">
       <Header mode={header} content={content} />
 
       {layout === 'image-band' && <ImageBlock className="h-[55%] w-full" src={src} />}
@@ -267,7 +267,7 @@ export default function ContentSectionPreview({
       {layout === 'image-columns' && (
         <>
           <ImageBlock className="h-[34%] w-full" src={src} />
-          <span className="grid grid-cols-3 gap-[3cqw]">
+          <ul className="grid grid-cols-3 gap-[3cqw]">
             {Array.from({ length: 3 }, (_, i) => (
               <TextColumn
                 key={i}
@@ -276,12 +276,12 @@ export default function ContentSectionPreview({
                 link={content?.cta}
               />
             ))}
-          </span>
+          </ul>
         </>
       )}
 
       {layout === 'card-columns' && (
-        <span
+        <ul
           className="grid gap-[3cqw]"
           style={{ gridTemplateColumns: `repeat(${count === 6 ? 3 : count}, minmax(0, 1fr))` }}
         >
@@ -295,8 +295,8 @@ export default function ContentSectionPreview({
               link={content?.cta}
             />
           ))}
-        </span>
+        </ul>
       )}
-    </div>
+    </section>
   )
 }

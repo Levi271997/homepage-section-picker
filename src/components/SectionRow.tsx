@@ -117,8 +117,8 @@ export default function SectionRow({
         {/* Sections with a layout show that layout; the rest show their icon. */}
         {section.options && choice ? (
           <span className="w-16 shrink-0 overflow-hidden rounded border border-hairline">
-            <PreviewFrame>
-              <SectionPreview sectionId={section.id} choice={choice} content={content} />
+            <PreviewFrame decorative>
+              <SectionPreview sectionId={section.id} choice={choice} content={content} screenshot />
             </PreviewFrame>
           </span>
         ) : (

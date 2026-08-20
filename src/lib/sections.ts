@@ -29,16 +29,43 @@ export type Choice = Record<string, string>
 /** Layouts of the content section that pair copy with something beside it. */
 const SPLIT_LAYOUTS = ['copy', 'checklist', 'media-list', 'stats', 'mini-cards']
 
-/** The arrangements the hero can be built in. */
+/**
+ * The hero design set, as exported from Figma.
+ *
+ * One flat axis rather than the combinable axes other sections use: these are
+ * drawn designs, and the set is the set — listing V1…V28 keeps the picker and
+ * the design file describing the same thing. `previewImages.ts` maps each id to
+ * its artwork, and `HeroPreview` rebuilds each one as a live wireframe.
+ */
 export const HERO_GROUPS: OptionGroup[] = [
   {
-    id: 'layout',
-    label: 'Layout',
+    id: 'design',
+    label: 'Design',
     display: 'cards',
     options: [
-      { id: 'centered', name: 'Centered', blurb: 'Headline and buttons centred, image full width below' },
-      { id: 'image-left', name: 'Image left', blurb: 'Image beside the headline, image first' },
-      { id: 'image-right', name: 'Image right', blurb: 'Headline first, image beside it' },
+      { id: 'v1', name: 'V1 · Image right', blurb: 'Copy left, one image beside it' },
+      { id: 'v2', name: 'V2 · Image left', blurb: 'One image, copy to the right of it' },
+      { id: 'v3', name: 'V3 · Centred', blurb: 'Centred copy, one image below' },
+      { id: 'v4', name: 'V4 · Pair, right lead', blurb: 'Centred copy over two offset images' },
+      { id: 'v5', name: 'V5 · Pair, left lead', blurb: 'Centred copy over two offset images' },
+      { id: 'v6', name: 'V6 · Pair right', blurb: 'Copy left, two overlapping images' },
+      { id: 'v7', name: 'V7 · Pair left', blurb: 'Two overlapping images, copy right' },
+      { id: 'v8', name: 'V8 · Centred, full-bleed', blurb: 'Centred copy, image edge to edge below' },
+      { id: 'v13', name: 'V13 · Email capture', blurb: 'Copy and an inline email field, image right' },
+      { id: 'v14', name: 'V14 · Ticks, image right', blurb: 'Copy and a tick list beside the image' },
+      { id: 'v15', name: 'V15 · Ticks, image left', blurb: 'Image first, copy and a tick list beside it' },
+      { id: 'v16', name: 'V16 · Eyebrow, image right', blurb: 'Kicker above the headline, image beside' },
+      { id: 'v17', name: 'V17 · Eyebrow, image left', blurb: 'Image first, kicker above the headline' },
+      { id: 'v18', name: 'V18 · Contact form', blurb: 'Copy and ticks beside an enquiry form' },
+      { id: 'v19', name: 'V19 · Full-bleed right', blurb: 'Copy left, image running off the right edge' },
+      { id: 'v20', name: 'V20 · Full-bleed left', blurb: 'Image off the left edge, copy beside it' },
+      { id: 'v21', name: 'V21 · Panel', blurb: 'Centred copy on a tinted panel, image overlapping' },
+      { id: 'v22', name: 'V22 · Carousel', blurb: 'Centred copy above a paged row of images' },
+      { id: 'v23', name: 'V23 · Background, left', blurb: 'Copy over a full-bleed background image' },
+      { id: 'v24', name: 'V24 · Background, centred', blurb: 'Centred copy over a full-bleed image' },
+      { id: 'v25', name: 'V25 · Breadcrumb', blurb: 'Breadcrumb and copy, image right' },
+      { id: 'v26', name: 'V26 · Page header', blurb: 'Breadcrumb and centred copy, no image' },
+      { id: 'v28', name: 'V28 · Form with details', blurb: 'Copy, date and location beside a form' },
     ],
   },
 ]

@@ -38,20 +38,29 @@ function Buttons({ band, primary, secondary }: { band: string; primary?: string;
     'inline-flex h-[4.4cqw] items-center justify-center rounded-xs px-[2.5cqw] text-[1.7cqw] leading-none font-medium whitespace-nowrap'
 
   return (
-    <span className="flex gap-[1.5cqw]">
+    <div className="flex gap-[1.5cqw]">
       {primary ? (
-        <span
+        <button
+          type="button"
+          data-role="button"
           className={shell}
           style={{ background: c.primary, color: band === 'green' ? BAND_GREEN : '#ffffff' }}
         >
           {primary}
-        </span>
+        </button>
       ) : (
-        <span className="h-[4.4cqw] w-[14cqw] rounded-xs" style={{ background: c.primary }} />
+        <span
+          aria-hidden="true"
+          data-role="button"
+          className="h-[4.4cqw] w-[14cqw] rounded-xs"
+          style={{ background: c.primary }}
+        />
       )}
 
       {secondary ? (
-        <span
+        <button
+          type="button"
+          data-role="button"
           className={`${shell} border`}
           style={{
             background: 'transparent',
@@ -60,30 +69,36 @@ function Buttons({ band, primary, secondary }: { band: string; primary?: string;
           }}
         >
           {secondary}
-        </span>
+        </button>
       ) : (
         <span
+          aria-hidden="true"
+          data-role="button"
           className="h-[4.4cqw] w-[14cqw] rounded-xs border"
           style={{ background: c.secondary, borderColor: c.onDark ? '#ffffff' : GREEN }}
         />
       )}
-    </span>
+    </div>
   )
 }
 
 function CheckRow({ band, text }: { band: string; text?: string }) {
   const c = palette(band)
   return (
-    <span className="flex items-center gap-[1.5cqw]">
-      <span className="size-[2cqw] shrink-0 rounded-full" style={{ background: c.onDark ? '#ffffff' : GREEN }} />
+    <li className="flex items-center gap-[1.5cqw]">
+      <span
+        aria-hidden="true"
+        className="size-[2cqw] shrink-0 rounded-full"
+        style={{ background: c.onDark ? '#ffffff' : GREEN }}
+      />
       {text ? (
         <span className="text-[1.6cqw] leading-tight" style={{ color: c.bodyText }}>
           {text}
         </span>
       ) : (
-        <span className="h-[1cqw] w-[62%] rounded-full" style={{ background: c.body }} />
+        <span aria-hidden="true" className="h-[1cqw] w-[62%] rounded-full" style={{ background: c.body }} />
       )}
-    </span>
+    </li>
   )
 }
 
@@ -107,42 +122,46 @@ function Copy({
   const points = linesOf(content?.items)
 
   return (
-    <span
+    <div
       className={`flex min-w-0 flex-1 flex-col gap-[1.6cqw] ${
         centered ? 'items-center text-center' : 'items-start'
       }`}
     >
       {content?.eyebrow ? (
-        <span
+        <p
           className="text-[1.5cqw] leading-none font-medium tracking-[0.12em] uppercase"
           style={{ color: c.eyebrow }}
         >
           {content.eyebrow}
-        </span>
+        </p>
       ) : (
-        <span className="h-[1.3cqw] w-[13cqw] rounded-full" style={{ background: c.eyebrow }} />
+        <span aria-hidden="true" className="h-[1.3cqw] w-[13cqw] rounded-full" style={{ background: c.eyebrow }} />
       )}
 
       {content?.heading ? (
-        <span className="text-[3cqw] leading-[1.15] font-semibold" style={{ color: c.headline }}>
+        <h2 className="text-[3cqw] leading-[1.15] font-semibold" style={{ color: c.headline }}>
           {content.heading}
-        </span>
+        </h2>
       ) : (
         <>
-          <span className="h-[2.6cqw] rounded-full" style={{ background: c.headline, width: wide ? '58%' : '85%' }} />
-          {!wide && <span className="h-[2.6cqw] w-[45%] rounded-full" style={{ background: c.headline }} />}
+          <span
+            aria-hidden="true"
+            className="h-[2.6cqw] rounded-full"
+            style={{ background: c.headline, width: wide ? '58%' : '85%' }}
+          />
+          {!wide && (
+            <span aria-hidden="true" className="h-[2.6cqw] w-[45%] rounded-full" style={{ background: c.headline }} />
+          )}
         </>
       )}
 
       {content?.body ? (
-        <span
-          className="text-[1.6cqw] leading-[1.45]"
-          style={{ color: c.bodyText, maxWidth: wide ? '70%' : undefined }}
-        >
+        <p className="text-[1.6cqw] leading-[1.45]" style={{ color: c.bodyText, maxWidth: wide ? '70%' : undefined }}>
           {content.body}
-        </span>
+        </p>
       ) : (
         <span
+          aria-hidden="true"
           className="mt-[0.4cqw] flex w-full flex-col gap-[0.9cqw]"
           style={{ alignItems: centered ? 'center' : undefined }}
         >
@@ -152,19 +171,19 @@ function Copy({
       )}
 
       {list && (
-        <span className="mt-[0.6cqw] flex w-full flex-col gap-[1.2cqw]">
+        <ul className="mt-[0.6cqw] flex w-full flex-col gap-[1.2cqw]">
           {Array.from({ length: 3 }, (_, i) => (
             <CheckRow key={i} band={band} text={points.length ? itemAt(content?.items, i) : undefined} />
           ))}
-        </span>
+        </ul>
       )}
 
       {!hideButtons && (
-        <span className="mt-[1cqw]">
+        <div className="mt-[1cqw]">
           <Buttons band={band} primary={content?.cta} secondary={content?.cta2} />
-        </span>
+        </div>
       )}
-    </span>
+    </div>
   )
 }
 
@@ -191,9 +210,9 @@ export default function CtaPreview({
     ) : align === 'apart' ? (
       <div className="flex h-full items-center justify-between gap-[5cqw]">
         <Copy band={band} wide hideButtons content={content} />
-        <span className="shrink-0">
+        <div className="shrink-0">
           <Buttons band={band} primary={content?.cta} secondary={content?.cta2} />
-        </span>
+        </div>
       </div>
     ) : (
       <div className={`flex h-full flex-col justify-center ${align === 'center' ? 'items-center' : ''}`}>
@@ -211,6 +230,7 @@ export default function CtaPreview({
           <img src={src} alt="" loading="lazy" className="absolute inset-0 size-full object-cover" />
         ) : (
           <span
+            aria-hidden="true"
             className="absolute inset-0"
             style={{
               backgroundImage: 'repeating-conic-gradient(#e9e9e9 0% 25%, #fafafa 0% 50%)',
@@ -218,18 +238,19 @@ export default function CtaPreview({
             }}
           />
         )}
-        <span className="absolute inset-0" style={{ background: 'rgba(40,40,40,0.62)' }} />
+        <span aria-hidden="true" className="absolute inset-0" style={{ background: 'rgba(40,40,40,0.62)' }} />
       </>
     ) : null
 
   const surface = (
-    <div
+    <section
+      aria-label="Call to action"
       className={`relative h-full overflow-hidden px-[5cqw] py-[5cqw] ${panel ? 'rounded-md' : ''}`}
       style={{ background: band === 'green' ? BAND_GREEN : undefined }}
     >
       {backdrop}
       <div className="relative h-full">{inner}</div>
-    </div>
+    </section>
   )
 
   return panel ? <div className="h-full p-[4cqw]">{surface}</div> : surface

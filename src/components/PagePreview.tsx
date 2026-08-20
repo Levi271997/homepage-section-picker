@@ -4,6 +4,7 @@ import { useEffect, useRef } from 'react'
 import SectionPreview from '@/components/previews/SectionPreview'
 import { PreviewFrame } from '@/components/previews/parts'
 import { aspectFor } from '@/components/previews/aspect'
+import { Icon } from '@/components/icons'
 import { byId, choiceOf } from '@/lib/sections'
 import type { Choice } from '@/lib/sections'
 import { contentOf } from "@/lib/content"
@@ -18,13 +19,22 @@ type Props = {
   address?: string
   /** The client's existing site, once analysed — previews render their content. */
   contentStore?: Record<string, SectionContent>
+  /** Opens the same page in its own window. Omitted where that isn't offered. */
+  onOpenWindow?: () => void
 }
 
 /** Bare domain for the address bar — no scheme, no trailing slash. */
 const tidy = (address: string) => address.trim().replace(/^https?:\/\//i, '').replace(/\/+$/, '')
 
 /** The whole homepage, assembled from the current order and layout choices. */
-export default function PagePreview({ ids, layouts, activeId, address = '', contentStore = {} }: Props) {
+export default function PagePreview({
+  ids,
+  layouts,
+  activeId,
+  address = '',
+  contentStore = {},
+  onOpenWindow,
+}: Props) {
   const rows = useRef(new Map<string, HTMLDivElement>())
 
   // Bring whatever is being edited into view, so the effect of a choice is visible.
@@ -34,7 +44,7 @@ export default function PagePreview({ ids, layouts, activeId, address = '', cont
   }, [activeId])
 
   return (
-    <div className="flex min-w-0 w-full flex-1 flex-col overflow-hidden rounded-2xl border border-hairline bg-card shadow-2xl shadow-black/40 lg:sticky lg:top-8">
+    <div className="flex w-full min-w-0 flex-col overflow-hidden rounded-2xl border border-hairline bg-card shadow-2xl shadow-black/40 lg:max-h-[calc(100vh-4rem)]">
       {/* Browser chrome, so the stack reads as a page rather than a list. */}
       <div className="flex items-center gap-2 border-b border-hairline px-4 py-3">
         <span className="flex gap-1.5" aria-hidden="true">
@@ -46,9 +56,20 @@ export default function PagePreview({ ids, layouts, activeId, address = '', cont
           {tidy(address) || 'yoursite.com'}
         </span>
         <span className="text-xs text-ink-muted">Live preview</span>
+        {onOpenWindow && (
+          <button
+            type="button"
+            onClick={onOpenWindow}
+            title="Open the page in its own window, which follows along as you edit"
+            className="flex shrink-0 items-center gap-1.5 rounded-lg border border-hairline bg-card px-2.5 py-1 text-xs text-ink transition-colors hover:bg-row-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-badge-ink"
+          >
+            <Icon name="external" className="size-3.5" />
+            New window
+          </button>
+        )}
       </div>
 
-      <div className="max-h-[60vh] overflow-y-auto bg-white lg:max-h-[calc(100vh-9rem)]">
+      <div className="max-h-[60vh] overflow-y-auto bg-white lg:max-h-none lg:flex-1">
         {ids.map((id) => {
           const section = byId(id)
           const choice = choiceOf(section, layouts)
@@ -62,7 +83,7 @@ export default function PagePreview({ ids, layouts, activeId, address = '', cont
               }}
               className="group/section relative"
             >
-              <PreviewFrame aspect={aspectFor(id, choice)}>
+              <PreviewFrame aspect={aspectFor(id, choice)} decorative>
                 <SectionPreview sectionId={id} choice={choice} content={contentOf(id, contentStore)} />
               </PreviewFrame>
 

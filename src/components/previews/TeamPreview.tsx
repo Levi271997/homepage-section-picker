@@ -29,7 +29,7 @@ function Member({
   const centered = align === 'center'
 
   return (
-    <span
+    <li
       className={`flex flex-col gap-[1.4cqw] ${centered ? 'items-center' : 'items-start'} ${
         card === 'bordered' ? 'rounded-[3px] border border-neutral-200 p-[2.5cqw]' : ''
       }`}
@@ -39,23 +39,21 @@ function Member({
       ) : (
         <ImageBlock className="size-[8cqw]" src={src} />
       )}
-      <span
-        className={`flex flex-col gap-[0.9cqw] ${centered ? 'items-center text-center' : 'items-start'}`}
-      >
+      <div className={`flex flex-col gap-[0.9cqw] ${centered ? 'items-center text-center' : 'items-start'}`}>
         {name ? (
-          <span className="text-[1.9cqw] leading-tight font-semibold text-neutral-900">{name}</span>
+          <h3 className="text-[1.9cqw] leading-tight font-semibold text-neutral-900">{name}</h3>
         ) : (
-          <span className="h-[1.8cqw] w-[11cqw] rounded-full bg-neutral-900" />
+          <span aria-hidden="true" className="h-[1.8cqw] w-[11cqw] rounded-full bg-neutral-900" />
         )}
         {role ? (
-          <span className="text-[1.5cqw] leading-tight" style={{ color: TAN }}>
+          <p className="text-[1.5cqw] leading-tight" style={{ color: TAN }}>
             {role}
-          </span>
+          </p>
         ) : (
-          <span className="h-[1.2cqw] w-[13cqw] rounded-full" style={{ background: TAN }} />
+          <span aria-hidden="true" className="h-[1.2cqw] w-[13cqw] rounded-full" style={{ background: TAN }} />
         )}
-      </span>
-    </span>
+      </div>
+    </li>
   )
 }
 
@@ -71,17 +69,17 @@ export default function TeamPreview({
   const names = linesOf(content?.items)
 
   return (
-    <div className="flex h-full flex-col gap-[4cqw] px-[5cqw] py-[4cqw]">
-      <span className="flex flex-col items-center gap-[1.4cqw] text-center">
+    <section aria-label="Team members" className="flex h-full flex-col gap-[4cqw] px-[5cqw] py-[4cqw]">
+      <div className="flex flex-col items-center gap-[1.4cqw] text-center">
         <Eyebrow text={content?.eyebrow} />
         <HeadlineLine className={content?.heading ? 'w-[70%]' : 'w-[36%]'} text={content?.heading} />
         <BodyLine className="w-[64%]" text={content?.body} />
-        <span className="mt-[0.5cqw]">
+        <div className="mt-[0.5cqw]">
           <FilledButton label={content?.cta} />
-        </span>
-      </span>
+        </div>
+      </div>
 
-      <div
+      <ul
         className="grid items-start gap-[3cqw]"
         style={{ gridTemplateColumns: `repeat(${count}, minmax(0, 1fr))` }}
       >
@@ -96,7 +94,7 @@ export default function TeamPreview({
             src={content?.image}
           />
         ))}
-      </div>
-    </div>
+      </ul>
+    </section>
   )
 }

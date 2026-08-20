@@ -12,7 +12,6 @@ import TeamPreview from '@/components/previews/TeamPreview'
 import FaqPreview from '@/components/previews/FaqPreview'
 import StatsPreview from '@/components/previews/StatsPreview'
 import CtaPreview from '@/components/previews/CtaPreview'
-import type { HeroLayout } from '@/components/previews/HeroPreview'
 import type { LogoLayout } from '@/components/previews/LogoStripPreview'
 import { imageFor } from '@/lib/previewImages'
 import { defaultContent } from '@/lib/content'
@@ -28,14 +27,24 @@ export default function SectionPreview({
   sectionId,
   choice,
   content,
+  screenshot = false,
 }: {
   sectionId: string
   choice: Choice
   /** The section's words and pictures; placeholders when not supplied. */
   content?: SectionContent
+  /**
+   * Show the design artwork instead of the wireframe, where one exists.
+   *
+   * Set where a design is being *chosen* — picker cards, row thumbnails, the
+   * swap and add menus. Left off for the assembled page, which keeps the
+   * wireframe because that's what fills with the client's own colour, logo and
+   * copy; the artwork is fixed lorem ipsum.
+   */
+  screenshot?: boolean
 }) {
-  // A real screenshot wins over the wireframe wherever one has been supplied.
-  const image = imageFor(sectionId, choice)
+  // The drawn design wins over the wireframe wherever one has been supplied.
+  const image = screenshot ? imageFor(sectionId, choice) : null
   if (image) {
     // eslint-disable-next-line @next/next/no-img-element -- static asset in a fixed-ratio frame, no layout shift to guard against
     return <img src={image} alt="" className="h-full w-full object-cover object-top" />
@@ -55,7 +64,7 @@ export default function SectionPreview({
         />
       )
     case 'hero-logo':
-      return <HeroPreview layout={choice.layout as HeroLayout} content={c} />
+      return <HeroPreview design={choice.design} content={c} />
     case 'logo-strip':
       return <LogoStripPreview layout={choice.layout as LogoLayout} content={c} />
     case 'cta':

@@ -13,19 +13,17 @@ const NUMERAL = '#5f8f4e'
 
 function Label({ text }: { text?: string }) {
   if (text) {
-    return <span className="text-[1.8cqw] leading-tight font-semibold text-neutral-900">{text}</span>
+    return <h3 className="text-[1.8cqw] leading-tight font-semibold text-neutral-900">{text}</h3>
   }
-  return <span className="h-[1.5cqw] w-[42%] rounded-full bg-neutral-800" />
+  return <span aria-hidden="true" className="block h-[1.5cqw] w-[42%] rounded-full bg-neutral-800" />
 }
 
 function Copy({ centered, text }: { centered?: boolean; text?: string }) {
   if (text) {
-    return (
-      <span className={`text-[1.4cqw] leading-[1.45] text-neutral-600 ${centered ? 'text-center' : ''}`}>{text}</span>
-    )
+    return <p className={`text-[1.4cqw] leading-[1.45] text-neutral-600 ${centered ? 'text-center' : ''}`}>{text}</p>
   }
   return (
-    <span className={`flex flex-col gap-[0.8cqw] ${centered ? 'items-center' : ''}`}>
+    <span aria-hidden="true" className={`flex flex-col gap-[0.8cqw] ${centered ? 'items-center' : ''}`}>
       <span className="h-[0.9cqw] w-full rounded-full bg-neutral-300" />
       <span className="h-[0.9cqw] w-[82%] rounded-full bg-neutral-300" />
     </span>
@@ -36,32 +34,36 @@ function Copy({ centered, text }: { centered?: boolean; text?: string }) {
 function LinkLine({ text }: { text?: string }) {
   if (text) {
     return (
-      <span data-role="link" className="text-[1.4cqw] leading-none font-medium" style={{ color: GREEN }}>
+      <a href="#" data-role="link" className="text-[1.4cqw] leading-none font-medium" style={{ color: GREEN }}>
         {text} &rarr;
-      </span>
+      </a>
     )
   }
-  return <span className="h-[1cqw] w-[34%] rounded-full bg-neutral-500" />
+  return <span aria-hidden="true" className="block h-[1cqw] w-[34%] rounded-full bg-neutral-500" />
 }
 
 /** The solid green "Learn More" button. */
 function ButtonBlock({ text }: { text?: string }) {
   if (text) {
     return (
-      <span
+      <button
+        type="button"
+        data-role="button"
         className="inline-flex h-[3.2cqw] items-center self-start rounded-xs px-[2cqw] text-[1.4cqw] leading-none font-medium text-white"
         style={{ background: GREEN }}
       >
         {text}
-      </span>
+      </button>
     )
   }
-  return <span className="h-[2.8cqw] w-[42%] rounded-xs" style={{ background: GREEN }} />
+  return <span aria-hidden="true" data-role="button" className="block h-[2.8cqw] w-[42%] rounded-xs" style={{ background: GREEN }} />
 }
 
+/** The card's position, drawn large. Decoration — the order is already in the list. */
 function Numeral({ index, small }: { index: number; small?: boolean }) {
   return (
     <span
+      aria-hidden="true"
       className={`font-bold leading-none ${small ? 'text-[2.6cqw]' : 'text-[4.4cqw]'}`}
       style={{ color: NUMERAL }}
     >
@@ -97,75 +99,75 @@ function Item({
 
   if (style === 'numbered') {
     return (
-      <span className={stack}>
+      <li className={stack}>
         <Numeral index={index} />
         {body()}
-      </span>
+      </li>
     )
   }
 
   if (style === 'numbered-footer') {
     return (
-      <span className={stack}>
+      <li className={stack}>
         <Label text={title} />
         <Copy text={copy} />
         <LinkLine text={link} />
-        <span className="mt-[0.5cqw] h-px w-full bg-neutral-200" />
-        <span className="flex items-center justify-between">
+        <span aria-hidden="true" className="mt-[0.5cqw] h-px w-full bg-neutral-200" />
+        <span aria-hidden="true" className="flex items-center justify-between">
           <Numeral index={index} small />
           <span className="text-[2.2cqw] leading-none" style={{ color: NUMERAL }}>
             →
           </span>
         </span>
-      </span>
+      </li>
     )
   }
 
   if (style === 'horizontal') {
     return (
-      <span className="flex items-start gap-[1.5cqw]">
+      <li className="flex items-start gap-[1.5cqw]">
         <ImageBlock className="aspect-square w-[36%] shrink-0" src={src} />
-        <span className={`min-w-0 flex-1 ${stack}`}>{body()}</span>
-      </span>
+        <div className={`min-w-0 flex-1 ${stack}`}>{body()}</div>
+      </li>
     )
   }
 
   if (style === 'wide-image') {
     return (
-      <span className={stack}>
+      <li className={stack}>
         <ImageBlock className="h-[7cqw] w-full" src={src} />
         {body()}
-      </span>
+      </li>
     )
   }
 
   if (style === 'centered') {
     return (
-      <span className={`${stack} items-center text-center`}>
+      <li className={`${stack} items-center text-center`}>
         <ImageBlock className="size-[7cqw]" src={src} />
         {body(true)}
-      </span>
+      </li>
     )
   }
 
   if (style === 'bordered' || style === 'tinted') {
     return (
-      <span
+      <li
         className={`${stack} rounded-[3px] p-[2cqw] ${style === 'bordered' ? 'border border-neutral-200' : ''}`}
         style={style === 'tinted' ? { background: 'var(--brand-soft,#eef4ea)' } : undefined}
       >
         <ImageBlock className="size-[6cqw]" src={src} />
         {body()}
-      </span>
+      </li>
     )
   }
 
   // 'plain' and 'button'
   return (
-    <span className={stack}>
+    <li className={stack}>
       <ImageBlock className="size-[7cqw]" src={src} />
       {body()}
-    </span>
+    </li>
   )
 }
 
@@ -182,7 +184,7 @@ export default function ContentCardPreview({
   const link = titles.length ? 'Learn more' : undefined
 
   return (
-    <div className="flex h-full flex-col gap-[3cqw] p-[4cqw]">
+    <section aria-label="What we do" className="flex h-full flex-col gap-[3cqw] p-[4cqw]">
       {header === 'left' ? (
         <div className="flex flex-col gap-[1.2cqw]">
           <div className="flex items-center justify-between gap-[2cqw]">
@@ -195,13 +197,13 @@ export default function ContentCardPreview({
         <div className="flex flex-col items-center gap-[1.2cqw] text-center">
           <HeadlineLine className={content?.heading ? 'w-[70%]' : 'w-[30%]'} text={content?.heading} />
           <BodyLine className="w-[60%]" text={content?.body} />
-          <span className="mt-[0.5cqw]">
+          <div className="mt-[0.5cqw]">
             <OutlineButton label={content?.cta} />
-          </span>
+          </div>
         </div>
       )}
 
-      <div className="grid grid-cols-3 gap-x-[3cqw] gap-y-[2.5cqw]">
+      <ul className="grid grid-cols-3 gap-x-[3cqw] gap-y-[2.5cqw]">
         {Array.from({ length: count }, (_, i) => (
           <Item
             key={i}
@@ -213,7 +215,7 @@ export default function ContentCardPreview({
             src={content?.image}
           />
         ))}
-      </div>
-    </div>
+      </ul>
+    </section>
   )
 }

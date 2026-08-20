@@ -17,9 +17,9 @@ function Heading({ content }: { content?: SectionContent }) {
       <Eyebrow text={content?.eyebrow} />
       <HeadlineLine className={content?.heading ? 'w-4/5' : 'w-3/5'} text={content?.heading} />
       <BodyLine className="w-4/5" text={content?.body} />
-      <span className="mt-[1cqw]">
+      <div className="mt-[1cqw]">
         <FilledButton label={content?.cta} />
-      </span>
+      </div>
     </div>
   )
 }
@@ -43,15 +43,20 @@ export default function LogoStripPreview({
     enabled: isCarousel,
   })
 
-  /** Dots page through the strip; without names they're the design's inert five. */
+  /**
+   * Dots page through the strip; without names they're the design's inert five.
+   * The working ones are real buttons, since they do something when clicked.
+   */
   const paging = (
-    <span className="flex items-center gap-[1.2cqw]">
+    <div className="flex items-center gap-[1.2cqw]">
       {names.length ? (
         Array.from({ length: pages }, (_, i) => (
-          <span
+          <button
             key={i}
+            type="button"
             data-role="control"
             aria-label={`Logos, page ${i + 1}`}
+            aria-current={i === slide || undefined}
             onClick={() => setSlide(i)}
             className="size-[1.3cqw] rounded-full"
             style={{ background: i === slide ? 'var(--brand,#3f6b30)' : 'var(--brand-dim,#8cbb7c)' }}
@@ -60,52 +65,53 @@ export default function LogoStripPreview({
       ) : (
         <Dots />
       )}
-    </span>
+    </div>
   )
 
   /** One page of logos, keyed on the page so it animates in. */
   const strip = (
-    <span key={slide} {...motion} className={`${motion.className} block w-full`}>
+    <div key={slide} {...motion} className={`${motion.className} block w-full`}>
       <LogoRow names={logos} offset={slide * PER_PAGE} />
-    </span>
+    </div>
   )
 
   if (layout === 'carousel') {
     return (
-      <div
+      <section
+        aria-label="Client logos"
         {...containerProps}
         className={`flex h-full flex-col items-center justify-center gap-[5cqw] overflow-hidden px-[4cqw] ${containerProps.className}`}
       >
         {strip}
         {paging}
-      </div>
+      </section>
     )
   }
 
   if (layout === 'headed-grid') {
     return (
-      <div className="flex h-full flex-col items-center gap-[3cqw] p-[4cqw]">
+      <section aria-label="Client logos" className="flex h-full flex-col items-center gap-[3cqw] p-[4cqw]">
         <Heading content={content} />
-        <span className="flex w-full flex-col gap-[1.5cqw]">
+        <div className="flex w-full flex-col gap-[1.5cqw]">
           {/* Each row starts further along the list so the grid isn't three identical rows. */}
           {[0, 6, 12].map((offset) => (
             <LogoRow key={offset} names={logos} offset={offset} />
           ))}
-        </span>
-      </div>
+        </div>
+      </section>
     )
   }
 
   return (
-    <div className="flex h-full flex-col items-center gap-[3cqw] p-[4cqw]">
+    <section aria-label="Client logos" className="flex h-full flex-col items-center gap-[3cqw] p-[4cqw]">
       <Heading content={content} />
-      <span
+      <div
         {...containerProps}
         className={`flex w-full flex-col items-center gap-[3cqw] overflow-hidden ${containerProps.className}`}
       >
         {strip}
         {paging}
-      </span>
-    </div>
+      </div>
+    </section>
   )
 }

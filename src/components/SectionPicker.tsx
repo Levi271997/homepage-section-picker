@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import type { CSSProperties } from 'react'
 import PagePreview from '@/components/PagePreview'
 import PageView from '@/components/PageView'
@@ -9,6 +9,8 @@ import SectionMenu from '@/components/SectionMenu'
 import { Icon } from '@/components/icons'
 import { CATALOG, SUGGESTED_IDS, byId, choiceOf, describeChoice } from '@/lib/sections'
 import { brandVariables } from '@/lib/siteProfile'
+import { asset } from '@/lib/asset'
+import { publishPage } from '@/lib/share'
 import { contentOf, profileToContent } from '@/lib/content'
 import type { SectionContent } from '@/lib/content'
 import type { Choice } from '@/lib/sections'
@@ -30,6 +32,8 @@ export default function SectionPicker() {
   const [profile, setProfile] = useState<SiteProfile | null>(null)
   const [analyzing, setAnalyzing] = useState(false)
   const [dragIndex, setDragIndex] = useState<number | null>(null)
+  /** Set when the page is too large to hand to another window. */
+  const [shareFailed, setShareFailed] = useState(false)
   const [overIndex, setOverIndex] = useState<number | null>(null)
   const cardRef = useRef<HTMLDivElement>(null)
 
@@ -81,6 +85,46 @@ export default function SectionPicker() {
       document.removeEventListener('keydown', onKeyDown)
     }
   }, [])
+
+  const previewAddress = hasSite === 'yes' ? profile?.url || siteUrl : ''
+  // Memoised because it's an effect dependency: `brandVariables` builds a fresh
+  // object every call, which would republish on every render forever.
+  const brand = useMemo(() => brandVariables(activeProfile), [activeProfile])
+
+  /**
+   * Hand the current page to any window opened from the preview.
+   *
+   * Published on every change rather than only when a window is open, so one
+   * opened later starts on the current state rather than an empty page.
+   */
+  useEffect(() => {
+    const ok = publishPage({ ids, layouts, contentStore, address: previewAddress, spec, brand })
+    setShareFailed(!ok)
+  }, [ids, layouts, contentStore, previewAddress, spec, brand])
+
+  /**
+   * Opens the finished page in its own window, sized to the screen so it reads
+   * as a real site rather than a panel.
+   *
+   * Always the same named window, so clicking again brings the existing one
+   * forward instead of opening a second. Returns false when the browser
+   * refuses — pop-up blockers are common enough that the caller needs to know.
+   */
+  const openWindow = (): boolean => {
+    const features = `width=${screen.availWidth},height=${screen.availHeight},left=0,top=0`
+    const opened = window.open(asset('/preview/'), 'homepage-preview', features)
+    opened?.focus()
+    return Boolean(opened)
+  }
+
+  /**
+   * "Build my homepage" shows the finished page in its own window. The
+   * in-app view is the fallback for when a pop-up blocker gets in the way,
+   * so the button always does something.
+   */
+  const build = () => {
+    if (!openWindow()) setBuilt(true)
+  }
 
   const unused = CATALOG.filter((s) => !s.required && !ids.includes(s.id))
 
@@ -174,17 +218,26 @@ export default function SectionPicker() {
       ref={cardRef}
       // The client's brand colours cascade from here, so the row thumbnails and
       // the picker cards recolour along with the big preview.
-      style={brandVariables(activeProfile) as CSSProperties | undefined}
+      style={brand as CSSProperties | undefined}
       className="flex w-full max-w-[1500px] flex-col items-start gap-6 lg:flex-row"
     >
       {/* Left: the page as it currently stands. Right: what builds it. */}
-      <PagePreview
-        ids={ids}
-        layouts={layouts}
-        activeId={choosingLayout}
-        address={hasSite === 'yes' ? profile?.url || siteUrl : ''}
-        contentStore={contentStore}
-      />
+      <div className="flex w-full min-w-0 flex-col gap-2 lg:sticky lg:top-8 lg:flex-1">
+        <PagePreview
+          ids={ids}
+          layouts={layouts}
+          activeId={choosingLayout}
+          address={previewAddress}
+          contentStore={contentStore}
+          onOpenWindow={openWindow}
+        />
+        {shareFailed && (
+          <p className="text-xs text-ink-muted">
+            This page is now too large to hand to a second window — usually a large uploaded image. A window opened
+            from here will show the last version that fitted.
+          </p>
+        )}
+      </div>
 
       <div className="w-full shrink-0 rounded-2xl border border-hairline bg-card p-5 shadow-2xl shadow-black/40 sm:p-6 lg:w-190">
       <div className="flex items-start justify-between gap-4">
@@ -440,11 +493,11 @@ export default function SectionPicker() {
       <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-3">
         <button
           type="button"
-          onClick={() => setBuilt(true)}
+          onClick={build}
           className="inline-flex items-center gap-1.5 rounded-xl bg-go px-4 py-2.5 text-[15px] font-medium text-go-ink transition-colors hover:bg-go-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-go-ink"
         >
           Build my homepage
-          <Icon name="arrow" className="size-4" />
+          <Icon name="external" className="size-4" />
         </button>
         <p className="text-sm text-ink-muted">
           {ids.length} section{ids.length === 1 ? '' : 's'} &middot; takes about a minute
@@ -458,8 +511,8 @@ export default function SectionPicker() {
           ids={ids}
           layouts={layouts}
           contentStore={contentStore}
-          brandStyle={brandVariables(activeProfile) as CSSProperties | undefined}
-          address={hasSite === 'yes' ? profile?.url || siteUrl : ''}
+          brandStyle={brand as CSSProperties | undefined}
+          address={previewAddress}
           spec={spec}
           onClose={() => setBuilt(false)}
         />

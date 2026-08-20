@@ -34,7 +34,7 @@ function Logo({ src }: { src?: string | null }) {
       />
     )
   }
-  return <span className="block h-[4cqw] w-[15cqw] rounded-[1px] bg-neutral-300" />
+  return <span aria-hidden="true" className="block h-[4cqw] w-[15cqw] rounded-[1px] bg-neutral-300" />
 }
 
 /** The small caret marking a nav item that opens a dropdown. */
@@ -63,7 +63,8 @@ function Nav({
 
   if (labels?.length) {
     return (
-      <span className="flex items-center gap-[2.6cqw]">
+      <nav aria-label="Main">
+      <ul className="flex items-center gap-[2.6cqw]">
         {labels.map((raw, i) => {
           // A trailing caret in the field marks a link that opens a menu.
           const dropdown = raw.endsWith('^')
@@ -71,51 +72,64 @@ function Nav({
           const color = onDark ? '#ffffff' : i === 0 ? '#2b2320' : '#4a413d'
 
           return (
-            <span
+            <li
               key={`${label}-${i}`}
               data-role={dropdown ? 'nav-group' : undefined}
-              tabIndex={dropdown ? 0 : undefined}
               className="relative flex flex-col items-center gap-[0.7cqw]"
             >
-              <span data-role="nav" data-nav-index={i} className="flex items-center gap-[0.8cqw]">
+              {/* The anchor is what opens the menu on focus, so the group no
+                  longer needs a tabindex of its own. */}
+              <a
+                href="#"
+                data-role="nav"
+                data-nav-index={i}
+                aria-current={i === 0 ? 'page' : undefined}
+                aria-haspopup={dropdown && menu?.length ? true : undefined}
+                className="flex items-center gap-[0.8cqw]"
+              >
                 <span className="text-[1.8cqw] leading-none whitespace-nowrap" style={{ color }}>
                   {label}
                 </span>
                 {dropdown && <Caret color={color} />}
-              </span>
+              </a>
 
               {i === 0 && (
                 <span
+                  aria-hidden="true"
                   className="h-[0.4cqw] w-full rounded-full"
                   style={{ background: onDark ? '#ffffff' : accent }}
                 />
               )}
 
               {dropdown && menu?.length && (
-                <span
+                <ul
                   data-role="menu"
                   className="absolute top-full left-1/2 z-20 mt-[1.5cqw] flex -translate-x-1/2 flex-col gap-[1.4cqw] rounded-sm border border-neutral-200 bg-white px-[2.5cqw] py-[2cqw] shadow-lg"
                 >
                   {menu.map((item) => (
-                    <span
-                      key={item}
-                      data-role="link"
-                      className="text-[1.6cqw] leading-none whitespace-nowrap text-neutral-700"
-                    >
-                      {item}
-                    </span>
+                    <li key={item}>
+                      <a
+                        href="#"
+                        data-role="link"
+                        className="block text-[1.6cqw] leading-none whitespace-nowrap text-neutral-700"
+                      >
+                        {item}
+                      </a>
+                    </li>
                   ))}
-                </span>
+                </ul>
               )}
-            </span>
+            </li>
           )
         })}
-      </span>
+      </ul>
+      </nav>
     )
   }
 
+  // Nothing typed in yet: bars standing in for links, with nothing to announce.
   return (
-    <span className="flex items-center gap-[3cqw]">
+    <div aria-hidden="true" className="flex items-center gap-[3cqw]">
       <span className="flex flex-col items-center gap-[0.7cqw]">
         <span className={`h-[1.2cqw] w-[6cqw] rounded-full ${onDark ? 'bg-white' : 'bg-neutral-800'}`} />
         <span
@@ -126,7 +140,7 @@ function Nav({
       <span className={`h-[1.2cqw] w-[7cqw] rounded-full ${link}`} />
       <span className={`h-[1.2cqw] w-[6.5cqw] rounded-full ${link}`} />
       <span className={`h-[1.2cqw] w-[5cqw] rounded-full ${link}`} />
-    </span>
+    </div>
   )
 }
 
@@ -153,20 +167,25 @@ function Cta({ kind, accent = GREEN, label }: { kind: string; accent?: string; l
     )
 
     return kind === 'solid' ? (
-      <span data-role="button" className={shell} style={{ background: accent, color: "#ffffff" }}>
+      <button type="button" data-role="button" className={shell} style={{ background: accent, color: '#ffffff' }}>
         {inner('#ffffff')}
-      </span>
+      </button>
     ) : (
-      <span data-role="button" className={`${shell} border`} style={{ borderColor: accent, color: accent }}>
+      <button type="button" data-role="button" className={`${shell} border`} style={{ borderColor: accent, color: accent }}>
         {inner(accent)}
-      </span>
+      </button>
     )
   }
 
   return kind === 'solid' ? (
-    <span data-role="button" className="h-[4.4cqw] w-[16cqw] rounded-xs" style={{ background: accent }} />
+    <span aria-hidden="true" data-role="button" className="block h-[4.4cqw] w-[16cqw] rounded-xs" style={{ background: accent }} />
   ) : (
-    <span data-role="button" className="h-[4.4cqw] w-[16cqw] rounded-xs border" style={{ borderColor: accent }} />
+    <span
+      aria-hidden="true"
+      data-role="button"
+      className="block h-[4.4cqw] w-[16cqw] rounded-xs border"
+      style={{ borderColor: accent }}
+    />
   )
 }
 
@@ -184,12 +203,12 @@ function EmailLine({ text }: { text?: string }) {
           {text}
         </span>
       ) : (
-        <span className="h-[1.2cqw] w-[16cqw] rounded-full" style={{ background: ink }} />
+        <span aria-hidden="true" className="h-[1.2cqw] w-[16cqw] rounded-full" style={{ background: ink }} />
       )}
     </>
   )
 
-  if (!text) return <span className="flex items-center gap-[1.2cqw]">{inner}</span>
+  if (!text) return <span aria-hidden="true" className="flex items-center gap-[1.2cqw]">{inner}</span>
 
   return (
     <a
@@ -249,7 +268,7 @@ function Socials({ links }: { links?: string[] }) {
   ]
 
   return (
-    <span className="flex items-center gap-[1.4cqw]" style={{ color: ink }}>
+    <ul className="flex items-center gap-[1.4cqw]" style={{ color: ink }}>
       {glyphs.map((glyph, i) => {
         const icon = (
           <svg viewBox="0 0 16 16" className="size-[2.2cqw]" aria-hidden="true">
@@ -258,50 +277,49 @@ function Socials({ links }: { links?: string[] }) {
         )
         const href = links?.[i]
 
-        // A profile the client hasn't given us stays a plain mark.
-        return href ? (
-          <a
-            key={glyph.name}
-            href={href}
-            data-role="ext-link"
-            target="_blank"
-            rel="noreferrer"
-            aria-label={glyph.name}
-            className="flex"
-          >
-            {icon}
-          </a>
-        ) : (
-          <span key={glyph.name} className="flex">
-            {icon}
-          </span>
+        return (
+          <li key={glyph.name} className="flex">
+            {href ? (
+              <a href={href} data-role="ext-link" target="_blank" rel="noreferrer" aria-label={glyph.name} className="flex">
+                {icon}
+              </a>
+            ) : (
+              // A profile the client hasn't given us stays a plain mark.
+              <span aria-hidden="true" className="flex">
+                {icon}
+              </span>
+            )}
+          </li>
         )
       })}
-    </span>
+    </ul>
   )
 }
 
 /** The "CALL US / (123) 456-7890" block. */
 function CallUs({ greenNumber, phone }: { greenNumber?: boolean; phone?: string }) {
   return (
-    <span className="flex flex-col items-end gap-[0.9cqw]">
+    <div className="flex flex-col items-end gap-[0.9cqw]">
       <span className="text-[1.3cqw] leading-none tracking-[0.12em] uppercase" style={{ color: TAN }}>
         Call us
       </span>
       {phone ? (
-        <span
-          className="text-[2.2cqw] leading-none font-semibold"
+        <a
+          href={`tel:${phone.replace(/[^+\d]/g, '')}`}
+          data-role="ext-link"
+          className="text-[2.2cqw] leading-none font-semibold no-underline"
           style={{ color: greenNumber ? GREEN : '#2b2b2b' }}
         >
           {phone}
-        </span>
+        </a>
       ) : (
         <span
+          aria-hidden="true"
           className="h-[2cqw] w-[13cqw] rounded-full"
           style={{ background: greenNumber ? GREEN : '#2b2b2b' }}
         />
       )}
-    </span>
+    </div>
   )
 }
 
@@ -331,12 +349,12 @@ function NavRow({
     return (
       <div className={`${shell} grid grid-cols-3`} style={{ background: fill }}>
         <span />
-        <span className="flex justify-center">
+        <div className="flex justify-center">
           <Nav onDark={onDark} labels={labels} accent={accent} menu={menu} />
-        </span>
-        <span className="flex justify-end">
+        </div>
+        <div className="flex justify-end">
           <Cta kind={cta} accent={accent} label={ctaLabel} />
-        </span>
+        </div>
       </div>
     )
   }
@@ -344,10 +362,10 @@ function NavRow({
   return (
     <div className={`${shell} justify-between gap-[3cqw]`} style={{ background: fill }}>
       {nav === 'right' ? <span /> : <Nav onDark={onDark} labels={labels} accent={accent} menu={menu} />}
-      <span className="flex items-center gap-[3cqw]">
+      <div className="flex items-center gap-[3cqw]">
         {nav === 'right' && <Nav onDark={onDark} labels={labels} accent={accent} menu={menu} />}
         <Cta kind={cta} accent={accent} label={ctaLabel} />
-      </span>
+      </div>
     </div>
   )
 }
@@ -375,19 +393,19 @@ export default function HeaderPreview({
 
   if (structure === 'stacked') {
     return (
-      <div className="flex h-full flex-col">
+      <header className="flex h-full flex-col">
         <div className="flex items-start justify-between gap-[3cqw] px-[5cqw] pt-[4cqw] pb-[3cqw]">
-          <span className="flex flex-col gap-[2.5cqw]">
+          <div className="flex flex-col gap-[2.5cqw]">
             <Logo src={logo} />
             <Nav labels={labels} accent={accent} menu={menu} />
-          </span>
-          <span className="flex flex-col items-end gap-[2cqw]">
+          </div>
+          <div className="flex flex-col items-end gap-[2cqw]">
             <CallUs greenNumber phone={content?.phone} />
             <Cta kind={cta} accent={accent} label={ctaLabel} />
-          </span>
+          </div>
         </div>
-        <span className="h-px w-full bg-neutral-200" />
-      </div>
+        <span aria-hidden="true" className="h-px w-full bg-neutral-200" />
+      </header>
     )
   }
 
@@ -395,53 +413,53 @@ export default function HeaderPreview({
     const onDark = band === 'dark'
     const fill = BAND_FILL[band]
     return (
-      <div className="flex h-full flex-col">
+      <header className="flex h-full flex-col">
         <div className="flex items-center px-[5cqw] py-[3cqw]" style={{ background: fill }}>
           {nav === 'center' ? (
-            <span className="grid w-full grid-cols-3 items-center">
+            <div className="grid w-full grid-cols-3 items-center">
               <Logo src={logo} />
-              <span className="flex justify-center">
+              <div className="flex justify-center">
                 <Nav onDark={onDark} labels={labels} accent={accent} menu={menu} />
-              </span>
-              <span className="flex justify-end">
+              </div>
+              <div className="flex justify-end">
                 <Cta kind={cta} accent={accent} label={ctaLabel} />
-              </span>
-            </span>
+              </div>
+            </div>
           ) : nav === 'left' ? (
-            <span className="flex w-full items-center gap-[4cqw]">
+            <div className="flex w-full items-center gap-[4cqw]">
               <Logo src={logo} />
               <Nav onDark={onDark} labels={labels} accent={accent} menu={menu} />
-              <span className="ml-auto">
+              <div className="ml-auto">
                 <Cta kind={cta} accent={accent} label={ctaLabel} />
-              </span>
-            </span>
+              </div>
+            </div>
           ) : (
-            <span className="flex w-full items-center">
+            <div className="flex w-full items-center">
               <Logo src={logo} />
-              <span className="ml-auto flex items-center gap-[4cqw]">
+              <div className="ml-auto flex items-center gap-[4cqw]">
                 <Nav onDark={onDark} labels={labels} accent={accent} menu={menu} />
                 <Cta kind={cta} accent={accent} label={ctaLabel} />
-              </span>
-            </span>
+              </div>
+            </div>
           )}
         </div>
-        <span className="h-px w-full bg-neutral-200" />
-      </div>
+        <span aria-hidden="true" className="h-px w-full bg-neutral-200" />
+      </header>
     )
   }
 
   // Two-tier: a white utility bar above the nav band.
   return (
-    <div className="flex h-full flex-col">
+    <header className="flex h-full flex-col">
       {structure === 'utility-social' ? (
         <div className="grid grid-cols-3 items-center px-[5cqw] py-[3cqw]">
           <EmailLine text={content?.email} />
-          <span className="flex justify-center">
+          <div className="flex justify-center">
             <Logo src={logo} />
-          </span>
-          <span className="flex justify-end">
+          </div>
+          <div className="flex justify-end">
             <Socials links={socialLinks} />
-          </span>
+          </div>
         </div>
       ) : (
         <div className="flex items-center justify-between px-[5cqw] py-[3cqw]">
@@ -451,6 +469,6 @@ export default function HeaderPreview({
       )}
 
       <NavRow nav={nav} band={band} cta={cta} ctaLabel={ctaLabel} labels={labels} accent={accent} menu={menu} />
-    </div>
+    </header>
   )
 }

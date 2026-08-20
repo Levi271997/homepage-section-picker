@@ -26,8 +26,8 @@ function Stat({
   const parsed = value ? splitStat(value) : null
 
   return (
-    <span className="flex flex-col gap-[1.3cqw]">
-      <span className="text-[5cqw] leading-none font-bold" style={{ color: onGreen ? '#ffffff' : FIGURE_GREEN }}>
+    <li className="flex flex-col gap-[1.3cqw]">
+      <p className="text-[5cqw] leading-none font-bold" style={{ color: onGreen ? '#ffffff' : FIGURE_GREEN }}>
         {parsed ? (
           parsed.figure || parsed.label
         ) : (
@@ -35,18 +35,16 @@ function Stat({
             200<span className="ml-[1cqw] text-[3.4cqw]">+</span>
           </>
         )}
-      </span>
+      </p>
 
       {parsed?.figure ? (
-        <span
-          className="text-[1.8cqw] leading-tight font-semibold"
-          style={{ color: onGreen ? '#ffffff' : '#1c1c1c' }}
-        >
+        <p className="text-[1.8cqw] leading-tight font-semibold" style={{ color: onGreen ? '#ffffff' : '#1c1c1c' }}>
           {parsed.label}
-        </span>
+        </p>
       ) : (
         !parsed && (
           <span
+            aria-hidden="true"
             className="h-[1.6cqw] w-[30%] rounded-full"
             style={{ background: onGreen ? '#ffffff' : '#1c1c1c' }}
           />
@@ -55,12 +53,12 @@ function Stat({
 
       {layout === 'full' &&
         (description ? (
-          <span
+          <p
             className="mt-[0.4cqw] text-[1.4cqw] leading-[1.45]"
             style={{ color: onGreen ? 'rgba(255,255,255,0.8)' : '#6b6b6b' }}
           >
             {description}
-          </span>
+          </p>
         ) : (
           <span className="mt-[0.4cqw] flex flex-col gap-[0.8cqw]">
             <BodyLine className="w-full" />
@@ -68,7 +66,7 @@ function Stat({
             <BodyLine className="w-[62%]" />
           </span>
         ))}
-    </span>
+    </li>
   )
 }
 
@@ -86,7 +84,7 @@ export default function StatsPreview({
   const figures = linesOf(content?.items)
 
   const row = (
-    <div
+    <ul
       className="grid gap-[3cqw] px-[5cqw] py-[4cqw]"
       style={{
         gridTemplateColumns: `repeat(${count}, minmax(0, 1fr))`,
@@ -102,16 +100,20 @@ export default function StatsPreview({
           description={content?.itemBody}
         />
       ))}
-    </div>
+    </ul>
   )
 
   if (header === 'none') {
-    return <div className="flex h-full flex-col justify-center">{row}</div>
+    return (
+      <section aria-label="By the numbers" className="flex h-full flex-col justify-center">
+        {row}
+      </section>
+    )
   }
 
   return (
-    <div className="flex h-full flex-col justify-center gap-[2cqw]">
-      <span
+    <section aria-label="By the numbers" className="flex h-full flex-col justify-center gap-[2cqw]">
+      <div
         className={`flex flex-col gap-[1.4cqw] px-[5cqw] ${centered ? 'items-center text-center' : 'items-start'}`}
       >
         <Eyebrow text={content?.eyebrow} />
@@ -120,12 +122,12 @@ export default function StatsPreview({
           text={content?.heading}
         />
         <BodyLine className={centered ? 'w-[64%]' : 'w-[58%]'} text={content?.body} />
-        <span className="mt-[0.5cqw]">
+        <div className="mt-[0.5cqw]">
           <FilledButton label={content?.cta} />
-        </span>
-      </span>
+        </div>
+      </div>
 
       {row}
-    </div>
+    </section>
   )
 }

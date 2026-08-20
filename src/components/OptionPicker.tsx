@@ -70,9 +70,9 @@ export default function OptionPicker({ section, choice, content, onPick }: Props
                   }`}
                 >
                   <span className="relative block">
-                    <PreviewFrame>
+                    <PreviewFrame decorative>
                       {/* the option previewed against the section's other current choices */}
-                      <SectionPreview sectionId={sectionId} choice={{ ...choice, [group.id]: option.id }} content={content} />
+                      <SectionPreview sectionId={sectionId} choice={{ ...choice, [group.id]: option.id }} content={content} screenshot />
                     </PreviewFrame>
                     {selected && (
                       <span className="absolute top-1.5 right-1.5 flex size-5 items-center justify-center rounded-full bg-badge-ink text-canvas">
