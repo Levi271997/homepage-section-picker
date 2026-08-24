@@ -163,18 +163,9 @@ export default function SectionPreview({
         />
       )
     case 'content-section':
-      return (
-        <ContentSectionPreview
-          layout={choice.layout}
-          side={choice.side}
-          image={choice.image}
-          header={choice.header}
-          items={choice.items}
-          content={c}
-        />
-      )
+      return <ContentSectionPreview design={choice.design} content={c} />
     case 'content-card':
-      return <ContentCardPreview style={choice.style} header={choice.header} rows={choice.rows} content={c} />
+      return <ContentCardPreview design={choice.design} rows={choice.rows} content={c} />
     default:
       return <div className="h-full bg-white" />
   }

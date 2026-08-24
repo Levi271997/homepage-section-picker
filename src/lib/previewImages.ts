@@ -21,7 +21,21 @@ import type { Choice } from '@/lib/sections'
  */
 const HERO = (v: string) => asset(`/design-sets/section-cogs/hero/Type=Hero ${v}.svg`)
 
-export const PREVIEW_IMAGES: Record<string, Record<string, string>> = {
+const CARDS = (v: string, rows: string) =>
+  asset(`/design-sets/section-cogs/content card/Type=Content Cards ${v}, Rows=${rows}.svg`)
+
+// This set was exported under `Style=` rather than `Type=`; the names are kept
+// exactly as Figma wrote them, so the prefix differs here on purpose.
+const SECTION = (v: string) => asset(`/design-sets/section-cogs/content section/Style=Content Section ${v}.svg`)
+
+/**
+ * The artwork for one option: a file, or a function of the whole choice where
+ * a second axis picks between several drawings of the same design — the content
+ * cards are exported once per row count, so both axes have to be read.
+ */
+type Artwork = string | ((choice: Choice) => string)
+
+export const PREVIEW_IMAGES: Record<string, Record<string, Artwork>> = {
   'hero-logo': {
     v1: HERO('V1'),
     v2: HERO('V2'),
@@ -47,6 +61,18 @@ export const PREVIEW_IMAGES: Record<string, Record<string, string>> = {
     v26: HERO('V26'),
     v28: HERO('V28'),
   },
+
+  // Drawn once per row count, so each entry reads the rows axis back out of the
+  // choice. Rows only ever holds '1', '2' or '3' — the axis that sets it lists
+  // no other option — so every combination resolves to a file that exists.
+  'content-card': Object.fromEntries(
+    Array.from({ length: 22 }, (_, i) => [`v${i + 1}`, (choice: Choice) => CARDS(`V${i + 1}`, choice.rows ?? '1')]),
+  ),
+
+  // V11, V12 and V14 were never drawn, so the set skips them.
+  'content-section': Object.fromEntries(
+    [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 13, 15, 16, 17, 18, 19, 20, 21, 22, 23].map((v) => [`v${v}`, SECTION(`V${v}`)]),
+  ),
 }
 
 /** The artwork for this choice, or null to draw the wireframe instead. */
@@ -56,5 +82,7 @@ export function imageFor(sectionId: string, choice: Choice): string | null {
 
   const primary = byId(sectionId).options?.find((group) => group.display === 'cards')
   const key = primary ? choice[primary.id] : undefined
-  return (key ? byOption[key] : undefined) ?? byOption.default ?? null
+  const artwork = (key ? byOption[key] : undefined) ?? byOption.default
+  if (!artwork) return null
+  return typeof artwork === 'function' ? artwork(choice) : artwork
 }

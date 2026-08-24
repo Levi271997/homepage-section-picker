@@ -1,6 +1,66 @@
 @import 'tailwindcss';
 
+/*
+ * Recoleta (Latinotype) is a licensed font, so its files aren't committed here.
+ * Drop the woff2s into `public/fonts/recoleta/` under exactly these names and
+ * every heading picks it up with no code change; until then headings fall back
+ * to the serif stack `--font-display` names below, and these rules cost
+ * nothing — a face whose sources all 404 is simply never used.
+ *
+ * Two URLs per weight, and the browser takes the first that loads: the Pages
+ * build serves the site from `/homepage-section-picker`, and unlike an `<img>`
+ * src (see `lib/asset.ts`) a `url()` inside a stylesheet has no helper to
+ * rewrite it. Satoshi needs none of this — `next/font` handles it in `layout.tsx`.
+ */
+@font-face {
+  font-family: 'Recoleta';
+  src:
+    url('/fonts/recoleta/Recoleta-Regular.woff2') format('woff2'),
+    url('/homepage-section-picker/fonts/recoleta/Recoleta-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Recoleta';
+  src:
+    url('/fonts/recoleta/Recoleta-Medium.woff2') format('woff2'),
+    url('/homepage-section-picker/fonts/recoleta/Recoleta-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Recoleta';
+  src:
+    url('/fonts/recoleta/Recoleta-SemiBold.woff2') format('woff2'),
+    url('/homepage-section-picker/fonts/recoleta/Recoleta-SemiBold.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Recoleta';
+  src:
+    url('/fonts/recoleta/Recoleta-Bold.woff2') format('woff2'),
+    url('/homepage-section-picker/fonts/recoleta/Recoleta-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 @theme {
+  /*
+   * Satoshi carries the interface and body copy, Recoleta the headings.
+   * Both are tokens rather than hard-coded families, so `font-sans` and
+   * `font-display` are available as utilities and either one can be retargeted
+   * in a single place. `--font-satoshi` is defined by `next/font` on <html>;
+   * Recoleta's own @font-face lives in `app/layout.tsx`, and the serif stack
+   * after it is what renders until its licensed files are dropped in.
+   */
+  --font-sans: var(--font-satoshi), ui-sans-serif, system-ui, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Recoleta', ui-serif, Georgia, 'Times New Roman', serif;
+
   --color-canvas: #191919;
   --color-card: #232323;
   --color-row: #2b2b2b;
@@ -138,5 +198,31 @@ body {
 body {
   background: var(--color-canvas);
   color: var(--color-ink);
+  font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
+}
+
+/*
+ * Headings take the display face everywhere — the card's own titles and the
+ * headings inside the previews alike, since the previews are meant to show the
+ * type we'd actually build with. An element selector loses to any utility, so a
+ * section that needs the sans back can say so with `font-sans` on the heading.
+ */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-display);
+}
+
+/*
+ * Body copy is Satoshi. It already inherits that from `body`, so this is a
+ * guard rather than a change: it keeps paragraphs on the sans even inside a
+ * wrapper that has been given `font-display`, where they would otherwise
+ * inherit the serif along with the heading it was meant for.
+ */
+p {
+  font-family: var(--font-sans);
 }

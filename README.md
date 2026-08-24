@@ -15,6 +15,14 @@ OPENAI_API_KEY=sk-proj-...
 
 Without it every other feature works; the analyser reports that the key is missing and the previews stay as wireframes.
 
+## Fonts
+
+**Satoshi** carries the interface and body copy, **Recoleta** the headings. Both are design tokens — `--font-sans` and `--font-display` in `globals.css` — so either can be retargeted in one place, and `font-sans`/`font-display` work as Tailwind utilities.
+
+Satoshi is free under the ITF Free Font Licence and is committed in `src/app/fonts/satoshi/` (400/500/700/900), loaded through `next/font/local` so it's hashed, preloaded and prefixed correctly for the Pages sub-path.
+
+Recoleta is a licensed Latinotype font, so its files can't be committed. Its `@font-face` rules are already in place: buy a webfont licence and drop the woff2s into `public/fonts/recoleta/` (see the README there for the filenames) and headings pick it up with no code change. Until then they render in the serif fallback stack.
+
 ## Deploying to GitHub Pages
 
 `.github/workflows/pages.yml` builds a static export on every push to `main` and publishes it to `https://ivelnaj.github.io/homepage-section-picker/`. Enable it once under **Settings → Pages → Source → GitHub Actions**.
@@ -27,7 +35,7 @@ Never move the model call into the browser to work around this: the API key woul
 
 - **Live page preview on the left.** The whole homepage is assembled from the current order and layout choices, so every pick on the right updates it immediately. The section being edited is ringed and scrolled into view; hovering any section names it. Each section gets a ratio roughly matching its real height (a header is 16:5, a full content block 16:10) so the stack reads like a page. It sticks to the top of the viewport on wide screens and drops above the card on narrow ones.
 - **The finished page opens in its own window.** **Build my homepage** — and **New window** in the preview's chrome — open the assembled page on `/preview`, sized to the screen and running the full width of it, so it reads as the site rather than as a preview of one. It follows along: every change republishes, and the window re-renders. See [Two windows](#two-windows).
-- **Reads the client's existing site.** Answer "yes" to the existing-website question, enter the address, and **Read my site** pulls their brand colour, logo, navigation, hero copy and hero image into the live preview — their own content, in the layouts we propose. The contrast is the pitch, so copy is used verbatim and never rewritten. Anything we can't read falls back to the wireframe, section by section.
+- **Reads the client's existing site.** The card asks for their current address up front — no yes/no question first, and blank means building from scratch. Enter it and **Read my site** pulls their brand colour, logo, navigation, hero copy and hero image into the live preview — their own content, in the layouts we propose. The contrast is the pitch, so copy is used verbatim and never rewritten. Anything we can't read falls back to the wireframe, section by section.
 - **Every section carries editable content.** Opening a row gives **Layout** and **Content** tabs: layout arranges the section, content fills it. Each section declares its own fields — headings, body copy, button labels, list items, images — pre-filled with placeholder copy and locally generated placeholder artwork, so a page looks finished before anyone types anything. Images take a URL or a local file, and every section has a reset that restores its placeholders.
 - Lists the suggested sections; `required` ones show a badge instead of buttons.
 - **Drag to reorder** (native HTML5 drag events, no library). A blue line shows where it will land. Two flags govern a row: `required` hides its Swap/Remove buttons in favour of a badge, and `pinned` makes it an anchor that never moves and that nothing can be dropped onto — so the header and hero stay first and the footer stays last. The contact form is required but not pinned: it can't be removed, but it can still be dragged anywhere.
@@ -40,8 +48,8 @@ Never move the model call into the browser to work around this: the API key woul
   | Site header | Structure (4) × Nav position (3) × Nav band (3) × Button (3) |
   | Hero | Design: the 23-strong V1…V28 set — see [Design sets](#design-sets) |
   | Logo strip | Layout: carousel / headed grid / headed carousel |
-  | Content card | Card style (9) × Header (2) × Rows (3) |
-  | Content section | Layout (8) × Image side (2) × Image (2) × Header (2) × Items (3) |
+  | Content card | Design: the 22-strong V1…V22 set × Rows (3) — see [Design sets](#design-sets) |
+  | Content section | Design: the 20-strong V1…V23 set — see [Design sets](#design-sets) |
   | Testimonials | Layout (3) × Mark (2) × Card (3) × Header (2) × Rows (2) |
   | Team members | Portrait (2) × Card (2) × Align (2) × Columns (2) |
   | FAQ accordion | Row style (3) × Layout (2) × Columns (2) × Header (2) × Questions (3) |
@@ -113,16 +121,22 @@ Preflight strips the browser's default heading and list styling, so the tags are
 
 ## Design sets
 
-`public/design-sets/` holds the artwork exported from Figma, keeping the names it exported them with — `section-cogs/hero/Type=Hero V1.svg` and so on. The hero is the first section wired to its set: its `design` axis lists the 23 drawn heroes (V1…V8, V13…V26, V28) rather than the combinable axes the other sections use, because a design set is a fixed set and listing it verbatim keeps the picker and the design file describing the same thing.
+`public/design-sets/` holds the artwork exported from Figma, keeping the names it exported them with — `section-cogs/hero/Type=Hero V1.svg` and so on. Three sections are wired to their sets, and each lists the drawn designs on a `design` axis rather than the combinable axes the rest still use, because a design set is a fixed set and listing it verbatim keeps the picker and the design file describing the same thing:
+
+- **Hero** — the 23 drawn heroes (V1…V8, V13…V26, V28).
+- **Content cards** — 22 designs (V1…V22) × the rows axis, since the file draws each one at 1, 2 and 3 rows. Both axes are read together, so all 66 combinations have artwork behind them.
+- **Content section** — 20 designs (V1…V10, V13, V15…V23; V11, V12 and V14 were never drawn). Exported under `Style=` rather than `Type=`, so that prefix differs on purpose.
 
 Each design appears twice over, and the two are not the same picture:
 
 - **Choosing one** — the picker cards, the row thumbnail, the swap and add menus — shows the exported SVG. That's the finished design, at full fidelity.
-- **The assembled page** shows a wireframe rebuilt from the same design in [HeroPreview.tsx](src/components/previews/HeroPreview.tsx). Only the wireframe fills with the client's own colour, logo, copy and photography, and that contrast is the pitch; the SVG is fixed lorem ipsum with a green button.
+- **The assembled page** shows a wireframe rebuilt from the same design — [HeroPreview.tsx](src/components/previews/HeroPreview.tsx), [ContentCardPreview.tsx](src/components/previews/ContentCardPreview.tsx), [ContentSectionPreview.tsx](src/components/previews/ContentSectionPreview.tsx). Only the wireframe fills with the client's own colour, logo, copy and photography, and that contrast is the pitch; the SVG is fixed lorem ipsum with a green button.
 
 `SectionPreview`'s `screenshot` prop is what separates the two, so a caller picks a side rather than the artwork leaking onto the page.
 
-The heroes are variations on three frames — copy beside media, copy above media, copy over a full-width image — so `HeroPreview` describes them in a `SPECS` table (media side, what fills the media slot, contained or bleeding, intro line, tick list, buttons or email capture) and renders from that. A newly exported design is usually one row in that table, one entry in [previewImages.ts](src/lib/previewImages.ts), one option in `HERO_GROUPS`, and its artboard ratio in [aspect.ts](src/components/previews/aspect.ts) so the page stands it at the height it was drawn at.
+Each set is variations on a handful of frames, so every rebuilt preview describes its designs in a `SPECS` table and renders from that — the heroes over three frames (copy beside media, copy above media, copy over a full-width image), the cards over one grid, the content sections over four. A newly exported design is usually one row in that table, one entry in [previewImages.ts](src/lib/previewImages.ts), one option in the section's groups, and its artboard ratio in [aspect.ts](src/components/previews/aspect.ts) so the page stands it at the height it was drawn at. Those ratios are written out as whole class names rather than built from the numbers: Tailwind only generates an arbitrary value it can read literally in the source, so an `aspect-[1440/${n}]` would name a class that never exists.
+
+Two details the artwork settles, and the wireframes follow: the card and column links are drawn in the same warm ink as the labels (#563F3D), not green — the set keeps its greens for buttons, ticks and numerals; and a square-cornered image needs `rounded-none!`, because `ImageBlock` brings its own `rounded-xs` and Tailwind emits the radius utilities alphabetically, so plain `rounded-none` lands earlier in the stylesheet and loses whatever the class order says.
 
 Paths into `public/` go through [asset.ts](src/lib/asset.ts) rather than being written inline. Every image here renders through a plain `<img>` (see `parts.tsx`), so nothing else would apply the Pages `basePath`, and the Figma names need percent-encoding — Next serves `Type%3DHero%20V1.svg` but 404s on `Type=Hero%20V1.svg`, which `encodeURI` alone would leave as-is.
 

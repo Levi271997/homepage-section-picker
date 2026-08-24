@@ -27,7 +27,6 @@ export default function SectionPicker() {
   const [adding, setAdding] = useState(false)
   const [cardMenu, setCardMenu] = useState(false)
   const [built, setBuilt] = useState(false)
-  const [hasSite, setHasSite] = useState<'yes' | 'no' | null>(null)
   const [siteUrl, setSiteUrl] = useState('')
   const [profile, setProfile] = useState<SiteProfile | null>(null)
   const [analyzing, setAnalyzing] = useState(false)
@@ -37,8 +36,8 @@ export default function SectionPicker() {
   const [overIndex, setOverIndex] = useState<number | null>(null)
   const cardRef = useRef<HTMLDivElement>(null)
 
-  /** The analysed site, but only while it's relevant and was readable. */
-  const activeProfile = hasSite === 'yes' && profile && !profile.error ? profile : null
+  /** The analysed site, but only while it was readable. */
+  const activeProfile = profile && !profile.error ? profile : null
 
   // The static GitHub Pages build has no server to run the analyser, so the
   // control is hidden there rather than offered and then failing.
@@ -46,11 +45,8 @@ export default function SectionPicker() {
 
   /** The agreed build in one line — what the page view copies to the clipboard. */
   const spec = [
-    hasSite === 'yes'
-      ? `Rebuilding ${siteUrl.trim() || 'their existing site'}.`
-      : hasSite === 'no'
-        ? 'Building from scratch.'
-        : '',
+    // No address given yet, so the spec says nothing about a rebuild either way.
+    siteUrl.trim() ? `Rebuilding ${siteUrl.trim()}.` : '',
     'Sections: ' +
       ids
         .map((id) => {
@@ -86,7 +82,7 @@ export default function SectionPicker() {
     }
   }, [])
 
-  const previewAddress = hasSite === 'yes' ? profile?.url || siteUrl : ''
+  const previewAddress = profile?.url || siteUrl
   // Memoised because it's an effect dependency: `brandVariables` builds a fresh
   // object every call, which would republish on every render forever.
   const brand = useMemo(() => brandVariables(activeProfile), [activeProfile])
@@ -294,100 +290,73 @@ export default function SectionPicker() {
         </div>
       </div>
 
-      {/* Asked before the sections, since an existing site changes what we carry over. */}
+      {/* Asked before the sections, since the existing site is what we carry over from. */}
       <div className="mt-5 rounded-xl border border-hairline bg-row px-4 py-3">
-        <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
-          <span id="existing-site" className="text-sm text-ink">
-            Do you have an existing website?
-          </span>
-          <div role="radiogroup" aria-labelledby="existing-site" className="flex gap-2">
-            {(['yes', 'no'] as const).map((value) => (
-              <button
-                key={value}
-                type="button"
-                role="radio"
-                aria-checked={hasSite === value}
-                onClick={() => setHasSite(value)}
-                className={`rounded-lg border px-4 py-1.5 text-sm capitalize transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-badge-ink ${
-                  hasSite === value
-                    ? 'border-transparent bg-badge font-medium text-badge-ink'
-                    : 'border-hairline bg-card text-ink hover:bg-row-hover'
-                }`}
-              >
-                {value}
-              </button>
-            ))}
-          </div>
+        <label htmlFor="site-url" className="text-sm text-ink">
+          What&rsquo;s your current website address?
+        </label>
+        <div className="mt-2 flex gap-2">
+          <input
+            id="site-url"
+            type="text"
+            inputMode="url"
+            autoComplete="url"
+            spellCheck={false}
+            value={siteUrl}
+            onChange={(e) => setSiteUrl(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && canAnalyze) analyze()
+            }}
+            placeholder="yoursite.com"
+            className="min-w-0 flex-1 rounded-lg border border-hairline bg-card px-3 py-2 text-sm text-ink placeholder:text-ink-faint focus-visible:border-ink-faint focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-badge-ink"
+          />
+          {canAnalyze && (
+            <button
+              type="button"
+              onClick={analyze}
+              disabled={!siteUrl.trim() || analyzing}
+              className="shrink-0 rounded-lg border border-hairline bg-card px-3.5 py-2 text-sm text-ink transition-colors hover:bg-row-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-badge-ink disabled:cursor-not-allowed disabled:text-ink-faint disabled:hover:bg-card"
+            >
+              {analyzing ? 'Reading…' : 'Read my site'}
+            </button>
+          )}
         </div>
 
-        {hasSite === 'yes' && (
-          <div className="mt-3 border-t border-hairline pt-3">
-            <label htmlFor="site-url" className="text-xs text-ink-muted">
-              What&rsquo;s the address?
-            </label>
-            <div className="mt-1.5 flex gap-2">
-              <input
-                id="site-url"
-                type="text"
-                inputMode="url"
-                autoComplete="url"
-                spellCheck={false}
-                value={siteUrl}
-                onChange={(e) => setSiteUrl(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && canAnalyze) analyze()
-                }}
-                placeholder="yoursite.com"
-                className="min-w-0 flex-1 rounded-lg border border-hairline bg-card px-3 py-2 text-sm text-ink placeholder:text-ink-faint focus-visible:border-ink-faint focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-badge-ink"
+        {analyzing ? (
+          <p className="mt-1.5 text-xs text-ink-muted">
+            Fetching the page and pulling out your brand, copy and images&hellip;
+          </p>
+        ) : profile?.error ? (
+          <p className="mt-1.5 text-xs text-ink-muted">
+            Couldn&rsquo;t read it &mdash; {profile.error} The preview stays as an outline.
+          </p>
+        ) : profile ? (
+          <p className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-ink-muted">
+            {profile.brand.primary && (
+              <span
+                aria-hidden="true"
+                className="size-3 shrink-0 rounded-full border border-hairline"
+                style={{ background: profile.brand.primary }}
               />
-              {canAnalyze && (
-                <button
-                  type="button"
-                  onClick={analyze}
-                  disabled={!siteUrl.trim() || analyzing}
-                  className="shrink-0 rounded-lg border border-hairline bg-card px-3.5 py-2 text-sm text-ink transition-colors hover:bg-row-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-badge-ink disabled:cursor-not-allowed disabled:text-ink-faint disabled:hover:bg-card"
-                >
-                  {analyzing ? 'Reading…' : 'Read my site'}
-                </button>
-              )}
-            </div>
-
-            {analyzing ? (
-              <p className="mt-1.5 text-xs text-ink-muted">
-                Fetching the page and pulling out your brand, copy and images&hellip;
-              </p>
-            ) : profile?.error ? (
-              <p className="mt-1.5 text-xs text-ink-muted">
-                Couldn&rsquo;t read it &mdash; {profile.error} The preview stays as an outline.
-              </p>
-            ) : profile ? (
-              <p className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-ink-muted">
-                {profile.brand.primary && (
-                  <span
-                    aria-hidden="true"
-                    className="size-3 shrink-0 rounded-full border border-hairline"
-                    style={{ background: profile.brand.primary }}
-                  />
-                )}
-                <span>
-                  Using {profile.brand.name ?? 'your site'}&rsquo;s{' '}
-                  {[
-                    profile.brand.logoUrl && 'logo',
-                    profile.brand.primary && 'colour',
-                    profile.hero.headline && 'headline',
-                    profile.hero.imageUrl && 'hero image',
-                  ]
-                    .filter(Boolean)
-                    .join(', ') || 'details'}{' '}
-                  in the preview.
-                </span>
-              </p>
-            ) : (
-              <p className="mt-1.5 text-xs text-ink-muted">
-                We&rsquo;ll audit it first and carry over anything worth keeping.
-              </p>
             )}
-          </div>
+            <span>
+              Using {profile.brand.name ?? 'your site'}&rsquo;s{' '}
+              {[
+                profile.brand.logoUrl && 'logo',
+                profile.brand.primary && 'colour',
+                profile.hero.headline && 'headline',
+                profile.hero.imageUrl && 'hero image',
+              ]
+                .filter(Boolean)
+                .join(', ') || 'details'}{' '}
+              in the preview.
+            </span>
+          </p>
+        ) : (
+          <p className="mt-1.5 text-xs text-ink-muted">
+            We&rsquo;ll audit it first and carry over anything worth keeping. No site yet? Leave this blank and
+            we&rsquo;ll build from scratch.
+          </p>
         )}
       </div>
 

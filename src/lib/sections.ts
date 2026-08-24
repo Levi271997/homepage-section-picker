@@ -26,9 +26,6 @@ export type OptionGroup = {
 /** The selected option per group, keyed by group id. */
 export type Choice = Record<string, string>
 
-/** Layouts of the content section that pair copy with something beside it. */
-const SPLIT_LAYOUTS = ['copy', 'checklist', 'media-list', 'stats', 'mini-cards']
-
 /**
  * The hero design set, as exported from Figma.
  *
@@ -85,33 +82,41 @@ export const LOGO_GROUPS: OptionGroup[] = [
 ]
 
 /**
- * The content card grid. Three independent axes — card style, header treatment
- * and how many rows — rather than one flat list of every combination.
+ * The content card design set, as exported from Figma.
+ *
+ * Like the hero, a flat axis of the drawn designs rather than the combinable
+ * axes it used to invent — the header treatment and the card style aren't free
+ * choices, they're part of each design. Rows stays its own axis because the
+ * design file draws all three, so every combination here has artwork behind it.
  */
 export const CONTENT_CARD_GROUPS: OptionGroup[] = [
   {
-    id: 'style',
-    label: 'Card style',
+    id: 'design',
+    label: 'Design',
     display: 'cards',
     options: [
-      { id: 'plain', name: 'Plain', blurb: 'No container, small image above the label' },
-      { id: 'wide-image', name: 'Wide image', blurb: 'Full-width image above the label' },
-      { id: 'centered', name: 'Centered text', blurb: 'Image and copy centred in each column' },
-      { id: 'bordered', name: 'Bordered', blurb: 'Outlined card around each item' },
-      { id: 'tinted', name: 'Tinted', blurb: 'Soft green fill behind each item' },
-      { id: 'horizontal', name: 'Image left', blurb: 'Image beside the text, not above it' },
-      { id: 'numbered', name: 'Numbered', blurb: 'Large green numeral instead of an image' },
-      { id: 'numbered-footer', name: 'Number footer', blurb: 'Number and arrow below a divider' },
-      { id: 'button', name: 'Button CTA', blurb: 'Solid green button in place of the text link' },
-    ],
-  },
-  {
-    id: 'header',
-    label: 'Header',
-    display: 'chips',
-    options: [
-      { id: 'centered', name: 'Centred + button' },
-      { id: 'left', name: 'Left + View all' },
+      { id: 'v1', name: 'V1 · Button CTA', blurb: 'Centred header, thumbnail and a solid green button' },
+      { id: 'v2', name: 'V2 · Plain', blurb: 'Left header, thumbnail and a quiet text link' },
+      { id: 'v3', name: 'V3 · Bordered, button', blurb: 'Outlined cards closing on a green button' },
+      { id: 'v4', name: 'V4 · Bordered, plain', blurb: 'Left header over outlined cards' },
+      { id: 'v5', name: 'V5 · Thumbnail', blurb: 'Centred header, thumbnail above each label' },
+      { id: 'v6', name: 'V6 · Tinted', blurb: 'Soft green cards under a left header' },
+      { id: 'v7', name: 'V7 · Centred text', blurb: 'Thumbnail and copy centred in each column' },
+      { id: 'v8', name: 'V8 · Bordered, centred', blurb: 'Outlined cards with everything centred' },
+      { id: 'v9', name: 'V9 · Wide image, centred', blurb: 'Landscape image above centred copy' },
+      { id: 'v10', name: 'V10 · Bordered wide, centred', blurb: 'Outlined card around a landscape image' },
+      { id: 'v11', name: 'V11 · Wide image', blurb: 'Landscape image above left-aligned copy' },
+      { id: 'v12', name: 'V12 · Bordered wide', blurb: 'Left header, outlined cards, landscape image' },
+      { id: 'v13', name: 'V13 · Wide image, square', blurb: 'As V11 with square-cornered images' },
+      { id: 'v14', name: 'V14 · Tinted, image top', blurb: 'Image filling the top of a tinted card' },
+      { id: 'v15', name: 'V15 · Image beside, two up', blurb: 'Two columns, tall image next to the copy' },
+      { id: 'v16', name: 'V16 · Bordered, image beside', blurb: 'Two outlined cards, image against the edge' },
+      { id: 'v17', name: 'V17 · Thumbnail beside', blurb: 'Small image to the left of each label' },
+      { id: 'v18', name: 'V18 · Bordered, thumb beside', blurb: 'Outlined cards, image left of the text' },
+      { id: 'v19', name: 'V19 · Numbered', blurb: 'Large green numeral in place of an image' },
+      { id: 'v20', name: 'V20 · Numbered, grey', blurb: 'Numerals on warm grey cards' },
+      { id: 'v21', name: 'V21 · Number footer', blurb: 'Number and arrow ruled off below the link' },
+      { id: 'v22', name: 'V22 · Grey, number footer', blurb: 'Numbered footer on warm grey cards' },
     ],
   },
   {
@@ -127,65 +132,40 @@ export const CONTENT_CARD_GROUPS: OptionGroup[] = [
 ]
 
 /**
- * The content section — copy paired with an image, a list, stats or cards.
- * `side` and `image` only bite on the split layouts; `header` on the stacked
- * ones; `items` on whichever list or column count the layout shows.
+ * The content section design set, as exported from Figma.
+ *
+ * A flat axis of the 20 drawn designs, like the hero and the content cards.
+ * The axes this used to combine weren't free choices — how many ticks a design
+ * lists, whether its image bleeds, which side it sits on — they're all part of
+ * the design, so listing the set verbatim keeps the picker and the design file
+ * describing the same thing.
  */
 export const CONTENT_SECTION_GROUPS: OptionGroup[] = [
   {
-    id: 'layout',
-    label: 'Layout',
+    id: 'design',
+    label: 'Design',
     display: 'cards',
     options: [
-      { id: 'copy', name: 'Copy + image', blurb: 'Heading, paragraph and buttons beside an image' },
-      { id: 'checklist', name: 'Checklist + image', blurb: 'Green ticked points under the paragraph' },
-      { id: 'media-list', name: 'Media list + image', blurb: 'Stacked thumbnail-and-text items beside an image' },
-      { id: 'stats', name: 'Stats + image', blurb: 'A grid of “200+” figures beside an image' },
-      { id: 'mini-cards', name: 'Cards + copy', blurb: 'A 2×2 block of small cards facing the copy' },
-      { id: 'image-band', name: 'Header + image', blurb: 'Heading above one full-width image' },
-      { id: 'image-columns', name: 'Image + columns', blurb: 'Heading, wide image, then text columns' },
-      { id: 'card-columns', name: 'Card columns', blurb: 'Heading above a row of image cards' },
-    ],
-  },
-  {
-    id: 'side',
-    label: 'Image on',
-    display: 'chips',
-    appliesTo: (choice) => SPLIT_LAYOUTS.includes(choice.layout),
-    options: [
-      { id: 'left', name: 'Left' },
-      { id: 'right', name: 'Right' },
-    ],
-  },
-  {
-    id: 'image',
-    label: 'Image',
-    display: 'chips',
-    appliesTo: (choice) => SPLIT_LAYOUTS.includes(choice.layout) && choice.layout !== 'mini-cards',
-    options: [
-      { id: 'inset', name: 'Inset' },
-      { id: 'bleed', name: 'Full bleed' },
-    ],
-  },
-  {
-    id: 'header',
-    label: 'Header',
-    display: 'chips',
-    appliesTo: (choice) => !SPLIT_LAYOUTS.includes(choice.layout),
-    options: [
-      { id: 'centered', name: 'Centred' },
-      { id: 'left', name: 'Left + button' },
-    ],
-  },
-  {
-    id: 'items',
-    label: 'Items',
-    display: 'chips',
-    appliesTo: (choice) => choice.layout === 'checklist' || choice.layout === 'card-columns',
-    options: [
-      { id: '3', name: '3' },
-      { id: '4', name: '4' },
-      { id: '6', name: '6' },
+      { id: 'v1', name: 'V1 · Copy, image right', blurb: 'Eyebrow, heading, paragraph and two buttons' },
+      { id: 'v2', name: 'V2 · Copy, image left', blurb: 'The same, with the picture leading' },
+      { id: 'v3', name: 'V3 · Ticks, image right', blurb: 'Three ticked points under the paragraph' },
+      { id: 'v4', name: 'V4 · Ticks, image left', blurb: 'Picture first, three ticked points beside it' },
+      { id: 'v5', name: 'V5 · Six ticks, image right', blurb: 'A longer list of ticked points' },
+      { id: 'v6', name: 'V6 · Six ticks, image left', blurb: 'Picture first, six ticked points beside it' },
+      { id: 'v7', name: 'V7 · Full-bleed right', blurb: 'Ticks beside an image running off the right edge' },
+      { id: 'v8', name: 'V8 · Full-bleed left', blurb: 'Image off the left edge, ticks beside it' },
+      { id: 'v9', name: 'V9 · Media list, bleed right', blurb: 'Thumbnail-and-text rows, image off the edge' },
+      { id: 'v10', name: 'V10 · Media list, bleed left', blurb: 'Image off the left edge, media rows beside it' },
+      { id: 'v13', name: 'V13 · Email capture, image left', blurb: 'Picture beside an inline email field' },
+      { id: 'v15', name: 'V15 · Stats, image right', blurb: 'A 2×2 grid of “200+” figures' },
+      { id: 'v16', name: 'V16 · Stats, image left', blurb: 'Picture first, figures beside it' },
+      { id: 'v17', name: 'V17 · Wide image, centred', blurb: 'Centred header, full-width image, three columns' },
+      { id: 'v18', name: 'V18 · Wide image, left', blurb: 'Left header and button over the same' },
+      { id: 'v19', name: 'V19 · Cards right', blurb: 'Copy facing a 2×2 block of small cards' },
+      { id: 'v20', name: 'V20 · Cards left', blurb: 'The card block first, copy beside it' },
+      { id: 'v21', name: 'V21 · Flanked', blurb: 'One upright picture with a pair of cards each side' },
+      { id: 'v22', name: 'V22 · Banner', blurb: 'Heading, a sentence and two buttons — no picture' },
+      { id: 'v23', name: 'V23 · Email capture, image right', blurb: 'Inline email field, picture to the right' },
     ],
   },
 ]

@@ -169,9 +169,26 @@ export const CONTENT: Record<string, Schema> = {
       heading(),
       body(),
       cta('Primary button'),
-      { id: 'cta2', label: 'Secondary button', kind: 'text' },
-      { id: 'items', label: 'List items', kind: 'lines' },
+      {
+        id: 'cta2',
+        label: 'Secondary button',
+        kind: 'text',
+        hint: 'Also the column link in V17 and V18.',
+      },
+      {
+        id: 'items',
+        label: 'List items',
+        kind: 'lines',
+        hint: 'One per line — the ticks, the media rows or the card titles, depending on the design.',
+      },
+      {
+        id: 'stats',
+        label: 'Figures',
+        kind: 'lines',
+        hint: 'One per line, as "200+ · Projects delivered". Shown by V15 and V16.',
+      },
       image(),
+      { id: 'note', label: 'Small print', kind: 'text', hint: 'Under the email field in V13 and V23.' },
     ],
     defaults: {
       eyebrow: 'How we work',
@@ -179,8 +196,12 @@ export const CONTENT: Record<string, Schema> = {
       body: 'Two or three sentences carrying the argument, with the picture doing the rest of the work.',
       cta: 'Read more',
       cta2: 'Talk to us',
-      items: 'Something worth ticking\nA second point\nA third point\nOne more',
+      // Six lines, because V5 and V6 draw a list that long.
+      items:
+        'Something worth ticking\nA second point\nA third point\nOne more\nAnd another\nThe last one',
+      stats: '200+ · Projects delivered\n15 · Years running\n98% · Would recommend\n40 · Countries reached',
       image: LANDSCAPE,
+      note: '7 day free trial. No card required.',
     },
   },
 
