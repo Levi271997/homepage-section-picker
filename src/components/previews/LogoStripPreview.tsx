@@ -2,11 +2,13 @@
 
 import { useState } from 'react'
 import { Swiper, SwiperSlide } from 'swiper/react'
+import { Autoplay } from 'swiper/modules'
 import type { Swiper as SwiperClass } from 'swiper/types'
 import 'swiper/css'
 
 import { linesOf } from '@/lib/content'
 import type { SectionContent } from '@/lib/content'
+import { usePreviewMode } from '@/components/previews/mode'
 import { BodyLine, Dots, Eyebrow, FilledButton, HeadlineLine, LogoMark, LogoRow } from '@/components/previews/parts'
 
 /** The design set, by its Figma name — 'v1' … 'v3'. */
@@ -28,6 +30,38 @@ const PER_PAGE = 6
  * would be wrong at every width but one.
  */
 const GUTTER = '3.09%'
+
+/** How long a logo holds before the strip moves on. */
+const DELAY = 3000
+
+/**
+ * It rewinds rather than loops.
+ *
+ * Looping is the obvious way to give autoplay somewhere to go at the end, and
+ * it doesn't survive here. Swiper reorders the slides to fake the seam, and
+ * with six of them in view over a list of eighteen it runs out of slides to
+ * move: watched for 75 seconds untouched, `activeIndex` stopped tracking the
+ * real one around the thirteenth logo and the instance wedged with
+ * `animating` stuck true, where it stayed. `loopAdditionalSlides` made it
+ * worse — the headroom comes out of the same eighteen.
+ *
+ * Rewinding reorders nothing. The strip runs to the last full row and sweeps
+ * back to the first, which is a movement you can see rather than a seam you
+ * can't, and it doesn't stop.
+ */
+const AUTOPLAY = {
+  delay: DELAY,
+  disableOnInteraction: false,
+  pauseOnMouseEnter: true,
+  /*
+   * Autoplay normally pauses as a move begins and waits for the wrapper's
+   * `transitionend` before restarting its timer. Watched for 75 seconds it
+   * stopped on a move whose event never arrived and stayed paused for the
+   * remaining 45. Not waiting removes the dependency: the timer restarts as
+   * the move begins, 300ms earlier and on nothing but the clock.
+   */
+  waitForTransition: false,
+} as const
 
 /**
  * What each design is made of.
@@ -92,14 +126,28 @@ export default function LogoStripPreview({
    * makes that the default behaviour once the slides are cut per logo.
    *
    * The dots stay ours: Swiper's own pagination is off by default and the set
-   * draws these in the brand green. They still step a whole row, because the
-   * design draws a handful of them and one dot per logo would be thirteen. So
-   * they say which sixth of the list you're in — `slideTo` on the way in,
-   * `activeIndex` on the way back, floored to its page.
+   * draws these in the brand green. They step a whole row, because the design
+   * draws a handful of them and one per logo would be eighteen.
+   *
+   * Which row each one lands on is `STOPS`, not `i * 6`. The strip stops with
+   * the last six still filling the row, so the final page starts wherever that
+   * leaves it: eight logos can only reach index 2, and dividing by six floors
+   * that to the first dot, so the second one never lit. Reading the stop back
+   * marks whichever page the strip has actually reached.
    */
+  const mode = usePreviewMode()
+  const movable = names.length > PER_PAGE
+  // The codebase's rule for every carousel: nothing moves outside the page
+  // view, where fourteen quietly animating thumbnails would be a distraction.
+  const live = mode === 'interactive' && movable
+
+  /** Where each dot sends the strip — a row apart, up against the end. */
+  const last = Math.max(0, names.length - PER_PAGE)
+  const stops = Array.from({ length: pages }, (_, i) => Math.min(i * PER_PAGE, last))
+
   const [swiper, setSwiper] = useState<SwiperClass | null>(null)
   const [index, setIndex] = useState(0)
-  const slide = Math.min(Math.floor(index / PER_PAGE), pages - 1)
+  const slide = stops.reduce((best, stop, i) => (index >= stop ? i : best), 0)
 
   /**
    * Dots page through the strip; without names they're the design's inert five.
@@ -115,7 +163,7 @@ export default function LogoStripPreview({
             data-role="control"
             aria-label={`Logos, page ${i + 1}`}
             aria-current={i === slide || undefined}
-            onClick={() => swiper?.slideTo(i * PER_PAGE)}
+            onClick={() => swiper?.slideTo(stops[i])}
             className="size-[1.3cqw] rounded-full"
             style={{ background: i === slide ? 'var(--brand,#3f6b30)' : 'var(--brand-dim,#8cbb7c)' }}
           />
@@ -132,9 +180,19 @@ export default function LogoStripPreview({
     <Swiper
       className="w-full"
       wrapperTag="ul"
+      modules={[Autoplay]}
       slidesPerView={PER_PAGE}
       spaceBetween={GUTTER}
-      onSwiper={setSwiper}
+      rewind
+      allowTouchMove={mode === 'interactive'}
+      autoplay={live ? AUTOPLAY : false}
+      onSwiper={(s) => {
+        setSwiper(s)
+        // Read once here rather than through state: the reduced-motion setting
+        // doesn't change under us, and stopping the instance beats re-creating
+        // it with a different `autoplay` param.
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) s.autoplay?.stop()
+      }}
       onSlideChange={(s) => setIndex(s.activeIndex)}
     >
       {Array.from({ length: names.length || PER_PAGE }, (_, i) => (
