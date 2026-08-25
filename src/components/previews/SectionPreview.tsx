@@ -67,17 +67,7 @@ export default function SectionPreview({
     case 'logo-strip':
       return <LogoStripPreview design={choice.design} content={c} />
     case 'cta':
-      return (
-        <CtaPreview
-          layout={choice.layout}
-          band={choice.band}
-          shape={choice.shape}
-          side={choice.side}
-          align={choice.align}
-          list={choice.list}
-          content={c}
-        />
-      )
+      return <CtaPreview design={choice.design} content={c} />
     case 'stats':
       return <StatsPreview design={choice.design} content={c} />
     case 'faq':

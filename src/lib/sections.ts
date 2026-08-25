@@ -227,66 +227,32 @@ export const HEADER_GROUPS: OptionGroup[] = [
   },
 ]
 
-/** The call to action — a closing pitch, with or without an image. */
+/**
+ * The call-to-action design set, as exported from Figma.
+ *
+ * Ten drawn designs on a flat `design` axis, over three frames: a band running
+ * the copy across the full width, a split setting it beside a picture, and a
+ * rounded green panel. What sits behind — nothing, a photograph under a dark
+ * wash, or the brand green — is part of the design rather than a switch, and so
+ * is which side the picture takes and whether the buttons sit under the copy or
+ * out at the right.
+ */
 export const CTA_GROUPS: OptionGroup[] = [
   {
-    id: 'layout',
-    label: 'Layout',
+    id: 'design',
+    label: 'Design',
     display: 'cards',
     options: [
-      { id: 'split', name: 'Image + copy', blurb: 'Image beside the pitch' },
-      { id: 'banner', name: 'Copy only', blurb: 'Just the pitch and its buttons' },
-    ],
-  },
-  {
-    id: 'band',
-    label: 'Background',
-    display: 'chips',
-    options: [
-      { id: 'white', name: 'White' },
-      { id: 'green', name: 'Green' },
-      { id: 'photo', name: 'Photo' },
-    ],
-  },
-  {
-    id: 'shape',
-    label: 'Shape',
-    display: 'chips',
-    appliesTo: (choice) => choice.band !== 'white',
-    options: [
-      { id: 'full', name: 'Full width' },
-      { id: 'panel', name: 'Rounded panel' },
-    ],
-  },
-  {
-    id: 'side',
-    label: 'Image on',
-    display: 'chips',
-    appliesTo: (choice) => choice.layout === 'split',
-    options: [
-      { id: 'left', name: 'Left' },
-      { id: 'right', name: 'Right' },
-    ],
-  },
-  {
-    id: 'align',
-    label: 'Copy',
-    display: 'chips',
-    appliesTo: (choice) => choice.layout === 'banner',
-    options: [
-      { id: 'left', name: 'Left' },
-      { id: 'apart', name: 'Buttons right' },
-      { id: 'center', name: 'Centred' },
-    ],
-  },
-  {
-    id: 'list',
-    label: 'Copy list',
-    display: 'chips',
-    appliesTo: (choice) => choice.layout === 'split',
-    options: [
-      { id: 'checks', name: 'Ticked points' },
-      { id: 'none', name: 'None' },
+      { id: 'v1', name: 'V1 · Plain band', blurb: 'Left copy with both buttons underneath' },
+      { id: 'v2', name: 'V2 · Buttons right', blurb: 'The same, with the pair out at the right edge' },
+      { id: 'v3', name: 'V3 · Photo band', blurb: 'V1 over a photograph under a dark wash' },
+      { id: 'v4', name: 'V4 · Photo, buttons right', blurb: 'V2 over the same photograph' },
+      { id: 'v5', name: 'V5 · Copy, then picture', blurb: 'Copy and ticked points beside a picture on the right' },
+      { id: 'v6', name: 'V6 · Picture, then copy', blurb: 'The same with the picture on the left' },
+      { id: 'v7', name: 'V7 · Green panel', blurb: 'A rounded green card, picture on the right, one button' },
+      { id: 'v8', name: 'V8 · Green panel, reversed', blurb: 'The same with the picture on the left' },
+      { id: 'v9', name: 'V9 · Centred on photo', blurb: 'Centred copy over a photograph' },
+      { id: 'v10', name: 'V10 · Centred on green', blurb: 'Centred copy on the brand green' },
     ],
   },
 ]

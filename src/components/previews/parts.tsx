@@ -211,21 +211,59 @@ export function HeadlineLine({
   className = '',
   text,
   as: Tag = 'h2',
+  color,
 }: {
   className?: string
   text?: string | null
   as?: HeadingLevel
+  /** Overrides the near-black, for a section that sets its copy on a dark ground. */
+  color?: string
 }) {
   if (text) {
-    return <Tag className={`block text-[3.4cqw] leading-[1.15] font-semibold text-neutral-900 ${className}`}>{text}</Tag>
+    return (
+      <Tag
+        className={`block text-[3.4cqw] leading-[1.15] font-semibold ${color ? '' : 'text-neutral-900'} ${className}`}
+        style={color ? { color } : undefined}
+      >
+        {text}
+      </Tag>
+    )
   }
   // No words yet: a bar standing in for a heading, with nothing to announce.
-  return <span aria-hidden="true" className={`block h-[1.9cqw] rounded-full bg-neutral-800 ${className}`} />
+  return (
+    <span
+      aria-hidden="true"
+      className={`block h-[1.9cqw] rounded-full ${color ? '' : 'bg-neutral-800'} ${className}`}
+      style={color ? { background: color } : undefined}
+    />
+  )
 }
 
-export function BodyLine({ className = '', text }: { className?: string; text?: string | null }) {
+export function BodyLine({
+  className = '',
+  text,
+  color,
+}: {
+  className?: string
+  text?: string | null
+  /** Overrides the grey, for a section that sets its copy on a dark ground. */
+  color?: string
+}) {
   if (text) {
-    return <p className={`block text-[1.8cqw] leading-[1.45] text-neutral-600 ${className}`}>{text}</p>
+    return (
+      <p
+        className={`block text-[1.8cqw] leading-[1.45] ${color ? '' : 'text-neutral-600'} ${className}`}
+        style={color ? { color } : undefined}
+      >
+        {text}
+      </p>
+    )
   }
-  return <span aria-hidden="true" className={`block h-[1cqw] rounded-full bg-neutral-300 ${className}`} />
+  return (
+    <span
+      aria-hidden="true"
+      className={`block h-[1cqw] rounded-full ${color ? '' : 'bg-neutral-300'} ${className}`}
+      style={color ? { background: color } : undefined}
+    />
+  )
 }

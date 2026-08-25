@@ -184,6 +184,23 @@ const FAQ_RATIOS: Record<string, string> = {
   v5: 'aspect-[1440/631]',
 }
 
+/**
+ * Call-to-action heights, from the artboards the designs were exported at. The
+ * bands are strips; the two on a rounded green panel are the tall ones.
+ */
+const CTA_RATIOS: Record<string, string> = {
+  v1: 'aspect-[1440/391]',
+  v2: 'aspect-[1440/330]',
+  v3: 'aspect-[1440/391]',
+  v4: 'aspect-[1440/330]',
+  v5: 'aspect-[1440/613]',
+  v6: 'aspect-[1440/613]',
+  v7: 'aspect-[1440/673]',
+  v8: 'aspect-[1440/673]',
+  v9: 'aspect-[1440/383]',
+  v10: 'aspect-[1440/383]',
+}
+
 export function aspectFor(id: string, choice: Choice): string {
   switch (id) {
     case 'hero-logo':
@@ -210,7 +227,7 @@ export function aspectFor(id: string, choice: Choice): string {
     case 'faq':
       return FAQ_RATIOS[choice.design] ?? 'aspect-[1440/613]'
     case 'cta':
-      return choice.layout === 'banner' ? 'aspect-16/6' : 'aspect-16/9'
+      return CTA_RATIOS[choice.design] ?? 'aspect-[1440/391]'
     case 'site-footer':
       // A legal bar or a lone logo is a strip; link columns need the height.
       return choice.layout === 'bar' || choice.layout === 'logo-only' ? 'aspect-16/3' : 'aspect-16/7'
