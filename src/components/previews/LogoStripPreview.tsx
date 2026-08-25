@@ -1,8 +1,12 @@
 'use client'
 
+import { useState } from 'react'
+import { Swiper, SwiperSlide } from 'swiper/react'
+import type { Swiper as SwiperClass } from 'swiper/types'
+import 'swiper/css'
+
 import { linesOf } from '@/lib/content'
 import type { SectionContent } from '@/lib/content'
-import { useCarousel } from '@/components/previews/useCarousel'
 import { BodyLine, Dots, Eyebrow, FilledButton, HeadlineLine, LogoRow } from '@/components/previews/parts'
 
 /** The design set, by its Figma name — 'v1' … 'v3'. */
@@ -71,10 +75,21 @@ export default function LogoStripPreview({
   // Only the one-row designs page. Three rows is a block of text standing still,
   // and a grid that reshuffles itself is hard to read.
   const pages = names.length ? Math.max(1, Math.ceil(names.length / PER_PAGE)) : 5
-  const { slide, setSlide, containerProps, motion } = useCarousel({
-    slides: pages,
-    enabled: spec.rows === 1,
-  })
+
+  /*
+   * V1 and V2 page on Swiper, left on its defaults — one slide in view, no
+   * gap, no loop, no modules, drag to move.
+   *
+   * A slide is a whole row of six logos rather than one logo, which is what
+   * makes those defaults land on the row the set actually draws: at one slide
+   * per view, a slide of six is six across.
+   *
+   * The dots stay ours. Swiper's own pagination is off by default and the set
+   * draws these in the brand green, so they read the instance rather than
+   * replace it — `slideTo` on the way in, `activeIndex` on the way back.
+   */
+  const [swiper, setSwiper] = useState<SwiperClass | null>(null)
+  const [slide, setSlide] = useState(0)
 
   /**
    * Dots page through the strip; without names they're the design's inert five.
@@ -90,7 +105,7 @@ export default function LogoStripPreview({
             data-role="control"
             aria-label={`Logos, page ${i + 1}`}
             aria-current={i === slide || undefined}
-            onClick={() => setSlide(i)}
+            onClick={() => swiper?.slideTo(i)}
             className="size-[1.3cqw] rounded-full"
             style={{ background: i === slide ? 'var(--brand,#3f6b30)' : 'var(--brand-dim,#8cbb7c)' }}
           />
@@ -101,25 +116,23 @@ export default function LogoStripPreview({
     </div>
   )
 
-  /** One page of logos, keyed on the page so it animates in. */
   const strip = (
-    <div key={slide} {...motion} className={`${motion.className} block w-full`}>
-      <LogoRow names={logos} offset={slide * PER_PAGE} />
-    </div>
+    <Swiper className="w-full" onSwiper={setSwiper} onSlideChange={(s) => setSlide(s.activeIndex)}>
+      {Array.from({ length: pages }, (_, i) => (
+        <SwiperSlide key={i}>
+          <LogoRow names={logos} offset={i * PER_PAGE} />
+        </SwiperSlide>
+      ))}
+    </Swiper>
   )
 
   // 80px of margin top and bottom and 120 either side, as all three are drawn.
   const frame = 'flex h-full flex-col items-center justify-center gap-[4cqw] px-[5cqw] py-[5.5cqw]'
 
-  // No heading at all: the bare strip is the shortest design in the set, and it
-  // takes the drag and hover handlers itself rather than through a wrapper.
+  // No heading at all: the bare strip is the shortest design in the set.
   if (!spec.header) {
     return (
-      <section
-        aria-label="Client logos"
-        {...containerProps}
-        className={`${frame} overflow-hidden ${containerProps.className}`}
-      >
+      <section aria-label="Client logos" className={`${frame} overflow-hidden`}>
         {strip}
         {paging}
       </section>
@@ -139,10 +152,7 @@ export default function LogoStripPreview({
           ))}
         </div>
       ) : (
-        <div
-          {...containerProps}
-          className={`flex w-full flex-col items-center gap-[4cqw] overflow-hidden ${containerProps.className}`}
-        >
+        <div className="flex w-full flex-col items-center gap-[4cqw] overflow-hidden">
           {strip}
           {spec.dots && paging}
         </div>
