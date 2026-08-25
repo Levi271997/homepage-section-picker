@@ -173,18 +173,6 @@ const BLOG_RATIOS: Record<string, string> = {
 }
 
 /**
- * FAQ heights, from the artboards the designs were exported at. The two-column
- * designs stand at 649; the one that sets its copy alongside is 631.
- */
-const FAQ_RATIOS: Record<string, string> = {
-  v1: 'aspect-[1440/613]',
-  v2: 'aspect-[1440/613]',
-  v3: 'aspect-[1440/649]',
-  v4: 'aspect-[1440/649]',
-  v5: 'aspect-[1440/631]',
-}
-
-/**
  * Call-to-action heights, from the artboards the designs were exported at. The
  * bands are strips; the two on a rounded green panel are the tall ones.
  */
@@ -255,7 +243,18 @@ export function aspectFor(id: string, choice: Choice): string {
     case 'blogs':
       return BLOG_RATIOS[choice.design] ?? 'aspect-[1440/850]'
     case 'faq':
-      return FAQ_RATIOS[choice.design] ?? 'aspect-[1440/613]'
+      /*
+       * The only section with no ratio.
+       *
+       * Its rows are real `details`, so opening one puts an answer on the page
+       * that wasn't there a moment ago — and the artboards were drawn with
+       * everything shut. Held at the height it was drawn at, the frame would
+       * clip whatever the reader just opened, which is the one thing the
+       * section exists to show. `h-auto` lets it take the height of what's in
+       * it; closed, that lands within a few units of the artboard anyway,
+       * because everything inside is sized in `cqw` like every other preview.
+       */
+      return 'h-auto'
     case 'cta':
       return CTA_RATIOS[choice.design] ?? 'aspect-[1440/391]'
     case 'contact-form':
