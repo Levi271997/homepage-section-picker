@@ -136,8 +136,33 @@ html {
   animation: preview-slide-left 0.45s cubic-bezier(0.22, 0.61, 0.36, 1) both;
 }
 
+/*
+ * The bands the popped-out window holds up until it has a page to draw.
+ *
+ * A slow breath rather than a sweep: this is normally on screen for a moment,
+ * and anything faster reads as the page misbehaving rather than as it loading.
+ */
+.skeleton-band {
+  background: #f4f3f1;
+  animation: skeleton-breathe 1.6s ease-in-out infinite;
+}
+
+@keyframes skeleton-breathe {
+  0%,
+  100% {
+    background-color: #f4f3f1;
+  }
+  50% {
+    background-color: #ebe9e6;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .preview-slide-left {
+    animation: none;
+  }
+
+  .skeleton-band {
     animation: none;
   }
 }
