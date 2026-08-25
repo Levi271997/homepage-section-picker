@@ -191,15 +191,23 @@ function BrandColumn({ src, tagline }: { src?: string; tagline?: string }) {
 /** The sign-up block that takes the last column on the two designs that draw one. */
 function Signup({ spec, content }: { spec: Spec; content?: SectionContent }) {
   const inline = spec.signup === 'inline'
+  /**
+   * A real field, not a picture of one: on the assembled page the footer
+   * behaves like a footer, so an address can be typed into it.
+   *
+   * Safe to leave writable everywhere because `PreviewFrame` marks the row
+   * thumbnails `decorative`, which puts `inert` on the whole subtree — the
+   * field can't be reached or focused in the 64px miniatures.
+   */
   const field = (
     <input
       type="email"
-      readOnly
+      autoComplete="email"
       aria-label="Email address"
       placeholder={content?.newsletterHint || undefined}
       // 48 tall as drawn, and the placeholder is set in the same tan as the copy.
-      className="h-[3.33cqw] w-full rounded-[0.28cqw] px-[1.18cqw] text-[1.04cqw] leading-none placeholder:text-[color:var(--brand-accent,#917061)]"
-      style={{ background: FIELD, color: TAN }}
+      className="h-[3.33cqw] w-full rounded-[0.28cqw] px-[1.18cqw] text-[1.04cqw] leading-none outline-none placeholder:text-[color:var(--brand-accent,#917061)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--brand,#4b7b35)]"
+      style={{ background: FIELD, color: BODY }}
     />
   )
 
