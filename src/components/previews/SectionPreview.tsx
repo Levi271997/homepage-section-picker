@@ -96,15 +96,7 @@ export default function SectionPreview({
     case 'client-quote':
       return <TestimonialsPreview design={choice.design} content={c} />
     case 'pricing':
-      return (
-        <PricingPreview
-          layout={choice.layout}
-          ticks={choice.ticks}
-          card={choice.card}
-          highlight={choice.highlight}
-          content={c}
-        />
-      )
+      return <PricingPreview design={choice.design} content={c} />
     case 'blogs':
       return (
         <BlogsPreview

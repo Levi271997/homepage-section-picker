@@ -145,6 +145,20 @@ const STATS_RATIOS: Record<string, string> = {
   v4: 'aspect-[1440/252]',
 }
 
+/**
+ * Pricing heights, from the artboards the designs were exported at. The one
+ * that opens each plan with a picture is the tall one; the one with no feature
+ * list is the short one.
+ */
+const PRICING_RATIOS: Record<string, string> = {
+  v1: 'aspect-[1440/805]',
+  v2: 'aspect-[1440/875]',
+  v3: 'aspect-[1440/809]',
+  v4: 'aspect-[1440/879]',
+  v5: 'aspect-[1440/965]',
+  v6: 'aspect-[1440/727]',
+}
+
 export function aspectFor(id: string, choice: Choice): string {
   switch (id) {
     case 'hero-logo':
@@ -164,6 +178,8 @@ export function aspectFor(id: string, choice: Choice): string {
       return TEAM_RATIOS[choice.design] ?? 'aspect-[1440/614]'
     case 'stats':
       return STATS_RATIOS[choice.design] ?? 'aspect-[1440/619]'
+    case 'pricing':
+      return PRICING_RATIOS[choice.design] ?? 'aspect-[1440/805]'
     case 'cta':
       return choice.layout === 'banner' ? 'aspect-16/6' : 'aspect-16/9'
     case 'site-footer':

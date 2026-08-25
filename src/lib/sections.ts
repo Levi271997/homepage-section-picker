@@ -413,46 +413,26 @@ export const TESTIMONIAL_GROUPS: OptionGroup[] = [
   },
 ]
 
-/** The pricing table — a row of plan cards under a heading. */
+/**
+ * The pricing design set, as exported from Figma.
+ *
+ * Six drawn designs on a flat `design` axis. Whether a plan sits in an outlined
+ * card, whether the middle one is tinted, which side of a feature its tick sits
+ * on and where the gold pill goes aren't free choices — they're what tells the
+ * six apart. The plan count goes with them: the set is three across throughout.
+ */
 export const PRICING_GROUPS: OptionGroup[] = [
   {
-    id: 'layout',
-    label: 'Plan card',
+    id: 'design',
+    label: 'Design',
     display: 'cards',
     options: [
-      { id: 'simple', name: 'Price only', blurb: 'Label, price, summary and a button' },
-      { id: 'features', name: 'With features', blurb: 'A ticked feature list above the button' },
-      { id: 'icon', name: 'Icon + price', blurb: 'Icon above the price, label underneath' },
-    ],
-  },
-  {
-    id: 'ticks',
-    label: 'Ticks',
-    display: 'chips',
-    defaultId: 'right',
-    appliesTo: (choice) => choice.layout !== 'simple',
-    options: [
-      { id: 'left', name: 'Left' },
-      { id: 'right', name: 'Right' },
-    ],
-  },
-  {
-    id: 'card',
-    label: 'Card',
-    display: 'chips',
-    options: [
-      { id: 'bordered', name: 'Bordered' },
-      { id: 'plain', name: 'Plain' },
-    ],
-  },
-  {
-    id: 'highlight',
-    label: 'Best plan',
-    display: 'chips',
-    options: [
-      { id: 'fill', name: 'Fill + badge' },
-      { id: 'badge', name: 'Badge only' },
-      { id: 'none', name: 'None' },
+      { id: 'v1', name: 'V1 · Bare columns', blurb: 'No card, ticks left, pill out at the column edge' },
+      { id: 'v2', name: 'V2 · Outlined, tinted', blurb: 'Cards with the middle plan on the pale green' },
+      { id: 'v3', name: 'V3 · Ticks right', blurb: 'Bare columns with the ticks on the right, pill beside the name' },
+      { id: 'v4', name: 'V4 · Outlined', blurb: 'Three white cards, ticks right' },
+      { id: 'v5', name: 'V5 · Picture on top', blurb: 'A square above the price, the plan name under it' },
+      { id: 'v6', name: 'V6 · Price only', blurb: 'Name, price and summary — no feature list' },
     ],
   },
 ]
