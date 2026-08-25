@@ -47,7 +47,7 @@ Never move the model call into the browser to work around this: the API key woul
   | --- | --- |
   | Site header | Structure (4) × Nav position (3) × Nav band (3) × Button (3) |
   | Hero | Design: the 23-strong V1…V28 set — see [Design sets](#design-sets) |
-  | Logo strip | Layout: carousel / headed grid / headed carousel |
+  | Logo strip | Design: the 3-strong V1…V3 set — see [Design sets](#design-sets) |
   | Content card | Design: the 22-strong V1…V22 set × Rows (3) — see [Design sets](#design-sets) |
   | Content section | Design: the 20-strong V1…V23 set — see [Design sets](#design-sets) |
   | Testimonials | Design: the 6-strong V1…V6 set — see [Design sets](#design-sets) |
@@ -121,21 +121,22 @@ Preflight strips the browser's default heading and list styling, so the tags are
 
 ## Design sets
 
-`public/design-sets/` holds the artwork exported from Figma, keeping the names it exported them with — `section-cogs/hero/Type=Hero V1.svg` and so on. Four sections are wired to their sets, and each lists the drawn designs on a `design` axis rather than the combinable axes the rest still use, because a design set is a fixed set and listing it verbatim keeps the picker and the design file describing the same thing:
+`public/design-sets/` holds the artwork exported from Figma, keeping the names it exported them with — `section-cogs/hero/Type=Hero V1.svg` and so on. Five sections are wired to their sets, and each lists the drawn designs on a `design` axis rather than the combinable axes the rest still use, because a design set is a fixed set and listing it verbatim keeps the picker and the design file describing the same thing:
 
 - **Hero** — the 23 drawn heroes (V1…V8, V13…V26, V28).
 - **Content cards** — 22 designs (V1…V22) × the rows axis, since the file draws each one at 1, 2 and 3 rows. Both axes are read together, so all 66 combinations have artwork behind them.
 - **Content section** — 20 designs (V1…V10, V13, V15…V23; V11, V12 and V14 were never drawn). Exported under `Style=` rather than `Type=`, so that prefix differs on purpose.
 - **Testimonials** — the six drawn designs (V1…V6).
+- **Logo strip** — three designs (V1…V3). Figma pluralised this one: the folder and the files both read "Logo Strips".
 
 Each design appears twice over, and the two are not the same picture:
 
 - **Choosing one** — the picker cards, the row thumbnail, the swap and add menus — shows the exported SVG. That's the finished design, at full fidelity.
-- **The assembled page** shows a wireframe rebuilt from the same design — [HeroPreview.tsx](src/components/previews/HeroPreview.tsx), [ContentCardPreview.tsx](src/components/previews/ContentCardPreview.tsx), [ContentSectionPreview.tsx](src/components/previews/ContentSectionPreview.tsx), [TestimonialsPreview.tsx](src/components/previews/TestimonialsPreview.tsx). Only the wireframe fills with the client's own colour, logo, copy and photography, and that contrast is the pitch; the SVG is fixed lorem ipsum with a green button.
+- **The assembled page** shows a wireframe rebuilt from the same design — [HeroPreview.tsx](src/components/previews/HeroPreview.tsx), [ContentCardPreview.tsx](src/components/previews/ContentCardPreview.tsx), [ContentSectionPreview.tsx](src/components/previews/ContentSectionPreview.tsx), [TestimonialsPreview.tsx](src/components/previews/TestimonialsPreview.tsx), [LogoStripPreview.tsx](src/components/previews/LogoStripPreview.tsx). Only the wireframe fills with the client's own colour, logo, copy and photography, and that contrast is the pitch; the SVG is fixed lorem ipsum with a green button.
 
 `SectionPreview`'s `screenshot` prop is what separates the two, so a caller picks a side rather than the artwork leaking onto the page.
 
-Each set is variations on a handful of frames, so every rebuilt preview describes its designs in a `SPECS` table and renders from that — the heroes over three frames (copy beside media, copy above media, copy over a full-width image), the cards over one grid, the content sections over four, the testimonials over three (a grid of quote cards, one quote paged by arrows, a portrait beside each quote). A newly exported design is usually one row in that table, one entry in [previewImages.ts](src/lib/previewImages.ts), one option in the section's groups, and its artboard ratio in [aspect.ts](src/components/previews/aspect.ts) so the page stands it at the height it was drawn at. Those ratios are written out as whole class names rather than built from the numbers: Tailwind only generates an arbitrary value it can read literally in the source, so an `aspect-[1440/${n}]` would name a class that never exists.
+Each set is variations on a handful of frames, so every rebuilt preview describes its designs in a `SPECS` table and renders from that — the heroes over three frames (copy beside media, copy above media, copy over a full-width image), the cards over one grid, the content sections over four, the testimonials over three (a grid of quote cards, one quote paged by arrows, a portrait beside each quote), the logo strips over one row of six. A newly exported design is usually one row in that table, one entry in [previewImages.ts](src/lib/previewImages.ts), one option in the section's groups, and its artboard ratio in [aspect.ts](src/components/previews/aspect.ts) so the page stands it at the height it was drawn at. Those ratios are written out as whole class names rather than built from the numbers: Tailwind only generates an arbitrary value it can read literally in the source, so an `aspect-[1440/${n}]` would name a class that never exists.
 
 Two details the artwork settles, and the wireframes follow: the card and column links are drawn in the same warm ink as the labels (#563F3D), not green — the set keeps its greens for buttons, ticks and numerals; and a square-cornered image needs `rounded-none!`, because `ImageBlock` brings its own `rounded-xs` and Tailwind emits the radius utilities alphabetically, so plain `rounded-none` lands earlier in the stylesheet and loses whatever the class order says.
 

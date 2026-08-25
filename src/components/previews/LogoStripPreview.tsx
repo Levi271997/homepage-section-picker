@@ -5,18 +5,53 @@ import type { SectionContent } from '@/lib/content'
 import { useCarousel } from '@/components/previews/useCarousel'
 import { BodyLine, Dots, Eyebrow, FilledButton, HeadlineLine, LogoRow } from '@/components/previews/parts'
 
-export type LogoLayout = 'carousel' | 'headed-grid' | 'headed-carousel'
+/** The design set, by its Figma name — 'v1' … 'v3'. */
+export type LogoStripDesign = string
+
+export type LogoStripChoice = {
+  design: LogoStripDesign
+}
 
 /** How many logos fit on one row, and therefore one page of the carousel. */
 const PER_PAGE = 6
 
-/** Eyebrow, heading, one line of copy and a single button — shared by both headed variants. */
-function Heading({ content }: { content?: SectionContent }) {
+/**
+ * What each design is made of.
+ *
+ * Three variations on one strip — six logos across at 166.667×78 on a 40px
+ * gutter, which is the same row in all of them. What differs is whether the
+ * strip opens with a heading block, how many rows it runs to, and whether it
+ * pages. Described here as data so a new export is one more line.
+ */
+type Spec = {
+  /** The eyebrow, heading, sentence and button block above the logos. */
+  header?: boolean
+  /** Rows of logos. One row pages through the list; three stand still. */
+  rows: number
+  /** Paging dots under the strip. */
+  dots?: boolean
+}
+
+const SPECS: Record<string, Spec> = {
+  v1: { header: true, rows: 1, dots: true },
+  v2: { rows: 1, dots: true },
+  v3: { header: true, rows: 3 },
+}
+
+/**
+ * Eyebrow, heading, one line of copy and a single button, centred as drawn.
+ *
+ * The block carries its own width — 62%, which is what the drawn sentence spans
+ * — rather than each line taking a fraction of it. Under `items-center` the
+ * wrapper is otherwise sized by its widest child, so a `w-4/5` heading would be
+ * four fifths of itself and wrap for no reason.
+ */
+function Header({ content }: { content?: SectionContent }) {
   return (
-    <div className="flex flex-col items-center gap-[1.5cqw] text-center">
+    <div className="flex w-[62%] flex-col items-center gap-[1.5cqw] text-center">
       <Eyebrow text={content?.eyebrow} />
-      <HeadlineLine className={content?.heading ? 'w-4/5' : 'w-3/5'} text={content?.heading} />
-      <BodyLine className="w-4/5" text={content?.body} />
+      <HeadlineLine className="w-full" text={content?.heading} />
+      <BodyLine className="w-full" text={content?.body} />
       <div className="mt-[1cqw]">
         <FilledButton label={content?.cta} />
       </div>
@@ -26,21 +61,19 @@ function Heading({ content }: { content?: SectionContent }) {
 
 /** Miniature of what the logo strip will look like on the page. */
 export default function LogoStripPreview({
-  layout,
+  design,
   content,
-}: {
-  layout: LogoLayout
-  content?: SectionContent
-}) {
+}: LogoStripChoice & { content?: SectionContent }) {
+  const spec = SPECS[design] ?? SPECS.v1
   const names = linesOf(content?.items)
   const logos = names.length ? names : undefined
 
-  // The headed grid is a static block; the other two page through the list.
-  const isCarousel = layout !== 'headed-grid'
+  // Only the one-row designs page. Three rows is a block of text standing still,
+  // and a grid that reshuffles itself is hard to read.
   const pages = names.length ? Math.max(1, Math.ceil(names.length / PER_PAGE)) : 5
-  const { slide, setSlide, live, containerProps, motion } = useCarousel({
+  const { slide, setSlide, containerProps, motion } = useCarousel({
     slides: pages,
-    enabled: isCarousel,
+    enabled: spec.rows === 1,
   })
 
   /**
@@ -75,43 +108,45 @@ export default function LogoStripPreview({
     </div>
   )
 
-  if (layout === 'carousel') {
+  // 80px of margin top and bottom and 120 either side, as all three are drawn.
+  const frame = 'flex h-full flex-col items-center justify-center gap-[4cqw] px-[5cqw] py-[5.5cqw]'
+
+  // No heading at all: the bare strip is the shortest design in the set, and it
+  // takes the drag and hover handlers itself rather than through a wrapper.
+  if (!spec.header) {
     return (
       <section
         aria-label="Client logos"
         {...containerProps}
-        className={`flex h-full flex-col items-center justify-center gap-[5cqw] overflow-hidden px-[4cqw] ${containerProps.className}`}
+        className={`${frame} overflow-hidden ${containerProps.className}`}
       >
         {strip}
         {paging}
-      </section>
-    )
-  }
-
-  if (layout === 'headed-grid') {
-    return (
-      <section aria-label="Client logos" className="flex h-full flex-col items-center gap-[3cqw] p-[4cqw]">
-        <Heading content={content} />
-        <div className="flex w-full flex-col gap-[1.5cqw]">
-          {/* Each row starts further along the list so the grid isn't three identical rows. */}
-          {[0, 6, 12].map((offset) => (
-            <LogoRow key={offset} names={logos} offset={offset} />
-          ))}
-        </div>
       </section>
     )
   }
 
   return (
-    <section aria-label="Client logos" className="flex h-full flex-col items-center gap-[3cqw] p-[4cqw]">
-      <Heading content={content} />
-      <div
-        {...containerProps}
-        className={`flex w-full flex-col items-center gap-[3cqw] overflow-hidden ${containerProps.className}`}
-      >
-        {strip}
-        {paging}
-      </div>
+    <section aria-label="Client logos" className={frame}>
+      <Header content={content} />
+
+      {spec.rows > 1 ? (
+        // Each row starts further along the list, so the grid isn't three
+        // identical rows. 64px between them, wider than the 40px gutter.
+        <div className="flex w-full flex-col gap-[4.4cqw]">
+          {Array.from({ length: spec.rows }, (_, row) => (
+            <LogoRow key={row} names={logos} offset={row * PER_PAGE} />
+          ))}
+        </div>
+      ) : (
+        <div
+          {...containerProps}
+          className={`flex w-full flex-col items-center gap-[4cqw] overflow-hidden ${containerProps.className}`}
+        >
+          {strip}
+          {spec.dots && paging}
+        </div>
+      )}
     </section>
   )
 }

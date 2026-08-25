@@ -12,7 +12,6 @@ import TeamPreview from '@/components/previews/TeamPreview'
 import FaqPreview from '@/components/previews/FaqPreview'
 import StatsPreview from '@/components/previews/StatsPreview'
 import CtaPreview from '@/components/previews/CtaPreview'
-import type { LogoLayout } from '@/components/previews/LogoStripPreview'
 import { imageFor } from '@/lib/previewImages'
 import { defaultContent } from '@/lib/content'
 import type { SectionContent } from '@/lib/content'
@@ -66,7 +65,7 @@ export default function SectionPreview({
     case 'hero-logo':
       return <HeroPreview design={choice.design} content={c} />
     case 'logo-strip':
-      return <LogoStripPreview layout={choice.layout as LogoLayout} content={c} />
+      return <LogoStripPreview design={choice.design} content={c} />
     case 'cta':
       return (
         <CtaPreview

@@ -139,8 +139,10 @@ export const CONTENT: Record<string, Schema> = {
       heading: 'Trusted by teams like yours',
       body: 'A short line of reassurance about the company you keep.',
       cta: 'See our clients',
+      // Eighteen, because V3 draws three rows of six and a repeated name reads
+      // as a mistake rather than as a placeholder.
       items:
-        'Halden Group\nNorthlight\nBasis Co\nOkafor & Sons\nMeridian\nWestbrook\nCaldwell\nAtlas Bay\nRowan & Fern\nPine Harbour\nKestrel\nLumen',
+        'Halden Group\nNorthlight\nBasis Co\nOkafor & Sons\nMeridian\nWestbrook\nCaldwell\nAtlas Bay\nRowan & Fern\nPine Harbour\nKestrel\nLumen\nBrightwater\nSilverbeck\nAshcroft\nDunmore\nFairhaven\nGreystone',
     },
   },
 

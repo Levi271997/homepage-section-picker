@@ -114,6 +114,16 @@ const QUOTE_RATIOS: Record<string, string> = {
   v6: 'aspect-[1440/1051]',
 }
 
+/**
+ * Logo strip heights, from the artboards the designs were exported at. The bare
+ * strip is a band at 1440×314; the three-row grid is the tall one.
+ */
+const LOGO_RATIOS: Record<string, string> = {
+  v1: 'aspect-[1440/609]',
+  v2: 'aspect-[1440/314]',
+  v3: 'aspect-[1440/817]',
+}
+
 export function aspectFor(id: string, choice: Choice): string {
   switch (id) {
     case 'hero-logo':
@@ -128,7 +138,7 @@ export function aspectFor(id: string, choice: Choice): string {
       // A single bar is a thin strip; the two-tier and stacked ones need room.
       return choice.structure === 'single' ? 'aspect-16/3' : 'aspect-16/5'
     case 'logo-strip':
-      return choice.layout === 'carousel' ? 'aspect-16/4' : 'aspect-16/7'
+      return LOGO_RATIOS[choice.design] ?? 'aspect-[1440/609]'
     case 'stats':
       return choice.header === 'none' ? 'aspect-16/5' : 'aspect-16/9'
     case 'cta':

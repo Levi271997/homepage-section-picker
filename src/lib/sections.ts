@@ -67,16 +67,23 @@ export const HERO_GROUPS: OptionGroup[] = [
   },
 ]
 
-/** The arrangements the logo strip can be built in. */
+/**
+ * The logo strip design set, as exported from Figma.
+ *
+ * Three drawn designs on a flat `design` axis, like every other set that has
+ * artwork. The same six-across row in all of them; what a design decides is
+ * whether it opens with a heading block, how many rows it runs to, and whether
+ * it pages.
+ */
 export const LOGO_GROUPS: OptionGroup[] = [
   {
-    id: 'layout',
-    label: 'Layout',
+    id: 'design',
+    label: 'Design',
     display: 'cards',
     options: [
-      { id: 'carousel', name: 'Carousel', blurb: 'One row of logos with paging dots, no heading' },
-      { id: 'headed-grid', name: 'Headed grid', blurb: 'Intro copy and button above three rows of logos' },
-      { id: 'headed-carousel', name: 'Headed carousel', blurb: 'Intro copy and button above one paged row' },
+      { id: 'v1', name: 'V1 · Headed, paged', blurb: 'Centred header above one row of six, with paging dots' },
+      { id: 'v2', name: 'V2 · Bare strip', blurb: 'One paged row on its own — no heading, no button' },
+      { id: 'v3', name: 'V3 · Headed grid', blurb: 'Centred header above three rows of six, standing still' },
     ],
   },
 ]

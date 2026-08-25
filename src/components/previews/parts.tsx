@@ -89,10 +89,12 @@ export function ImageBlock({ className = '', src }: { className?: string; src?: 
  * A row of client logos — flat grey rectangles, or the client names set as
  * wordmarks once they've been typed in. `offset` walks further down the list so
  * a three-row grid doesn't repeat the same six names.
+ *
+ * Six across at 166.667×78 on a 40px gutter, straight off the drawn strips.
  */
 export function LogoRow({ count = 6, names, offset = 0 }: { count?: number; names?: string[]; offset?: number }) {
   return (
-    <ul className="grid w-full grid-cols-6 items-center gap-[1.5cqw]">
+    <ul className="grid w-full grid-cols-6 items-center gap-[2.8cqw]">
       {Array.from({ length: count }, (_, i) =>
         names?.length ? (
           <li
@@ -102,7 +104,7 @@ export function LogoRow({ count = 6, names, offset = 0 }: { count?: number; name
             {names[(offset + i) % names.length]}
           </li>
         ) : (
-          <li key={i} className="h-[3.4cqw] rounded-[1px] bg-neutral-300" />
+          <li key={i} className="h-[5.4cqw] bg-neutral-300" />
         ),
       )}
     </ul>
