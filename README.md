@@ -137,6 +137,8 @@ Preflight strips the browser's default heading and list styling, so the tags are
 - **Call to action** — ten designs (V1…V10) over three frames: a band, a split with a picture, and a rounded green panel. What sits behind — nothing, a photograph under a 60% wash, or the brand green — is part of the design.
 - **FAQ accordion** — five designs (V1…V5). Figma called this set "Accordion", so the artwork lives in `section-cogs/accordions/Type=Accordion V1.svg`. They vary by boxed or ruled rows, one column or two, and whether the heading sits above the list or in the half beside it.
 
+Alongside the section artwork, `design-sets/font-style/Font Style.svg` is the type scale, and it's transcribed into `@layer base` in [globals.css](src/app/globals.css): h1 and h2 take the display serif, everything from h3 down is the sans, and the sizes step at 768, 1024 and 1280 for the four widths the sheet names. The sheet says nothing about line height, so the two values there are ours rather than its; it also draws a "blog" column and an uppercase serif footnote for a context this app doesn't have yet, and neither is carried.
+
 Each design appears twice over, and the two are not the same picture:
 
 - **Choosing one** — the picker cards, the row thumbnail, the swap and add menus — shows the exported SVG. That's the finished design, at full fidelity.

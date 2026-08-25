@@ -228,26 +228,149 @@ body {
 }
 
 /*
- * Headings take the display face everywhere — the card's own titles and the
- * headings inside the previews alike, since the previews are meant to show the
- * type we'd actually build with. An element selector loses to any utility, so a
- * section that needs the sans back can say so with `font-sans` on the heading.
+ * The type scale, from the "Font Style" sheet in the design set.
+ *
+ * It lays out h1–h6 and p at four widths, and which of the two faces each level
+ * takes: the display serif carries h1 and h2, and everything from h3 down is
+ * the sans. That last part is a change from "headings are always the serif" —
+ * the sheet draws h3 in the sans, and so does the section artwork wherever a
+ * design has one.
+ *
+ *              mobile  tablet  laptop  desktop
+ *   h1           40      48      56      72
+ *   h2           28      32      40      44
+ *   h3           24      28      32      32
+ *   h4           20      22      24      24
+ *   h5           18      18      20      20
+ *   h6           16      16      18      18
+ *   p            16      16      18      18
+ *
+ * The sheet names its four widths but not where they start, so they're mapped
+ * onto the breakpoints Tailwind already uses: mobile is the base, tablet from
+ * 768, laptop from 1024, desktop from 1280.
+ *
+ * Two things below are ours rather than the sheet's, because it doesn't say and
+ * a scale without them isn't usable: the line heights, and everything about
+ * weight except h5, which the sheet draws bold where every other level is
+ * regular. It also draws a "blog" column and a uppercase serif footnote, both
+ * for a context this app doesn't have yet; neither is carried here.
+ *
+ * All of it sits inside `@layer base` on purpose. Unlayered rules outrank every
+ * utility, and a preview sizes all of its type in `cqw` — an unlayered
+ * `h1 { font-size: 72px }` would overrule `text-[3.4cqw]` and blow the
+ * miniatures apart. In the base layer this is what a scale should be: the
+ * default for anything that doesn't say otherwise, and beaten by anything that
+ * does.
  */
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  font-family: var(--font-display);
-}
+@layer base {
+  h1,
+  h2 {
+    font-family: var(--font-display);
+  }
 
-/*
- * Body copy is Satoshi. It already inherits that from `body`, so this is a
- * guard rather than a change: it keeps paragraphs on the sans even inside a
- * wrapper that has been given `font-display`, where they would otherwise
- * inherit the serif along with the heading it was meant for.
- */
-p {
-  font-family: var(--font-sans);
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-sans);
+  }
+
+  /*
+   * Body copy is Satoshi. It already inherits that from `body`, so this is a
+   * guard rather than a change: it keeps paragraphs on the sans even inside a
+   * wrapper that has been given `font-display`, where they would otherwise
+   * inherit the serif along with the heading it was meant for.
+   */
+  p {
+    font-family: var(--font-sans);
+  }
+
+  /* Ours, not the sheet's — see above. */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    line-height: 1.2;
+  }
+
+  p {
+    line-height: 1.55;
+  }
+
+  /* The one weight the sheet calls out. */
+  h5 {
+    font-weight: 700;
+  }
+
+  /* Mobile — the foot of the scale, and the base every width builds on. */
+  h1 {
+    font-size: 40px;
+  }
+  h2 {
+    font-size: 28px;
+  }
+  h3 {
+    font-size: 24px;
+  }
+  h4 {
+    font-size: 20px;
+  }
+  h5 {
+    font-size: 18px;
+  }
+  h6,
+  p {
+    font-size: 16px;
+  }
+
+  /* Tablet. h5, h6 and p hold at their mobile size. */
+  @media (min-width: 768px) {
+    h1 {
+      font-size: 48px;
+    }
+    h2 {
+      font-size: 32px;
+    }
+    h3 {
+      font-size: 28px;
+    }
+    h4 {
+      font-size: 22px;
+    }
+  }
+
+  /* Laptop. */
+  @media (min-width: 1024px) {
+    h1 {
+      font-size: 56px;
+    }
+    h2 {
+      font-size: 40px;
+    }
+    h3 {
+      font-size: 32px;
+    }
+    h4 {
+      font-size: 24px;
+    }
+    h5 {
+      font-size: 20px;
+    }
+    h6,
+    p {
+      font-size: 18px;
+    }
+  }
+
+  /* Desktop. Only the two serif levels grow again; h3 down hold at laptop. */
+  @media (min-width: 1280px) {
+    h1 {
+      font-size: 72px;
+    }
+    h2 {
+      font-size: 44px;
+    }
+  }
 }
