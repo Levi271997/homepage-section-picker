@@ -42,6 +42,9 @@ const PRICING = (v: string) => asset(`/design-sets/section-cogs/pricing/Type=Pri
 
 const BLOGS = (v: string) => asset(`/design-sets/section-cogs/blogs/Type=Blogs ${v}.svg`)
 
+// Figma called this set "Accordion"; the app calls the section "faq".
+const FAQ = (v: string) => asset(`/design-sets/section-cogs/accordions/Type=Accordion ${v}.svg`)
+
 /**
  * The artwork for one option: a file, or a function of the whole choice where
  * a second axis picks between several drawings of the same design — the content
@@ -99,6 +102,8 @@ export const PREVIEW_IMAGES: Record<string, Record<string, Artwork>> = {
   pricing: Object.fromEntries(Array.from({ length: 6 }, (_, i) => [`v${i + 1}`, PRICING(`V${i + 1}`)])),
 
   blogs: Object.fromEntries(Array.from({ length: 6 }, (_, i) => [`v${i + 1}`, BLOGS(`V${i + 1}`)])),
+
+  faq: Object.fromEntries(Array.from({ length: 5 }, (_, i) => [`v${i + 1}`, FAQ(`V${i + 1}`)])),
 }
 
 /** The artwork for this choice, or null to draw the wireframe instead. */

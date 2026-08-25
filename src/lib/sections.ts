@@ -314,55 +314,27 @@ export const STATS_GROUPS: OptionGroup[] = [
   },
 ]
 
-/** The FAQ accordion — collapsible question rows, optionally beside copy. */
+/**
+ * The FAQ accordion design set, as exported from Figma — under the name
+ * "Accordion", which is why the artwork lives in `section-cogs/accordions`.
+ *
+ * Five drawn designs on a flat `design` axis. Whether a question sits in an
+ * outlined box or hangs off a hairline, how many columns there are and where the
+ * heading goes aren't free choices — they're what tells the five apart. The
+ * question count goes with them: the set draws four per column, seven where the
+ * copy sits alongside, and nothing else.
+ */
 export const FAQ_GROUPS: OptionGroup[] = [
   {
-    id: 'style',
-    label: 'Row style',
+    id: 'design',
+    label: 'Design',
     display: 'cards',
     options: [
-      { id: 'rules', name: 'Rules', blurb: 'Questions separated by hairlines' },
-      { id: 'bordered', name: 'Bordered', blurb: 'Each question in an outlined box' },
-      { id: 'raised', name: 'Raised', blurb: 'Each question on a card with a soft shadow' },
-    ],
-  },
-  {
-    id: 'layout',
-    label: 'Layout',
-    display: 'chips',
-    options: [
-      { id: 'stacked', name: 'Header above' },
-      { id: 'split', name: 'Copy beside' },
-    ],
-  },
-  {
-    id: 'columns',
-    label: 'Columns',
-    display: 'chips',
-    appliesTo: (choice) => choice.layout === 'stacked',
-    options: [
-      { id: '1', name: '1' },
-      { id: '2', name: '2' },
-    ],
-  },
-  {
-    id: 'header',
-    label: 'Header',
-    display: 'chips',
-    appliesTo: (choice) => choice.layout === 'stacked',
-    options: [
-      { id: 'centered', name: 'Centred' },
-      { id: 'left', name: 'Left' },
-    ],
-  },
-  {
-    id: 'items',
-    label: 'Questions',
-    display: 'chips',
-    options: [
-      { id: '4', name: '4' },
-      { id: '6', name: '6' },
-      { id: '8', name: '8' },
+      { id: 'v1', name: 'V1 · Boxed', blurb: 'One centred column of four outlined questions' },
+      { id: 'v2', name: 'V2 · Ruled', blurb: 'The same column, questions divided by hairlines' },
+      { id: 'v3', name: 'V3 · Two columns', blurb: 'Eight outlined questions under a centred heading' },
+      { id: 'v4', name: 'V4 · Left heading', blurb: 'The same two columns, with the heading set left' },
+      { id: 'v5', name: 'V5 · Copy beside', blurb: 'Seven ruled questions beside a heading, points and buttons' },
     ],
   },
 ]

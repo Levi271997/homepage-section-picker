@@ -81,16 +81,7 @@ export default function SectionPreview({
     case 'stats':
       return <StatsPreview design={choice.design} content={c} />
     case 'faq':
-      return (
-        <FaqPreview
-          style={choice.style}
-          layout={choice.layout}
-          columns={choice.columns}
-          header={choice.header}
-          items={choice.items}
-          content={c}
-        />
-      )
+      return <FaqPreview design={choice.design} content={c} />
     case 'about-team':
       return <TeamPreview design={choice.design} content={c} />
     case 'client-quote':

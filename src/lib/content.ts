@@ -411,7 +411,7 @@ export const CONTENT: Record<string, Schema> = {
       body(),
       { id: 'items', label: 'Questions', kind: 'lines' },
       { id: 'answer', label: 'Answer copy', kind: 'paragraph', hint: 'Shown under the first question, which starts open.' },
-      { id: 'points', label: 'Ticked points', kind: 'lines', hint: 'Only used by the "Copy beside" layout.' },
+      { id: 'points', label: 'Ticked points', kind: 'lines', hint: 'Only used by V5, the design that sets its copy beside the questions.' },
       cta('Primary button'),
       { id: 'cta2', label: 'Secondary button', kind: 'text' },
     ],

@@ -172,6 +172,18 @@ const BLOG_RATIOS: Record<string, string> = {
   v6: 'aspect-[1440/1423]',
 }
 
+/**
+ * FAQ heights, from the artboards the designs were exported at. The two-column
+ * designs stand at 649; the one that sets its copy alongside is 631.
+ */
+const FAQ_RATIOS: Record<string, string> = {
+  v1: 'aspect-[1440/613]',
+  v2: 'aspect-[1440/613]',
+  v3: 'aspect-[1440/649]',
+  v4: 'aspect-[1440/649]',
+  v5: 'aspect-[1440/631]',
+}
+
 export function aspectFor(id: string, choice: Choice): string {
   switch (id) {
     case 'hero-logo':
@@ -195,6 +207,8 @@ export function aspectFor(id: string, choice: Choice): string {
       return PRICING_RATIOS[choice.design] ?? 'aspect-[1440/805]'
     case 'blogs':
       return BLOG_RATIOS[choice.design] ?? 'aspect-[1440/850]'
+    case 'faq':
+      return FAQ_RATIOS[choice.design] ?? 'aspect-[1440/613]'
     case 'cta':
       return choice.layout === 'banner' ? 'aspect-16/6' : 'aspect-16/9'
     case 'site-footer':
