@@ -401,47 +401,27 @@ export const BLOGS_GROUPS: OptionGroup[] = [
 ]
 
 /**
- * The contact form — copy paired with a form panel, or copy and form together
- * beside an image.
+ * The contact form design set, as exported from Figma — under the plural
+ * "Contact Forms", though the folder it sits in is singular.
+ *
+ * Six drawn designs on a flat `design` axis. Every one is the same five-field
+ * form; what a design decides is what holds it — a pale green panel, a raised
+ * white card, or nothing, in which case the form runs under the copy and a
+ * picture takes the other half — and which side that sits on. The field count
+ * goes with them: the set draws five and nothing else.
  */
 export const CONTACT_FORM_GROUPS: OptionGroup[] = [
   {
-    id: 'layout',
-    label: 'Layout',
+    id: 'design',
+    label: 'Design',
     display: 'cards',
     options: [
-      { id: 'green-card', name: 'Green panel', blurb: 'Form on a soft green panel with white fields' },
-      { id: 'white-card', name: 'White card', blurb: 'Form on a raised white card with grey fields' },
-      { id: 'plain-form', name: 'Inline + image', blurb: 'Form under the copy, image alongside' },
-    ],
-  },
-  {
-    id: 'side',
-    label: 'Form on',
-    display: 'chips',
-    options: [
-      { id: 'right', name: 'Right' },
-      { id: 'left', name: 'Left' },
-    ],
-  },
-  {
-    id: 'list',
-    label: 'Copy list',
-    display: 'chips',
-    options: [
-      { id: 'checks', name: 'Ticked points' },
-      { id: 'none', name: 'None' },
-    ],
-  },
-  {
-    id: 'fields',
-    label: 'Fields',
-    display: 'chips',
-    defaultId: '5',
-    options: [
-      { id: '3', name: '3' },
-      { id: '4', name: '4' },
-      { id: '5', name: '5' },
+      { id: 'v1', name: 'V1 · Green panel', blurb: 'Form on a pale green panel with white fields, copy left' },
+      { id: 'v2', name: 'V2 · Green panel, left', blurb: 'The same with the panel on the left' },
+      { id: 'v3', name: 'V3 · White card', blurb: 'Form on a raised white card with grey fields' },
+      { id: 'v4', name: 'V4 · White card, left', blurb: 'The same with the card on the left' },
+      { id: 'v5', name: 'V5 · Form and picture', blurb: 'Form under the copy, picture alongside on the right' },
+      { id: 'v6', name: 'V6 · Picture, then form', blurb: 'The same with the picture on the left' },
     ],
   },
 ]

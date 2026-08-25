@@ -47,6 +47,9 @@ const FAQ = (v: string) => asset(`/design-sets/section-cogs/accordions/Type=Acco
 
 const CTA = (v: string) => asset(`/design-sets/section-cogs/cta/Type=Call to Action ${v}.svg`)
 
+// Figma pluralised this one, and the folder didn't follow: "contact form", "Contact Forms".
+const CONTACT = (v: string) => asset(`/design-sets/section-cogs/contact form/Type=Contact Forms ${v}.svg`)
+
 /**
  * The artwork for one option: a file, or a function of the whole choice where
  * a second axis picks between several drawings of the same design — the content
@@ -108,6 +111,8 @@ export const PREVIEW_IMAGES: Record<string, Record<string, Artwork>> = {
   faq: Object.fromEntries(Array.from({ length: 5 }, (_, i) => [`v${i + 1}`, FAQ(`V${i + 1}`)])),
 
   cta: Object.fromEntries(Array.from({ length: 10 }, (_, i) => [`v${i + 1}`, CTA(`V${i + 1}`)])),
+
+  'contact-form': Object.fromEntries(Array.from({ length: 6 }, (_, i) => [`v${i + 1}`, CONTACT(`V${i + 1}`)])),
 }
 
 /** The artwork for this choice, or null to draw the wireframe instead. */

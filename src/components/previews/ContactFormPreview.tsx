@@ -1,172 +1,255 @@
 import { itemAt, linesOf } from '@/lib/content'
 import type { SectionContent } from '@/lib/content'
-import { BodyLine, Eyebrow, FilledButton, HeadlineLine, ImageBlock, OutlineButton } from '@/components/previews/parts'
+import { BodyLine, Eyebrow, HeadlineLine, ImageBlock } from '@/components/previews/parts'
+
+/** The design set, by its Figma name — 'v1' … 'v6'. */
+export type ContactFormDesign = string
 
 export type ContactFormChoice = {
-  layout: string
-  side: string
-  list: string
-  fields: string
+  design: ContactFormDesign
 }
 
-const GREEN = 'var(--brand,#3f6b30)'
-const PANEL_GREEN = 'var(--brand-soft,#e3edd8)'
-const FIELD_GREY = '#f1efec'
+const GREEN = 'var(--brand,#4b7b35)'
+/** The pale green the panel and the checkbox are filled with. */
+const TINT = 'var(--brand-soft,#e1efd8)'
+/** The warm grey a field takes when it isn't sitting on the tint. */
+const FIELD_GREY = '#f5f3f1'
+const TAN = 'var(--brand-accent,#917061)'
+const INK = '#1e1515'
+const BODY = '#563f3d'
+const LIGHT = '#f5f3f1'
+
+/** The circled check beside a point, the same glyph the rest of the sets use. */
+const CHECK =
+  'M8 16C10.122 16 12.157 15.157 13.657 13.657C15.157 12.157 16 10.122 16 8C16 5.878 15.157 3.843 13.657 2.343C12.157 0.843 10.122 0 8 0C5.878 0 3.843 0.843 2.343 2.343C0.843 3.843 0 5.878 0 8C0 10.122 0.843 12.157 2.343 13.657C3.843 15.157 5.878 16 8 16ZM11.531 6.531L7.531 10.531C7.238 10.825 6.763 10.825 6.472 10.531L4.472 8.531C4.178 8.238 4.178 7.763 4.472 7.472C4.766 7.181 5.241 7.178 5.531 7.472L7 8.941L10.469 5.469C10.762 5.175 11.238 5.175 11.528 5.469C11.819 5.762 11.822 6.237 11.528 6.528L11.531 6.531Z'
 
 /**
- * One labelled input — the label above the space where the answer goes.
+ * What each design is made of.
  *
- * The bar under the label is the input itself, sized down rather than drawn as
- * a separate shape: the wireframe look survives, and the label is attached to a
- * real control instead of to nothing. `readOnly` because the form is a mock —
- * it can be focused and read out, but there's nothing to submit it to.
+ * Every one is the same five-field form — 58-tall boxes on an 8px gap, a
+ * consent checkbox and a green submit — set beside the same copy. What a design
+ * decides is what holds that form: a pale green panel, a raised white card, or
+ * nothing at all, in which case the form runs under the copy and a picture takes
+ * the other half. And which side any of it sits on.
+ *
+ * The panel designs carry ticked points and a second button under the copy; the
+ * two with a picture don't, because the form is already there.
  */
-function Field({ fill, tall, label }: { fill: string; tall?: boolean; label?: string }) {
-  return (
-    <label
-      className={`flex flex-col justify-center gap-[0.8cqw] rounded-xs px-[1.5cqw] ${
-        tall ? 'h-[8cqw]' : 'h-[6cqw]'
-      }`}
-      style={{ background: fill }}
-    >
-      {label ? (
-        <span className="text-[1.3cqw] leading-none text-neutral-500">{label}</span>
-      ) : (
-        <span aria-hidden="true" className="h-[0.9cqw] w-[18%] rounded-full bg-neutral-400" />
-      )}
-      <input type="text" readOnly aria-label={label || 'Field'} className="h-[1.1cqw] w-[45%] rounded-full bg-neutral-400" />
-    </label>
-  )
+type Spec = {
+  /** What holds the form: the pale green panel, a raised white card, or nothing. */
+  form: 'green' | 'white' | 'inline'
+  /** Which side the panel — or, where the form is inline, the picture — sits on. */
+  side: 'left' | 'right'
+  /** Ticked points and a second button under the copy. */
+  points?: boolean
+  /** The message drawn as a taller box carrying only its placeholder. */
+  textarea?: boolean
 }
 
-/** Consent checkbox and its small print. */
-function ConsentRow({ text }: { text?: string }) {
-  return (
-    <label className="flex items-start gap-[1.5cqw]">
-      <input
-        type="checkbox"
-        aria-label={text || 'Consent'}
-        className="mt-[0.3cqw] size-[2.4cqw] shrink-0 rounded-xs border"
-        style={{ borderColor: '#b9d3a6', background: 'var(--brand-soft,#eef4ea)' }}
+const SPECS: Record<string, Spec> = {
+  v1: { form: 'green', side: 'right', points: true },
+  v2: { form: 'green', side: 'left', points: true },
+  v3: { form: 'white', side: 'right', points: true },
+  v4: { form: 'white', side: 'left', points: true },
+  v5: { form: 'inline', side: 'right', textarea: true },
+  v6: { form: 'inline', side: 'left' },
+}
+
+/** Five in all six designs — the set draws no other count. */
+const FIELDS = 5
+const POINTS = 3
+
+/**
+ * A button at the 154×46 the set draws — smaller than the shared `FilledButton`,
+ * the same as the call to action's.
+ */
+function FormButton({ label, outline }: { label?: string | null; outline?: boolean }) {
+  const style = outline
+    ? { background: '#ffffff', color: BODY, borderColor: GREEN }
+    : { background: GREEN, color: LIGHT, borderColor: GREEN }
+
+  if (!label) {
+    return (
+      <span
+        aria-hidden="true"
+        data-role="button"
+        className="block h-[3.2cqw] w-[10.7cqw] shrink-0 rounded-[0.28cqw] border"
+        style={style}
       />
-      {text ? (
-        <span className="min-w-0 flex-1 text-[1.2cqw] leading-[1.45] text-neutral-500">{text}</span>
-      ) : (
-        <span aria-hidden="true" className="flex min-w-0 flex-1 flex-col gap-[0.7cqw]">
-          <BodyLine className="w-full" />
-          <BodyLine className="w-[55%]" />
-        </span>
-      )}
-    </label>
+    )
+  }
+  return (
+    <button
+      type="button"
+      data-role="button"
+      className="inline-flex h-[3.2cqw] shrink-0 items-center rounded-[0.28cqw] border px-[1.74cqw] text-[1.11cqw] leading-none font-medium"
+      style={style}
+    >
+      {label}
+    </button>
   )
 }
 
-/** The stack of fields, consent row and submit button. */
-function FormBody({
-  count,
-  fieldFill,
-  content,
-}: {
-  count: number
-  fieldFill: string
-  content?: SectionContent
-}) {
+/** One field: its label over the example the artwork fills it with. */
+function Field({ label, hint, tall, onTint }: { label?: string; hint?: string; tall?: boolean; onTint: boolean }) {
+  return (
+    <div
+      // 58 tall with a 4px radius and 17 of padding, as every field is drawn.
+      className={`flex flex-col justify-center gap-[0.42cqw] rounded-[0.28cqw] px-[1.18cqw] ${
+        tall ? 'h-[6.1cqw] justify-start py-[0.9cqw]' : 'h-[4.03cqw]'
+      }`}
+      style={{ background: onTint ? '#ffffff' : FIELD_GREY }}
+    >
+      {!tall &&
+        (label ? (
+          <span className="text-[0.9cqw] leading-none" style={{ color: TAN }}>
+            {label}
+          </span>
+        ) : (
+          <span aria-hidden="true" className="block h-[0.7cqw] w-[3cqw] rounded-full" style={{ background: TAN }} />
+        ))}
+      {hint ? (
+        <span className="text-[1.39cqw] leading-none" style={{ color: TAN }}>
+          {hint}
+        </span>
+      ) : (
+        <span aria-hidden="true" className="block h-[1cqw] w-[9cqw] rounded-full" style={{ background: TAN }} />
+      )}
+    </div>
+  )
+}
+
+/** The five fields, the consent line and the submit — the form itself. */
+function Form({ spec, content }: { spec: Spec; content?: SectionContent }) {
+  const onTint = spec.form === 'green'
   const labels = linesOf(content?.fieldLabels)
+  const hints = linesOf(content?.fieldHints)
 
   return (
-    <form aria-label="Contact" onSubmit={(e) => e.preventDefault()} className="flex flex-col gap-[1.5cqw]">
-      {Array.from({ length: count }, (_, i) => (
-        <Field
-          key={i}
-          fill={fieldFill}
-          // The last field is the message box, so it gets the extra height.
-          tall={i === count - 1}
-          label={labels.length ? itemAt(content?.fieldLabels, i) : undefined}
-        />
-      ))}
-      <ConsentRow text={content?.consent} />
-      <div className="mt-[0.5cqw]">
-        <FilledButton label={content?.cta} />
+    <div className="flex flex-col">
+      <div className="flex flex-col gap-[0.55cqw]">
+        {Array.from({ length: FIELDS }, (_, i) => (
+          <Field
+            key={i}
+            onTint={onTint}
+            tall={spec.textarea && i === FIELDS - 1}
+            label={labels.length ? itemAt(content?.fieldLabels, i) : undefined}
+            hint={hints.length ? itemAt(content?.fieldHints, i) : undefined}
+          />
+        ))}
       </div>
-    </form>
+
+      <div className="mt-[1.46cqw] flex items-start gap-[0.63cqw]">
+        <span
+          aria-hidden="true"
+          className="mt-[0.2cqw] size-[1.32cqw] shrink-0 rounded-[0.14cqw] border"
+          style={{ background: TINT, borderColor: GREEN }}
+        />
+        {content?.consent ? (
+          <p className="text-[1.11cqw] leading-[1.35]" style={{ color: INK }}>
+            {content.consent}
+          </p>
+        ) : (
+          <span aria-hidden="true" className="mt-[0.3cqw] block h-[0.9cqw] w-full rounded-full bg-neutral-300" />
+        )}
+      </div>
+
+      <div className="mt-[1.74cqw]">
+        <FormButton label={content?.cta} />
+      </div>
+    </div>
   )
 }
 
-/** Green tick followed by a line of text. */
+/** A circled check followed by a line of copy, at the drawn 20×20. */
 function CheckRow({ text }: { text?: string }) {
   return (
-    <li className="flex items-center gap-[1.5cqw]">
-      <span aria-hidden="true" className="size-[2cqw] shrink-0 rounded-full" style={{ background: GREEN }} />
+    <li className="flex items-center gap-[0.76cqw]">
+      <svg viewBox="0 0 16 16" className="size-[1.39cqw] shrink-0" fill={GREEN} aria-hidden="true">
+        <path d={CHECK} />
+      </svg>
       {text ? (
-        <span className="text-[1.6cqw] leading-tight text-neutral-700">{text}</span>
+        <span className="text-[1.39cqw] leading-tight" style={{ color: BODY }}>
+          {text}
+        </span>
       ) : (
-        <span aria-hidden="true" className="h-[1cqw] w-[65%] rounded-full bg-neutral-400" />
+        <span aria-hidden="true" className="h-[1cqw] w-[65%] rounded-full" style={{ background: BODY }} />
       )}
     </li>
   )
 }
 
+/** Eyebrow, heading and body — the pitch that sits beside or above the form. */
+function Copy({ content }: { content?: SectionContent }) {
+  return (
+    <>
+      <Eyebrow text={content?.eyebrow} color={TAN} />
+      <HeadlineLine text={content?.heading} color={INK} />
+      <BodyLine text={content?.body} color={BODY} />
+    </>
+  )
+}
+
 /** Miniature of what the contact form will look like on the page. */
 export default function ContactFormPreview({
-  layout,
-  side,
-  list,
-  fields,
+  design,
   content,
 }: ContactFormChoice & { content?: SectionContent }) {
-  const count = Number(fields)
-  const formFirst = side === 'left'
+  const spec = SPECS[design] ?? SPECS.v1
   const points = linesOf(content?.items)
+  const right = spec.side === 'right'
 
-  // The copy column, shared by every layout.
-  const copy = (
-    <div className="flex min-w-0 flex-1 flex-col gap-[1.6cqw]">
-      <Eyebrow text={content?.eyebrow} />
-      <HeadlineLine className={content?.heading ? 'w-full' : 'w-[75%]'} text={content?.heading} />
-      <BodyLine className="mt-[0.5cqw] w-full" text={content?.body} />
-      {!content?.body && <BodyLine className="w-[85%]" />}
-
-      {list === 'checks' && (
-        <ul className="mt-[0.8cqw] flex flex-col gap-[1.2cqw]">
-          {Array.from({ length: 3 }, (_, i) => (
-            <CheckRow key={i} text={points.length ? itemAt(content?.items, i) : undefined} />
-          ))}
-        </ul>
-      )}
-
-      {layout === 'plain-form' ? (
-        <div className="mt-[1cqw]">
-          <FormBody count={count} fieldFill={FIELD_GREY} content={content} />
-        </div>
-      ) : (
-        <div className="mt-[1cqw] flex items-center gap-[1.5cqw]">
-          <FilledButton label={content?.cta} />
-          <OutlineButton label={content?.cta2} />
-        </div>
-      )}
-    </div>
-  )
-
-  // What sits opposite the copy: an image, or the form on its own panel.
-  const panel =
-    layout === 'plain-form' ? (
-      <ImageBlock className="h-[80%] w-[45%] shrink-0" src={content?.image} />
-    ) : (
-      <div
-        className={`w-[45%] shrink-0 rounded-[3px] p-[3cqw] ${
-          layout === 'white-card' ? 'border border-neutral-200 shadow-sm' : ''
+  if (spec.form === 'inline') {
+    // The picture stretches to whatever the copy and form come to — that's why
+    // the two artboards differ in height by exactly their pictures.
+    return (
+      <section
+        aria-label="Contact form"
+        className={`grid h-full items-stretch gap-[4.44cqw] px-[8.3cqw] py-[5.5cqw] ${
+          right ? 'grid-cols-[556fr_580fr]' : 'grid-cols-[580fr_556fr]'
         }`}
-        style={{ background: layout === 'green-card' ? PANEL_GREEN : '#ffffff' }}
       >
-        <FormBody count={count} fieldFill={layout === 'green-card' ? '#ffffff' : FIELD_GREY} content={content} />
-      </div>
+        <div className={`flex flex-col gap-[1.4cqw] ${right ? '' : 'order-2'}`}>
+          <Copy content={content} />
+          <div className="mt-[2.2cqw]">
+            <Form spec={spec} content={content} />
+          </div>
+        </div>
+        <ImageBlock className="h-full w-full" src={content?.image} />
+      </section>
     )
+  }
 
+  // 686 of copy, 64 of gutter, 450 of panel — the 1200 the margins leave.
   return (
-    <section aria-label="Contact" className="flex h-full items-center gap-[5cqw] px-[5cqw] py-[4cqw]">
-      {formFirst && panel}
-      {copy}
-      {!formFirst && panel}
+    <section
+      aria-label="Contact form"
+      className={`grid h-full items-center gap-[4.44cqw] px-[8.3cqw] py-[5.5cqw] ${
+        right ? 'grid-cols-[686fr_450fr]' : 'grid-cols-[450fr_686fr]'
+      }`}
+    >
+      <div className={`flex flex-col gap-[1.4cqw] ${right ? '' : 'order-2'}`}>
+        <Copy content={content} />
+        {spec.points && (
+          <ul className="mt-[1.46cqw] flex flex-col gap-[0.83cqw]">
+            {Array.from({ length: POINTS }, (_, i) => (
+              <CheckRow key={i} text={points.length ? itemAt(content?.items, i) : undefined} />
+            ))}
+          </ul>
+        )}
+        <div className="mt-[1.6cqw] flex items-center gap-[1.11cqw]">
+          <FormButton label={content?.cta2} />
+          <FormButton label={content?.cta3} outline />
+        </div>
+      </div>
+
+      {/* 20px of padding and an 8px radius, as both panels are drawn. */}
+      <div
+        className={`rounded-[0.55cqw] p-[1.39cqw] ${spec.form === 'white' ? 'shadow-[0_0.15cqw_0.6cqw_rgba(30,21,21,0.12)]' : ''}`}
+        style={{ background: spec.form === 'green' ? TINT : '#ffffff' }}
+      >
+        <Form spec={spec} content={content} />
+      </div>
     </section>
   )
 }

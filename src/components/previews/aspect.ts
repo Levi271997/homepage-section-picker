@@ -201,6 +201,20 @@ const CTA_RATIOS: Record<string, string> = {
   v10: 'aspect-[1440/383]',
 }
 
+/**
+ * Contact form heights, from the artboards the designs were exported at. The
+ * four that set the form on a panel all stand at 648; the two with a picture
+ * are taller, and differ from each other by exactly their pictures.
+ */
+const CONTACT_RATIOS: Record<string, string> = {
+  v1: 'aspect-[1440/648]',
+  v2: 'aspect-[1440/648]',
+  v3: 'aspect-[1440/648]',
+  v4: 'aspect-[1440/648]',
+  v5: 'aspect-[1440/820]',
+  v6: 'aspect-[1440/790]',
+}
+
 export function aspectFor(id: string, choice: Choice): string {
   switch (id) {
     case 'hero-logo':
@@ -228,6 +242,8 @@ export function aspectFor(id: string, choice: Choice): string {
       return FAQ_RATIOS[choice.design] ?? 'aspect-[1440/613]'
     case 'cta':
       return CTA_RATIOS[choice.design] ?? 'aspect-[1440/391]'
+    case 'contact-form':
+      return CONTACT_RATIOS[choice.design] ?? 'aspect-[1440/648]'
     case 'site-footer':
       // A legal bar or a lone logo is a strip; link columns need the height.
       return choice.layout === 'bar' || choice.layout === 'logo-only' ? 'aspect-16/3' : 'aspect-16/7'
