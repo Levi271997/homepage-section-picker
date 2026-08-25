@@ -63,7 +63,7 @@ const POINTS = 3
  * A button at the 154×46 the set draws — smaller than the shared `FilledButton`,
  * the same as the call to action's.
  */
-function FormButton({ label, outline }: { label?: string | null; outline?: boolean }) {
+function FormButton({ label, outline, submit }: { label?: string | null; outline?: boolean; submit?: boolean }) {
   const style = outline
     ? { background: '#ffffff', color: BODY, borderColor: GREEN }
     : { background: GREEN, color: LIGHT, borderColor: GREEN }
@@ -80,7 +80,7 @@ function FormButton({ label, outline }: { label?: string | null; outline?: boole
   }
   return (
     <button
-      type="button"
+      type={submit ? 'submit' : 'button'}
       data-role="button"
       className="inline-flex h-[3.2cqw] shrink-0 items-center rounded-[0.28cqw] border px-[1.74cqw] text-[1.11cqw] leading-none font-medium"
       style={style}
@@ -90,32 +90,57 @@ function FormButton({ label, outline }: { label?: string | null; outline?: boole
   )
 }
 
-/** One field: its label over the example the artwork fills it with. */
+/**
+ * One field: its label over the example the artwork fills it with.
+ *
+ * A real control, not a picture of one — on the assembled page the form can be
+ * filled in. Safe everywhere because `PreviewFrame` marks the row thumbnails,
+ * picker cards and swap menus `decorative`, which puts `inert` on the whole
+ * subtree; only the full-page view renders without it.
+ *
+ * The example the artwork shows inside each box becomes the placeholder, in the
+ * tan it's drawn in. What someone types takes the body ink instead, so their
+ * own answer doesn't read as more placeholder.
+ */
+const TYPED = 'w-full bg-transparent outline-none placeholder:text-[color:var(--brand-accent,#917061)]'
+
 function Field({ label, hint, tall, onTint }: { label?: string; hint?: string; tall?: boolean; onTint: boolean }) {
+  const shell = { background: onTint ? '#ffffff' : FIELD_GREY }
+
+  // The one design that draws a taller message box carries no label above it.
+  if (tall) {
+    return (
+      <label className="flex h-[6.1cqw] rounded-[0.28cqw] px-[1.18cqw] py-[0.9cqw]" style={shell}>
+        <span className="sr-only">{label || 'Message'}</span>
+        <textarea
+          placeholder={hint}
+          className={`${TYPED} h-full resize-none text-[1.39cqw] leading-[1.35]`}
+          style={{ color: BODY }}
+        />
+      </label>
+    )
+  }
+
   return (
-    <div
+    <label
       // 58 tall with a 4px radius and 17 of padding, as every field is drawn.
-      className={`flex flex-col justify-center gap-[0.42cqw] rounded-[0.28cqw] px-[1.18cqw] ${
-        tall ? 'h-[6.1cqw] justify-start py-[0.9cqw]' : 'h-[4.03cqw]'
-      }`}
-      style={{ background: onTint ? '#ffffff' : FIELD_GREY }}
+      className="flex h-[4.03cqw] flex-col justify-center gap-[0.42cqw] rounded-[0.28cqw] px-[1.18cqw]"
+      style={shell}
     >
-      {!tall &&
-        (label ? (
-          <span className="text-[0.9cqw] leading-none" style={{ color: TAN }}>
-            {label}
-          </span>
-        ) : (
-          <span aria-hidden="true" className="block h-[0.7cqw] w-[3cqw] rounded-full" style={{ background: TAN }} />
-        ))}
-      {hint ? (
-        <span className="text-[1.39cqw] leading-none" style={{ color: TAN }}>
-          {hint}
+      {label ? (
+        <span className="text-[0.9cqw] leading-none" style={{ color: TAN }}>
+          {label}
         </span>
       ) : (
-        <span aria-hidden="true" className="block h-[1cqw] w-[9cqw] rounded-full" style={{ background: TAN }} />
+        <span aria-hidden="true" className="block h-[0.7cqw] w-[3cqw] rounded-full" style={{ background: TAN }} />
       )}
-    </div>
+      <input
+        type="text"
+        placeholder={hint}
+        className={`${TYPED} text-[1.39cqw] leading-none`}
+        style={{ color: BODY }}
+      />
+    </label>
   )
 }
 
@@ -126,7 +151,8 @@ function Form({ spec, content }: { spec: Spec; content?: SectionContent }) {
   const hints = linesOf(content?.fieldHints)
 
   return (
-    <div className="flex flex-col">
+    // A real form, so a stray Enter in a field doesn't navigate the window away.
+    <form aria-label="Contact" onSubmit={(e) => e.preventDefault()} className="flex flex-col">
       <div className="flex flex-col gap-[0.55cqw]">
         {Array.from({ length: FIELDS }, (_, i) => (
           <Field
@@ -139,25 +165,37 @@ function Form({ spec, content }: { spec: Spec; content?: SectionContent }) {
         ))}
       </div>
 
-      <div className="mt-[1.46cqw] flex items-start gap-[0.63cqw]">
-        <span
-          aria-hidden="true"
-          className="mt-[0.2cqw] size-[1.32cqw] shrink-0 rounded-[0.14cqw] border"
-          style={{ background: TINT, borderColor: GREEN }}
-        />
+      {/* 19px square, filled with the tint and edged in green, as it's drawn.
+          The colours are classes rather than inline style so the checked state
+          can win — an inline background would outrank the utility. */}
+      <label className="mt-[1.46cqw] flex items-start gap-[0.63cqw]">
+        <span className="relative mt-[0.2cqw] flex shrink-0">
+          <input
+            type="checkbox"
+            className="peer size-[1.32cqw] appearance-none rounded-[0.14cqw] border border-[color:var(--brand,#4b7b35)] bg-[color:var(--brand-soft,#e1efd8)] outline-none checked:bg-[color:var(--brand,#4b7b35)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--brand,#4b7b35)]"
+          />
+          <svg
+            viewBox="0 0 16 16"
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 hidden size-[1.32cqw] peer-checked:block"
+            fill="none"
+          >
+            <path d="M3.5 8.4l3 3 6-6.4" stroke="#ffffff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </span>
         {content?.consent ? (
-          <p className="text-[1.11cqw] leading-[1.35]" style={{ color: INK }}>
+          <span className="text-[1.11cqw] leading-[1.35]" style={{ color: INK }}>
             {content.consent}
-          </p>
+          </span>
         ) : (
           <span aria-hidden="true" className="mt-[0.3cqw] block h-[0.9cqw] w-full rounded-full bg-neutral-300" />
         )}
-      </div>
+      </label>
 
       <div className="mt-[1.74cqw]">
-        <FormButton label={content?.cta} />
+        <FormButton label={content?.cta} submit />
       </div>
-    </div>
+    </form>
   )
 }
 
