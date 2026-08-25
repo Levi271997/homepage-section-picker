@@ -342,7 +342,7 @@ export const CONTENT: Record<string, Schema> = {
       body(),
       cta(),
       { id: 'items', label: 'Figures', kind: 'lines', hint: 'One per line, as "200+ · Projects delivered".' },
-      { id: 'itemBody', label: 'Figure copy', kind: 'paragraph', hint: 'Shown under each figure on the "With copy" layout.' },
+      { id: 'itemBody', label: 'Figure copy', kind: 'paragraph', hint: 'Shown under each figure on the two headed designs, V1 and V2.' },
     ],
     defaults: {
       eyebrow: 'By the numbers',

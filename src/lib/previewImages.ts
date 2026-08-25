@@ -36,6 +36,8 @@ const LOGOS = (v: string) => asset(`/design-sets/section-cogs/logo strips/Type=L
 // Lower-case "members", as Figma wrote it.
 const TEAM = (v: string) => asset(`/design-sets/section-cogs/team members/Type=Team members ${v}.svg`)
 
+const STATS = (v: string) => asset(`/design-sets/section-cogs/stats/Type=Stats ${v}.svg`)
+
 /**
  * The artwork for one option: a file, or a function of the whole choice where
  * a second axis picks between several drawings of the same design — the content
@@ -87,6 +89,8 @@ export const PREVIEW_IMAGES: Record<string, Record<string, Artwork>> = {
   'logo-strip': Object.fromEntries(Array.from({ length: 3 }, (_, i) => [`v${i + 1}`, LOGOS(`V${i + 1}`)])),
 
   'about-team': Object.fromEntries(Array.from({ length: 3 }, (_, i) => [`v${i + 1}`, TEAM(`V${i + 1}`)])),
+
+  stats: Object.fromEntries(Array.from({ length: 4 }, (_, i) => [`v${i + 1}`, STATS(`V${i + 1}`)])),
 }
 
 /** The artwork for this choice, or null to draw the wireframe instead. */

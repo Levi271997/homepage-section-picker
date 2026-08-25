@@ -291,44 +291,25 @@ export const CTA_GROUPS: OptionGroup[] = [
   },
 ]
 
-/** The stats band — a row of headline figures. */
+/**
+ * The stats design set, as exported from Figma.
+ *
+ * Four drawn designs on a flat `design` axis. Whether the row of figures
+ * carries a header, whether each figure gets a paragraph, and whether the whole
+ * thing sits on the green band aren't free choices — they're what tells the
+ * four designs apart. The columns axis goes with them: the set is four across
+ * throughout, so a three-up was offering a count nobody drew.
+ */
 export const STATS_GROUPS: OptionGroup[] = [
   {
-    id: 'layout',
-    label: 'Stat',
+    id: 'design',
+    label: 'Design',
     display: 'cards',
     options: [
-      { id: 'full', name: 'With copy', blurb: 'Figure, label and a short paragraph' },
-      { id: 'compact', name: 'Figure only', blurb: 'Just the figure and its label' },
-    ],
-  },
-  {
-    id: 'header',
-    label: 'Header',
-    display: 'chips',
-    options: [
-      { id: 'centered', name: 'Centred' },
-      { id: 'left', name: 'Left' },
-      { id: 'none', name: 'None' },
-    ],
-  },
-  {
-    id: 'band',
-    label: 'Band',
-    display: 'chips',
-    options: [
-      { id: 'white', name: 'White' },
-      { id: 'green', name: 'Green' },
-    ],
-  },
-  {
-    id: 'columns',
-    label: 'Columns',
-    display: 'chips',
-    defaultId: '4',
-    options: [
-      { id: '3', name: '3' },
-      { id: '4', name: '4' },
+      { id: 'v1', name: 'V1 · Centred header', blurb: 'Header over four figures, each with a paragraph' },
+      { id: 'v2', name: 'V2 · Left header', blurb: 'The same, with the header set left' },
+      { id: 'v3', name: 'V3 · Bare row', blurb: 'Just the four figures and their labels' },
+      { id: 'v4', name: 'V4 · Green band', blurb: 'The same row, reversed out of the brand green' },
     ],
   },
 ]

@@ -134,6 +134,17 @@ const TEAM_RATIOS: Record<string, string> = {
   v3: 'aspect-[1440/733]',
 }
 
+/**
+ * Stats heights, from the artboards the designs were exported at. The two
+ * headed designs stand at 619; the bare rows of figures are 252-tall strips.
+ */
+const STATS_RATIOS: Record<string, string> = {
+  v1: 'aspect-[1440/619]',
+  v2: 'aspect-[1440/619]',
+  v3: 'aspect-[1440/252]',
+  v4: 'aspect-[1440/252]',
+}
+
 export function aspectFor(id: string, choice: Choice): string {
   switch (id) {
     case 'hero-logo':
@@ -152,7 +163,7 @@ export function aspectFor(id: string, choice: Choice): string {
     case 'about-team':
       return TEAM_RATIOS[choice.design] ?? 'aspect-[1440/614]'
     case 'stats':
-      return choice.header === 'none' ? 'aspect-16/5' : 'aspect-16/9'
+      return STATS_RATIOS[choice.design] ?? 'aspect-[1440/619]'
     case 'cta':
       return choice.layout === 'banner' ? 'aspect-16/6' : 'aspect-16/9'
     case 'site-footer':

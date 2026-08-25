@@ -79,15 +79,7 @@ export default function SectionPreview({
         />
       )
     case 'stats':
-      return (
-        <StatsPreview
-          layout={choice.layout}
-          header={choice.header}
-          band={choice.band}
-          columns={choice.columns}
-          content={c}
-        />
-      )
+      return <StatsPreview design={choice.design} content={c} />
     case 'faq':
       return (
         <FaqPreview
