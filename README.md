@@ -127,7 +127,7 @@ Preflight strips the browser's default heading and list styling, so the tags are
 - **Content cards** — 22 designs (V1…V22) × the rows axis, since the file draws each one at 1, 2 and 3 rows. Both axes are read together, so all 66 combinations have artwork behind them.
 - **Content section** — 20 designs (V1…V10, V13, V15…V23; V11, V12 and V14 were never drawn). Exported under `Style=` rather than `Type=`, so that prefix differs on purpose.
 - **Testimonials** — the six drawn designs (V1…V6).
-- **Logo strip** — three designs (V1…V3). Figma pluralised this one: the folder and the files both read "Logo Strips". V1 and V2 page their row on [Swiper](https://swiperjs.com), left on its defaults; V3 is three rows standing still.
+- **Logo strip** — three designs (V1…V3). Figma pluralised this one: the folder and the files both read "Logo Strips". V1 and V2 page their row on [Swiper](https://swiperjs.com), a slide to a logo so the strip moves one at a time with six in view; V3 is three rows standing still.
 - **Team members** — three designs (V1…V3). All three are the same four-across grid, so the columns axis went with the rest: the set draws no other count.
 - **Stats** — four designs (V1…V4). Two headed ones at 1440×619 and two 252-tall strips, the last of them reversed out of the brand green.
 - **Pricing** — six designs (V1…V6). Three plans across throughout, varying by card, tint, tick side and where the gold "best plan" pill sits.

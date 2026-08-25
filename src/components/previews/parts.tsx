@@ -92,21 +92,31 @@ export function ImageBlock({ className = '', src }: { className?: string; src?: 
  *
  * Six across at 166.667×78 on a 40px gutter, straight off the drawn strips.
  */
+/**
+ * One logo: the client's name in caps, or the drawn placeholder block.
+ *
+ * Its own component because the set draws the same cell twice over — six to a
+ * static row, and one to a carousel slide — and the two must not drift.
+ */
+export function LogoMark({ name }: { name?: string }) {
+  if (name) {
+    return (
+      <span className="block truncate text-center text-[1.5cqw] leading-none font-semibold tracking-[0.06em] text-neutral-400 uppercase">
+        {name}
+      </span>
+    )
+  }
+  return <span aria-hidden="true" className="block h-[5.4cqw] bg-neutral-300" />
+}
+
 export function LogoRow({ count = 6, names, offset = 0 }: { count?: number; names?: string[]; offset?: number }) {
   return (
     <ul className="grid w-full grid-cols-6 items-center gap-[2.8cqw]">
-      {Array.from({ length: count }, (_, i) =>
-        names?.length ? (
-          <li
-            key={i}
-            className="truncate text-center text-[1.5cqw] leading-none font-semibold tracking-[0.06em] text-neutral-400 uppercase"
-          >
-            {names[(offset + i) % names.length]}
-          </li>
-        ) : (
-          <li key={i} className="h-[5.4cqw] bg-neutral-300" />
-        ),
-      )}
+      {Array.from({ length: count }, (_, i) => (
+        <li key={i}>
+          <LogoMark name={names?.length ? names[(offset + i) % names.length] : undefined} />
+        </li>
+      ))}
     </ul>
   )
 }

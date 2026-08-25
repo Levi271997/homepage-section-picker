@@ -7,7 +7,7 @@ import 'swiper/css'
 
 import { linesOf } from '@/lib/content'
 import type { SectionContent } from '@/lib/content'
-import { BodyLine, Dots, Eyebrow, FilledButton, HeadlineLine, LogoRow } from '@/components/previews/parts'
+import { BodyLine, Dots, Eyebrow, FilledButton, HeadlineLine, LogoMark, LogoRow } from '@/components/previews/parts'
 
 /** The design set, by its Figma name — 'v1' … 'v3'. */
 export type LogoStripDesign = string
@@ -16,8 +16,18 @@ export type LogoStripChoice = {
   design: LogoStripDesign
 }
 
-/** How many logos fit on one row, and therefore one page of the carousel. */
+/** How many logos fit on one row — six across, as all three designs are drawn. */
 const PER_PAGE = 6
+
+/**
+ * The gutter between logos, as a share of the strip's width.
+ *
+ * The set draws 40 between them and `px-[5cqw]` leaves the strip 1296 wide, so
+ * 40/1296. A percentage rather than the pixels Swiper usually takes, because
+ * everything in a preview is sized against the container and a fixed gutter
+ * would be wrong at every width but one.
+ */
+const GUTTER = '3.09%'
 
 /**
  * What each design is made of.
@@ -77,19 +87,19 @@ export default function LogoStripPreview({
   const pages = names.length ? Math.max(1, Math.ceil(names.length / PER_PAGE)) : 5
 
   /*
-   * V1 and V2 page on Swiper, left on its defaults — one slide in view, no
-   * gap, no loop, no modules, drag to move.
+   * V1 and V2 page on Swiper. A slide is one logo, six of them in view, so the
+   * strip moves a logo at a time — `slidesPerGroup` is already 1, which is what
+   * makes that the default behaviour once the slides are cut per logo.
    *
-   * A slide is a whole row of six logos rather than one logo, which is what
-   * makes those defaults land on the row the set actually draws: at one slide
-   * per view, a slide of six is six across.
-   *
-   * The dots stay ours. Swiper's own pagination is off by default and the set
-   * draws these in the brand green, so they read the instance rather than
-   * replace it — `slideTo` on the way in, `activeIndex` on the way back.
+   * The dots stay ours: Swiper's own pagination is off by default and the set
+   * draws these in the brand green. They still step a whole row, because the
+   * design draws a handful of them and one dot per logo would be thirteen. So
+   * they say which sixth of the list you're in — `slideTo` on the way in,
+   * `activeIndex` on the way back, floored to its page.
    */
   const [swiper, setSwiper] = useState<SwiperClass | null>(null)
-  const [slide, setSlide] = useState(0)
+  const [index, setIndex] = useState(0)
+  const slide = Math.min(Math.floor(index / PER_PAGE), pages - 1)
 
   /**
    * Dots page through the strip; without names they're the design's inert five.
@@ -105,7 +115,7 @@ export default function LogoStripPreview({
             data-role="control"
             aria-label={`Logos, page ${i + 1}`}
             aria-current={i === slide || undefined}
-            onClick={() => swiper?.slideTo(i)}
+            onClick={() => swiper?.slideTo(i * PER_PAGE)}
             className="size-[1.3cqw] rounded-full"
             style={{ background: i === slide ? 'var(--brand,#3f6b30)' : 'var(--brand-dim,#8cbb7c)' }}
           />
@@ -117,10 +127,19 @@ export default function LogoStripPreview({
   )
 
   const strip = (
-    <Swiper className="w-full" onSwiper={setSwiper} onSlideChange={(s) => setSlide(s.activeIndex)}>
-      {Array.from({ length: pages }, (_, i) => (
-        <SwiperSlide key={i}>
-          <LogoRow names={logos} offset={i * PER_PAGE} />
+    // `wrapperTag`/`tag` keep the list markup Swiper would otherwise take over:
+    // a strip of logos is a list, whether or not it happens to slide.
+    <Swiper
+      className="w-full"
+      wrapperTag="ul"
+      slidesPerView={PER_PAGE}
+      spaceBetween={GUTTER}
+      onSwiper={setSwiper}
+      onSlideChange={(s) => setIndex(s.activeIndex)}
+    >
+      {Array.from({ length: names.length || PER_PAGE }, (_, i) => (
+        <SwiperSlide key={i} tag="li">
+          <LogoMark name={logos?.[i]} />
         </SwiperSlide>
       ))}
     </Swiper>
