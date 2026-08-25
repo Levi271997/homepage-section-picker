@@ -20,9 +20,12 @@ const BODY = '#563f3d'
 const PLUS =
   'M8.7 0.9C8.7 0.401 8.3 0 7.8 0C7.3 0 6.9 0.401 6.9 0.9V6.9H0.9C0.4 6.9 0 7.301 0 7.8C0 8.299 0.4 8.7 0.9 8.7H6.9V14.7C6.9 15.199 7.3 15.6 7.8 15.6C8.3 15.6 8.7 15.199 8.7 14.7V8.7H14.7C15.2 8.7 15.6 8.299 15.6 7.8C15.6 7.301 15.2 6.9 14.7 6.9H8.7V0.9Z'
 
-/** The dark chevron the artwork gives the one open question. */
-const CHEVRON =
-  'M7.46 8.738C7.81 9.09 8.38 9.09 8.73 8.738L15.94 1.538C16.29 1.185 16.29 0.615 15.94 0.266C15.58 -0.082 15.01 -0.086 14.67 0.266L8.1 6.829L1.54 0.263C1.18 -0.09 0.61 -0.09 0.27 0.263C-0.08 0.615 -0.09 1.185 0.27 1.534L7.46 8.738Z'
+/**
+ * The minus an open one carries: the plus's own horizontal arm, kept exactly —
+ * same 15.6 box, same 1.8 bar, same rounded caps — so the two are one control
+ * in two states rather than two drawings that nearly line up.
+ */
+const MINUS = 'M0.9 6.9H14.7C15.2 6.9 15.6 7.301 15.6 7.8C15.6 8.299 15.2 8.7 14.7 8.7H0.9C0.4 8.7 0 8.299 0 7.8C0 7.301 0.4 6.9 0.9 6.9Z'
 
 /** The circled check beside a point on the design that sets copy alongside. */
 const CHECK =
@@ -69,8 +72,11 @@ const SPECS: Record<string, Spec> = {
  *
  * A real `<details>`, so the accordion actually opens on the page instead of
  * miming it — and the mark follows the open state through CSS rather than a
- * prop. The browser's own disclosure triangle is turned off; the plus and the
- * chevron are the two the artwork draws.
+ * prop. The browser's own disclosure triangle is turned off.
+ *
+ * The artwork marks its open row with a dark chevron; a plus and a minus read
+ * as the same control opening and closing, so both stay the plus's green and
+ * only the bar changes.
  */
 function QuestionRow({
   spec,
@@ -110,12 +116,8 @@ function QuestionRow({
             <svg viewBox="0 0 15.6 15.6" className="size-[1.11cqw] group-open:hidden" fill={GREEN}>
               <path d={PLUS} />
             </svg>
-            <svg
-              viewBox="-0.2 -0.2 16.8 9.6"
-              className="hidden h-[0.64cqw] w-[1.11cqw] group-open:block"
-              fill={INK}
-            >
-              <path d={CHEVRON} />
+            <svg viewBox="0 0 15.6 15.6" className="hidden size-[1.11cqw] group-open:block" fill={GREEN}>
+              <path d={MINUS} />
             </svg>
           </span>
         </summary>
