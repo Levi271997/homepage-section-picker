@@ -214,17 +214,24 @@ export const CONTENT: Record<string, Schema> = {
       { id: 'items', label: 'Quotes', kind: 'lines', hint: 'One quote per line.' },
       { id: 'names', label: 'Names', kind: 'lines', hint: 'One per line, matching the quotes above.' },
       { id: 'roles', label: 'Roles', kind: 'lines', hint: 'One per line, matching the names.' },
-      image('Portrait'),
+      {
+        id: 'image',
+        label: 'Portrait',
+        kind: 'image',
+        hint: 'A small avatar beside the name in most designs; the tall picture beside each quote in V4.',
+      },
     ],
     defaults: {
       eyebrow: 'Testimonials',
       heading: 'What our clients say',
       body: 'A short line framing the testimonials below.',
       cta: 'Read case studies',
-      roles: 'Operations Director, Halden Group\nFounder, Northlight\nMarketing Lead, Basis Co\nOwner, Okafor & Sons',
+      // Six of each, because V6 draws two rows of three.
+      roles:
+        'Operations Director, Halden Group\nFounder, Northlight\nMarketing Lead, Basis Co\nOwner, Okafor & Sons\nHead of Digital, Meridian\nManaging Partner, Westbrook',
       items:
-        'They understood the brief immediately and the result speaks for itself.\nClear communication from start to finish, and delivered early.\nThe work has paid for itself twice over.\nEasily the smoothest project we have run.',
-      names: 'Sarah Whitfield\nTom Nakamura\nPriya Raman\nDaniel Okafor',
+        'They understood the brief immediately and the result speaks for itself.\nClear communication from start to finish, and delivered early.\nThe work has paid for itself twice over.\nEasily the smoothest project we have run.\nThey asked the questions nobody else thought to ask.\nWe send everyone we know to them now.',
+      names: 'Sarah Whitfield\nTom Nakamura\nPriya Raman\nDaniel Okafor\nGrace Bell\nMartin Voss',
       image: PORTRAIT,
     },
   },

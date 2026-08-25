@@ -28,6 +28,8 @@ const CARDS = (v: string, rows: string) =>
 // exactly as Figma wrote them, so the prefix differs here on purpose.
 const SECTION = (v: string) => asset(`/design-sets/section-cogs/content section/Style=Content Section ${v}.svg`)
 
+const QUOTES = (v: string) => asset(`/design-sets/section-cogs/testimonials/Type=Testimonials ${v}.svg`)
+
 /**
  * The artwork for one option: a file, or a function of the whole choice where
  * a second axis picks between several drawings of the same design — the content
@@ -73,6 +75,8 @@ export const PREVIEW_IMAGES: Record<string, Record<string, Artwork>> = {
   'content-section': Object.fromEntries(
     [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 13, 15, 16, 17, 18, 19, 20, 21, 22, 23].map((v) => [`v${v}`, SECTION(`V${v}`)]),
   ),
+
+  'client-quote': Object.fromEntries(Array.from({ length: 6 }, (_, i) => [`v${i + 1}`, QUOTES(`V${i + 1}`)])),
 }
 
 /** The artwork for this choice, or null to draw the wireframe instead. */

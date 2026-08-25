@@ -100,6 +100,20 @@ const SECTION_RATIOS: Record<string, string> = {
   v23: 'aspect-[1440/613]',
 }
 
+/**
+ * Testimonial heights, from the artboards the designs were exported at. The
+ * three-up grids are the short ones; V4's two rows of portraits and V6's two
+ * rows of cards are the tall ones. Same literal-class rule as above.
+ */
+const QUOTE_RATIOS: Record<string, string> = {
+  v1: 'aspect-[1440/731]',
+  v2: 'aspect-[1440/849]',
+  v3: 'aspect-[1440/655]',
+  v4: 'aspect-[1440/1047]',
+  v5: 'aspect-[1440/751]',
+  v6: 'aspect-[1440/1051]',
+}
+
 export function aspectFor(id: string, choice: Choice): string {
   switch (id) {
     case 'hero-logo':
@@ -108,6 +122,8 @@ export function aspectFor(id: string, choice: Choice): string {
       return CARD_RATIOS[choice.design]?.[choice.rows] ?? 'aspect-16/10'
     case 'content-section':
       return SECTION_RATIOS[choice.design] ?? 'aspect-[1440/613]'
+    case 'client-quote':
+      return QUOTE_RATIOS[choice.design] ?? 'aspect-[1440/731]'
     case 'site-header':
       // A single bar is a thin strip; the two-tier and stacked ones need room.
       return choice.structure === 'single' ? 'aspect-16/3' : 'aspect-16/5'

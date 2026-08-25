@@ -111,16 +111,7 @@ export default function SectionPreview({
         />
       )
     case 'client-quote':
-      return (
-        <TestimonialsPreview
-          layout={choice.layout}
-          mark={choice.mark}
-          card={choice.card}
-          header={choice.header}
-          rows={choice.rows}
-          content={c}
-        />
-      )
+      return <TestimonialsPreview design={choice.design} content={c} />
     case 'pricing':
       return (
         <PricingPreview

@@ -420,55 +420,27 @@ export const TEAM_GROUPS: OptionGroup[] = [
   },
 ]
 
-/** Testimonials — quote cards, a carousel, or quotes beside portraits. */
+/**
+ * The testimonials design set, as exported from Figma.
+ *
+ * A flat axis of the six drawn designs, like the hero, the cards and the content
+ * section. The axes this used to combine weren't free choices — whether a quote
+ * opens on stars or the green speech bubble, what encloses it, how many rows the
+ * grid runs to — they're all part of the design, so listing the set verbatim
+ * keeps the picker and the design file describing the same thing.
+ */
 export const TESTIMONIAL_GROUPS: OptionGroup[] = [
   {
-    id: 'layout',
-    label: 'Layout',
+    id: 'design',
+    label: 'Design',
     display: 'cards',
     options: [
-      { id: 'grid', name: 'Card grid', blurb: 'A row of quote cards' },
-      { id: 'carousel', name: 'Carousel', blurb: 'One large quote with arrows and paging dots' },
-      { id: 'media', name: 'Image + quote', blurb: 'Portrait beside each quote, two per row' },
-    ],
-  },
-  {
-    id: 'mark',
-    label: 'Mark',
-    display: 'chips',
-    options: [
-      { id: 'stars', name: 'Star rating' },
-      { id: 'quote', name: 'Quote icon' },
-    ],
-  },
-  {
-    id: 'card',
-    label: 'Card',
-    display: 'chips',
-    appliesTo: (choice) => choice.layout === 'grid',
-    options: [
-      { id: 'bordered', name: 'Bordered' },
-      { id: 'plain', name: 'Plain' },
-      { id: 'shadow', name: 'Raised' },
-    ],
-  },
-  {
-    id: 'header',
-    label: 'Header',
-    display: 'chips',
-    options: [
-      { id: 'centered', name: 'Centred' },
-      { id: 'left', name: 'Left' },
-    ],
-  },
-  {
-    id: 'rows',
-    label: 'Rows',
-    display: 'chips',
-    appliesTo: (choice) => choice.layout !== 'carousel',
-    options: [
-      { id: '1', name: '1' },
-      { id: '2', name: '2' },
+      { id: 'v1', name: 'V1 · Outlined, three up', blurb: 'Centred header over three outlined quote cards' },
+      { id: 'v2', name: 'V2 · Carousel', blurb: 'One quote on a tinted panel, an arrow either side' },
+      { id: 'v3', name: 'V3 · Plain, three up', blurb: 'Left header, three quotes with no card around them' },
+      { id: 'v4', name: 'V4 · Portrait beside', blurb: 'A tall portrait next to each quote, four in all' },
+      { id: 'v5', name: 'V5 · Raised, three up', blurb: 'Quote-mark cards lifted off the page' },
+      { id: 'v6', name: 'V6 · Outlined, six up', blurb: 'Two rows of three outlined quote cards' },
     ],
   },
 ]
