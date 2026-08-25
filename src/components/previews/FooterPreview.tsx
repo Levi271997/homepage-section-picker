@@ -1,6 +1,6 @@
 import { itemAt, linesOf } from '@/lib/content'
 import type { SectionContent } from '@/lib/content'
-import { ImageBlock, SOCIAL_GLYPHS } from '@/components/previews/parts'
+import { FIELD_JUDGED, FIELD_SHELL, ImageBlock, SOCIAL_GLYPHS } from '@/components/previews/parts'
 
 /** The design set, by its Figma name — 'v1' … 'v8'. */
 export type FooterDesign = string
@@ -10,8 +10,6 @@ export type FooterChoice = {
 }
 
 const GREEN = 'var(--brand,#4b7b35)'
-/** The pale green the sign-up field is filled with. */
-const FIELD = 'var(--brand-soft,#f2f8ed)'
 const TAN = 'var(--brand-accent,#917061)'
 const BODY = '#563f3d'
 const HAIRLINE = '#d0c3b8'
@@ -198,17 +196,23 @@ function Signup({ spec, content }: { spec: Spec; content?: SectionContent }) {
    * Safe to leave writable everywhere because `PreviewFrame` marks the row
    * thumbnails `decorative`, which puts `inert` on the whole subtree — the
    * field can't be reached or focused in the 64px miniatures.
+   *
+   * It wears all four states from `design-sets/input-fields`, because it's the
+   * one field in the app a browser can judge: an address is either one or it
+   * isn't, so `:user-valid` and `:user-invalid` say something real here.
    */
   const field = (
-    <input
-      type="email"
-      autoComplete="email"
-      aria-label="Email address"
-      placeholder={content?.newsletterHint || undefined}
-      // 48 tall as drawn, and the placeholder is set in the same tan as the copy.
-      className="h-[3.33cqw] w-full rounded-[0.28cqw] px-[1.18cqw] text-[1.04cqw] leading-none outline-none placeholder:text-[color:var(--brand-accent,#917061)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--brand,#4b7b35)]"
-      style={{ background: FIELD, color: BODY }}
-    />
+    <label className={`${FIELD_SHELL} ${FIELD_JUDGED} block w-full bg-[color:var(--brand-soft,#f2f8ed)]`}>
+      <span className="sr-only">Email address</span>
+      <input
+        type="email"
+        autoComplete="email"
+        placeholder={content?.newsletterHint || undefined}
+        // 48 tall as drawn, and the placeholder is set in the same tan as the copy.
+        className="h-[3.33cqw] w-full bg-transparent px-[1.18cqw] text-[1.04cqw] leading-none outline-none placeholder:text-[color:var(--brand-accent,#917061)]"
+        style={{ color: BODY }}
+      />
+    </label>
   )
 
   return (

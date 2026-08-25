@@ -1,6 +1,6 @@
 import { itemAt, linesOf } from '@/lib/content'
 import type { SectionContent } from '@/lib/content'
-import { BodyLine, Eyebrow, HeadlineLine, ImageBlock } from '@/components/previews/parts'
+import { BodyLine, Eyebrow, FIELD_SHELL, HeadlineLine, ImageBlock } from '@/components/previews/parts'
 
 /** The design set, by its Figma name — 'v1' … 'v6'. */
 export type ContactFormDesign = string
@@ -100,7 +100,12 @@ function FormButton({ label, outline, submit }: { label?: string | null; outline
  *
  * The example the artwork shows inside each box becomes the placeholder, in the
  * tan it's drawn in. What someone types takes the body ink instead, so their
- * own answer doesn't read as more placeholder.
+ * own answer doesn't read as more placeholder — which is exactly what
+ * `design-sets/input-fields` draws for its default and selected states.
+ *
+ * The box itself follows that set too, through `FIELD_SHELL`: no edge at rest,
+ * a 1px #563F3D edge on focus. The fill stays whatever the section draws — the
+ * white of a green panel, or the warm grey everywhere else.
  */
 const TYPED = 'w-full bg-transparent outline-none placeholder:text-[color:var(--brand-accent,#917061)]'
 
@@ -110,7 +115,7 @@ function Field({ label, hint, tall, onTint }: { label?: string; hint?: string; t
   // The one design that draws a taller message box carries no label above it.
   if (tall) {
     return (
-      <label className="flex h-[6.1cqw] rounded-[0.28cqw] px-[1.18cqw] py-[0.9cqw]" style={shell}>
+      <label className={`${FIELD_SHELL} flex h-[6.1cqw] px-[1.18cqw] py-[0.9cqw]`} style={shell}>
         <span className="sr-only">{label || 'Message'}</span>
         <textarea
           placeholder={hint}
@@ -123,8 +128,9 @@ function Field({ label, hint, tall, onTint }: { label?: string; hint?: string; t
 
   return (
     <label
-      // 58 tall with a 4px radius and 17 of padding, as every field is drawn.
-      className="flex h-[4.03cqw] flex-col justify-center gap-[0.42cqw] rounded-[0.28cqw] px-[1.18cqw]"
+      // 58 tall with 17 of padding, as the section draws it; the 4px radius and
+      // the focus edge come from the shared field shell.
+      className={`${FIELD_SHELL} flex h-[4.03cqw] flex-col justify-center gap-[0.42cqw] px-[1.18cqw]`}
       style={shell}
     >
       {label ? (

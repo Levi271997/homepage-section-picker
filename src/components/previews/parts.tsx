@@ -320,3 +320,38 @@ export const SOCIAL_GLYPHS: { name: string; path: (ink: string) => ReactNode }[]
     ),
   },
 ]
+
+/**
+ * How a form field looks, from `design-sets/input-fields`.
+ *
+ * That set draws one field in four states, all on a 4px radius with the label
+ * over the value and 17px of padding:
+ *
+ * - default   no edge at all
+ * - selected  a 1px #563F3D edge — what focus looks like
+ * - error     a 1px #BF1140 edge over a #FFF1F2 fill
+ * - success   a 1px #047850 edge over a #ECFDF4 fill
+ *
+ * The edge is an outline pulled inside rather than a border, so turning it on
+ * doesn't move the text by a pixel — and an outline keeps its own colour, where
+ * an arbitrary `shadow-` loses it to Tailwind's shadow-colour variable. The
+ * fill has to be a class rather than an inline style, or the error and success
+ * fills can't win against it.
+ */
+export const FIELD_SHELL =
+  'rounded-[0.28cqw] focus-within:outline-1 focus-within:-outline-offset-1 focus-within:outline-[#563f3d]'
+
+/**
+ * The error and success halves of the same set, for a field that can actually
+ * be judged — an `email` input, say. `:user-invalid` and `:user-valid` only
+ * apply once someone has typed and moved on, so nothing turns red while it's
+ * still being filled in.
+ *
+ * Left off fields with no constraint on purpose: a plain text box is neither
+ * right nor wrong, and colouring it green for having any content at all would
+ * be saying something the design doesn't.
+ */
+export const FIELD_JUDGED = [
+  'has-[:user-invalid]:bg-[#fff1f2] has-[:user-invalid]:outline-1 has-[:user-invalid]:-outline-offset-1 has-[:user-invalid]:outline-[#bf1140]',
+  'has-[:user-valid]:bg-[#ecfdf4] has-[:user-valid]:outline-1 has-[:user-valid]:-outline-offset-1 has-[:user-valid]:outline-[#047850]',
+].join(' ')
