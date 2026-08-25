@@ -98,16 +98,7 @@ export default function SectionPreview({
     case 'pricing':
       return <PricingPreview design={choice.design} content={c} />
     case 'blogs':
-      return (
-        <BlogsPreview
-          layout={choice.layout}
-          card={choice.card}
-          header={choice.header}
-          rows={choice.rows}
-          more={choice.more}
-          content={c}
-        />
-      )
+      return <BlogsPreview design={choice.design} content={c} />
     case 'contact-form':
       return (
         <ContactFormPreview

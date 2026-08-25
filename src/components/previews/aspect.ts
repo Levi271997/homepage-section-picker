@@ -159,6 +159,19 @@ const PRICING_RATIOS: Record<string, string> = {
   v6: 'aspect-[1440/727]',
 }
 
+/**
+ * Blog heights, from the artboards the designs were exported at. The paged grid
+ * is the tall one — three rows of three and no header at all.
+ */
+const BLOG_RATIOS: Record<string, string> = {
+  v1: 'aspect-[1440/850]',
+  v2: 'aspect-[1440/792]',
+  v3: 'aspect-[1440/808]',
+  v4: 'aspect-[1440/784]',
+  v5: 'aspect-[1440/820]',
+  v6: 'aspect-[1440/1423]',
+}
+
 export function aspectFor(id: string, choice: Choice): string {
   switch (id) {
     case 'hero-logo':
@@ -180,6 +193,8 @@ export function aspectFor(id: string, choice: Choice): string {
       return STATS_RATIOS[choice.design] ?? 'aspect-[1440/619]'
     case 'pricing':
       return PRICING_RATIOS[choice.design] ?? 'aspect-[1440/805]'
+    case 'blogs':
+      return BLOG_RATIOS[choice.design] ?? 'aspect-[1440/850]'
     case 'cta':
       return choice.layout === 'banner' ? 'aspect-16/6' : 'aspect-16/9'
     case 'site-footer':

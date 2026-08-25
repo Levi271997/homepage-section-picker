@@ -437,54 +437,27 @@ export const PRICING_GROUPS: OptionGroup[] = [
   },
 ]
 
-/** The blog grid — post cards, optionally under a heading. */
+/**
+ * The blogs design set, as exported from Figma.
+ *
+ * Six drawn designs on a flat `design` axis. Whether a post sits in an outlined
+ * card, what closes it, whether the category and date sit above the title or
+ * below a rule at its foot — none of those are free choices, they're what tells
+ * the six apart. The rows and load-more axes go with them: only the paged design
+ * runs to three rows, and only that one carries the button.
+ */
 export const BLOGS_GROUPS: OptionGroup[] = [
   {
-    id: 'layout',
-    label: 'Card content',
+    id: 'design',
+    label: 'Design',
     display: 'cards',
     options: [
-      { id: 'author', name: 'Author', blurb: 'Category, date, title and the author’s name' },
-      { id: 'excerpt', name: 'Excerpt', blurb: 'Category, date, title and a summary' },
-      { id: 'meta-bottom', name: 'Meta below', blurb: 'Title and summary, category and date under a rule' },
-    ],
-  },
-  {
-    id: 'card',
-    label: 'Card',
-    display: 'chips',
-    options: [
-      { id: 'bordered', name: 'Bordered' },
-      { id: 'plain', name: 'Plain' },
-    ],
-  },
-  {
-    id: 'header',
-    label: 'Header',
-    display: 'chips',
-    options: [
-      { id: 'centered', name: 'Centred' },
-      { id: 'left', name: 'Left' },
-      { id: 'none', name: 'None' },
-    ],
-  },
-  {
-    id: 'rows',
-    label: 'Rows',
-    display: 'chips',
-    options: [
-      { id: '1', name: '1' },
-      { id: '2', name: '2' },
-      { id: '3', name: '3' },
-    ],
-  },
-  {
-    id: 'more',
-    label: 'Load more',
-    display: 'chips',
-    options: [
-      { id: 'hide', name: 'Hide' },
-      { id: 'show', name: 'Show' },
+      { id: 'v1', name: 'V1 · Outlined', blurb: 'Cards, with category, date, title and a summary' },
+      { id: 'v2', name: 'V2 · Bare', blurb: 'The same without the card' },
+      { id: 'v3', name: 'V3 · Meta at the foot', blurb: 'Title and summary, category and date under a rule' },
+      { id: 'v4', name: 'V4 · Byline', blurb: 'Bare columns closing on the author rather than a summary' },
+      { id: 'v5', name: 'V5 · Left header', blurb: 'Cards with a byline, under a left-set heading' },
+      { id: 'v6', name: 'V6 · Paged grid', blurb: 'No header — three rows of three and a load-more button' },
     ],
   },
 ]

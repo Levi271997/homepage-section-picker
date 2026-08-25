@@ -40,6 +40,8 @@ const STATS = (v: string) => asset(`/design-sets/section-cogs/stats/Type=Stats $
 
 const PRICING = (v: string) => asset(`/design-sets/section-cogs/pricing/Type=Pricing ${v}.svg`)
 
+const BLOGS = (v: string) => asset(`/design-sets/section-cogs/blogs/Type=Blogs ${v}.svg`)
+
 /**
  * The artwork for one option: a file, or a function of the whole choice where
  * a second axis picks between several drawings of the same design — the content
@@ -95,6 +97,8 @@ export const PREVIEW_IMAGES: Record<string, Record<string, Artwork>> = {
   stats: Object.fromEntries(Array.from({ length: 4 }, (_, i) => [`v${i + 1}`, STATS(`V${i + 1}`)])),
 
   pricing: Object.fromEntries(Array.from({ length: 6 }, (_, i) => [`v${i + 1}`, PRICING(`V${i + 1}`)])),
+
+  blogs: Object.fromEntries(Array.from({ length: 6 }, (_, i) => [`v${i + 1}`, BLOGS(`V${i + 1}`)])),
 }
 
 /** The artwork for this choice, or null to draw the wireframe instead. */

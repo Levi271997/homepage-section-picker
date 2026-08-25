@@ -244,7 +244,7 @@ export const CONTENT: Record<string, Schema> = {
       heading(),
       body(),
       cta(),
-      { id: 'items', label: 'Post titles', kind: 'lines' },
+      { id: 'items', label: 'Post titles', kind: 'lines', hint: 'The paged design shows nine; the rest show three.' },
       { id: 'meta', label: 'Category and date', kind: 'text', hint: 'Written as "Insights · 12 March".' },
       { id: 'itemBody', label: 'Excerpt', kind: 'paragraph' },
       { id: 'authors', label: 'Authors', kind: 'lines', hint: 'One per line, matching the posts above.' },
@@ -260,7 +260,7 @@ export const CONTENT: Record<string, Schema> = {
       body: 'Notes on the work, published when we have something worth saying.',
       cta: 'Read all posts',
       items:
-        'How to brief a web project properly\nFive things we changed after launch\nWhat a homepage is actually for\nThe case for fewer sections\nWriting copy before design\nMeasuring what matters',
+        'How to brief a web project properly\nFive things we changed after launch\nWhat a homepage is actually for\nThe case for fewer sections\nWriting copy before design\nMeasuring what matters\nWhy we stopped using carousels\nA short defence of the sitemap\nWhat clients ask us most',
       meta: 'Insights · 12 March',
       image: LANDSCAPE,
     },
