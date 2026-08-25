@@ -215,6 +215,22 @@ const CONTACT_RATIOS: Record<string, string> = {
   v6: 'aspect-[1440/790]',
 }
 
+/**
+ * Footer heights, from the artboards the designs were exported at. The three
+ * with link columns stand at 338; the rest are strips and bars, down to the
+ * 68 of a single legal line.
+ */
+const FOOTER_RATIOS: Record<string, string> = {
+  v1: 'aspect-[1440/338]',
+  v2: 'aspect-[1440/102]',
+  v3: 'aspect-[1440/102]',
+  v4: 'aspect-[1440/137]',
+  v5: 'aspect-[1440/338]',
+  v6: 'aspect-[1440/338]',
+  v7: 'aspect-[1440/68]',
+  v8: 'aspect-[1440/76]',
+}
+
 export function aspectFor(id: string, choice: Choice): string {
   switch (id) {
     case 'hero-logo':
@@ -245,8 +261,7 @@ export function aspectFor(id: string, choice: Choice): string {
     case 'contact-form':
       return CONTACT_RATIOS[choice.design] ?? 'aspect-[1440/648]'
     case 'site-footer':
-      // A legal bar or a lone logo is a strip; link columns need the height.
-      return choice.layout === 'bar' || choice.layout === 'logo-only' ? 'aspect-16/3' : 'aspect-16/7'
+      return FOOTER_RATIOS[choice.design] ?? 'aspect-[1440/338]'
     default:
       return 'aspect-16/10'
   }

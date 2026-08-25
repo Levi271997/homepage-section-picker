@@ -83,15 +83,7 @@ export default function SectionPreview({
     case 'contact-form':
       return <ContactFormPreview design={choice.design} content={c} />
     case 'site-footer':
-      return (
-        <FooterPreview
-          layout={choice.layout}
-          content={choice.content}
-          columns={choice.columns}
-          subscribe={choice.subscribe}
-          copy={c}
-        />
-      )
+      return <FooterPreview design={choice.design} copy={c} />
     case 'content-section':
       return <ContentSectionPreview design={choice.design} content={c} />
     case 'content-card':

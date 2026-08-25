@@ -58,7 +58,7 @@ Never move the model call into the browser to work around this: the API key woul
   | Pricing | Design: the 6-strong V1…V6 set — see [Design sets](#design-sets) |
   | Blogs | Design: the 6-strong V1…V6 set — see [Design sets](#design-sets) |
   | Contact form | Design: the 6-strong V1…V6 set — see [Design sets](#design-sets) |
-  | Site footer | Layout (4) × Bar contents (4) × Columns (3) × Sign-up (2) |
+  | Site footer | Design: the 8-strong V1…V8 set — see [Design sets](#design-sets) |
 - **Swap** opens a picker of every other optional section, each shown with its own preview thumbnail and caption. If the section picked isn't on the page, the row becomes it; if it already is, the two rows **trade places** (tagged as such in the menu) rather than duplicating.
 - **Remove** drops the row; the footer count and the "…" menu update accordingly. Removed sections reappear under "Add a section", still previewing the layout they were last given.
 - The "…" menu adds a section back (inserted above the pinned rows that close the page) or resets to the audit's suggestion.
@@ -121,7 +121,7 @@ Preflight strips the browser's default heading and list styling, so the tags are
 
 ## Design sets
 
-`public/design-sets/` holds the artwork exported from Figma, keeping the names it exported them with — `section-cogs/hero/Type=Hero V1.svg` and so on. Twelve sections are wired to their sets, and each lists the drawn designs on a `design` axis rather than the combinable axes the rest still use, because a design set is a fixed set and listing it verbatim keeps the picker and the design file describing the same thing:
+`public/design-sets/` holds the artwork exported from Figma, keeping the names it exported them with — `section-cogs/hero/Type=Hero V1.svg` and so on. Thirteen sections are wired to their sets, and each lists the drawn designs on a `design` axis rather than the combinable axes the rest still use, because a design set is a fixed set and listing it verbatim keeps the picker and the design file describing the same thing:
 
 - **Hero** — the 23 drawn heroes (V1…V8, V13…V26, V28).
 - **Content cards** — 22 designs (V1…V22) × the rows axis, since the file draws each one at 1, 2 and 3 rows. Both axes are read together, so all 66 combinations have artwork behind them.
@@ -132,6 +132,7 @@ Preflight strips the browser's default heading and list styling, so the tags are
 - **Stats** — four designs (V1…V4). Two headed ones at 1440×619 and two 252-tall strips, the last of them reversed out of the brand green.
 - **Pricing** — six designs (V1…V6). Three plans across throughout, varying by card, tint, tick side and where the gold "best plan" pill sits.
 - **Blogs** — six designs (V1…V6). Three posts across, varying by card, what closes a post, and where the category and date go. V6 is the odd one: no header, three rows of three, and a load-more button.
+- **Site footer** — eight designs (V1…V8), exported under `Style=` rather than `Type=` like the content section. Three frames: the tall footer with link columns, a strip built round the logo, and a bare line of type.
 - **Contact form** — six designs (V1…V6). Figma pluralised this one and the folder didn't follow: `section-cogs/contact form/Type=Contact Forms V1.svg`. All six are the same five-field form; what varies is what holds it and which side it sits on.
 - **Call to action** — ten designs (V1…V10) over three frames: a band, a split with a picture, and a rounded green panel. What sits behind — nothing, a photograph under a 60% wash, or the brand green — is part of the design.
 - **FAQ accordion** — five designs (V1…V5). Figma called this set "Accordion", so the artwork lives in `section-cogs/accordions/Type=Accordion V1.svg`. They vary by boxed or ruled rows, one column or two, and whether the heading sits above the list or in the half beside it.
@@ -139,7 +140,7 @@ Preflight strips the browser's default heading and list styling, so the tags are
 Each design appears twice over, and the two are not the same picture:
 
 - **Choosing one** — the picker cards, the row thumbnail, the swap and add menus — shows the exported SVG. That's the finished design, at full fidelity.
-- **The assembled page** shows a wireframe rebuilt from the same design — [HeroPreview.tsx](src/components/previews/HeroPreview.tsx), [ContentCardPreview.tsx](src/components/previews/ContentCardPreview.tsx), [ContentSectionPreview.tsx](src/components/previews/ContentSectionPreview.tsx), [TestimonialsPreview.tsx](src/components/previews/TestimonialsPreview.tsx), [LogoStripPreview.tsx](src/components/previews/LogoStripPreview.tsx), [TeamPreview.tsx](src/components/previews/TeamPreview.tsx), [StatsPreview.tsx](src/components/previews/StatsPreview.tsx), [PricingPreview.tsx](src/components/previews/PricingPreview.tsx), [BlogsPreview.tsx](src/components/previews/BlogsPreview.tsx), [FaqPreview.tsx](src/components/previews/FaqPreview.tsx), [CtaPreview.tsx](src/components/previews/CtaPreview.tsx), [ContactFormPreview.tsx](src/components/previews/ContactFormPreview.tsx). Only the wireframe fills with the client's own colour, logo, copy and photography, and that contrast is the pitch; the SVG is fixed lorem ipsum with a green button.
+- **The assembled page** shows a wireframe rebuilt from the same design — [HeroPreview.tsx](src/components/previews/HeroPreview.tsx), [ContentCardPreview.tsx](src/components/previews/ContentCardPreview.tsx), [ContentSectionPreview.tsx](src/components/previews/ContentSectionPreview.tsx), [TestimonialsPreview.tsx](src/components/previews/TestimonialsPreview.tsx), [LogoStripPreview.tsx](src/components/previews/LogoStripPreview.tsx), [TeamPreview.tsx](src/components/previews/TeamPreview.tsx), [StatsPreview.tsx](src/components/previews/StatsPreview.tsx), [PricingPreview.tsx](src/components/previews/PricingPreview.tsx), [BlogsPreview.tsx](src/components/previews/BlogsPreview.tsx), [FaqPreview.tsx](src/components/previews/FaqPreview.tsx), [CtaPreview.tsx](src/components/previews/CtaPreview.tsx), [ContactFormPreview.tsx](src/components/previews/ContactFormPreview.tsx), [FooterPreview.tsx](src/components/previews/FooterPreview.tsx). Only the wireframe fills with the client's own colour, logo, copy and photography, and that contrast is the pitch; the SVG is fixed lorem ipsum with a green button.
 
 `SectionPreview`'s `screenshot` prop is what separates the two, so a caller picks a side rather than the artwork leaking onto the page.
 

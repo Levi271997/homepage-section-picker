@@ -426,56 +426,30 @@ export const CONTACT_FORM_GROUPS: OptionGroup[] = [
   },
 ]
 
-/** Layouts of the footer that stack link columns above a bottom bar. */
-const COLUMN_FOOTERS = ['columns', 'newsletter']
-
 /**
- * The site footer — from a single legal bar up to a full column block with a
- * newsletter sign-up.
+ * The site footer design set, as exported from Figma — under `Style=` rather
+ * than `Type=`, like the content section.
+ *
+ * Eight drawn designs on a flat `design` axis, over three frames: the tall
+ * footer with link columns, a strip built round the logo, and a bare line of
+ * type. How many columns there are, whether the last of them is a sign-up and
+ * what a strip carries beside its copyright aren't free choices — they're what
+ * tells the eight apart.
  */
 export const FOOTER_GROUPS: OptionGroup[] = [
   {
-    id: 'layout',
-    label: 'Layout',
+    id: 'design',
+    label: 'Design',
     display: 'cards',
     options: [
-      { id: 'bar', name: 'Single bar', blurb: 'One row of copyright, links and icons' },
-      { id: 'columns', name: 'Link columns', blurb: 'Brand block and link columns above a legal bar' },
-      { id: 'newsletter', name: 'Newsletter', blurb: 'Link columns with an email sign-up on the right' },
-      { id: 'logo-only', name: 'Logo only', blurb: 'Just a centred logo' },
-    ],
-  },
-  {
-    id: 'content',
-    label: 'Bar shows',
-    display: 'chips',
-    appliesTo: (choice) => choice.layout === 'bar',
-    options: [
-      { id: 'links', name: 'Links' },
-      { id: 'links-social', name: 'Links + social' },
-      { id: 'logo-links', name: 'Logo + links' },
-      { id: 'logo-social', name: 'Logo + social' },
-    ],
-  },
-  {
-    id: 'columns',
-    label: 'Columns',
-    display: 'chips',
-    appliesTo: (choice) => COLUMN_FOOTERS.includes(choice.layout),
-    options: [
-      { id: '2', name: '2' },
-      { id: '3', name: '3' },
-      { id: '4', name: '4' },
-    ],
-  },
-  {
-    id: 'subscribe',
-    label: 'Sign-up',
-    display: 'chips',
-    appliesTo: (choice) => choice.layout === 'newsletter',
-    options: [
-      { id: 'button', name: 'Button below' },
-      { id: 'inline', name: 'Inline arrow' },
+      { id: 'v1', name: 'V1 · Four columns', blurb: 'Brand block, four link columns, legal line under a rule' },
+      { id: 'v2', name: 'V2 · Logo and social', blurb: 'A strip: logo, copyright, social marks' },
+      { id: 'v3', name: 'V3 · Logo and legal', blurb: 'The same strip with legal links in place of the marks' },
+      { id: 'v4', name: 'V4 · Logo only', blurb: 'Just a centred logo' },
+      { id: 'v5', name: 'V5 · Sign-up, inline', blurb: 'Two columns and an email field behind a green arrow' },
+      { id: 'v6', name: 'V6 · Sign-up, button', blurb: 'The same with a Subscribe button under the field' },
+      { id: 'v7', name: 'V7 · Legal bar', blurb: 'One line: copyright and legal links' },
+      { id: 'v8', name: 'V8 · Legal bar and social', blurb: 'The same line with the social marks at the end' },
     ],
   },
 ]

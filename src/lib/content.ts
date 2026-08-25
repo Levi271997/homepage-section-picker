@@ -304,6 +304,8 @@ export const CONTENT: Record<string, Schema> = {
       { id: 'legal', label: 'Legal line', kind: 'text' },
       { id: 'legalLinks', label: 'Legal links', kind: 'lines' },
       { id: 'newsletter', label: 'Newsletter copy', kind: 'paragraph' },
+      { id: 'newsletterHint', label: 'Email field placeholder', kind: 'text' },
+      { id: 'newsletterNote', label: 'Sign-up note', kind: 'text', hint: 'The ticked reassurance under the field, on V5.' },
       cta('Sign-up button'),
     ],
     defaults: {
@@ -314,6 +316,8 @@ export const CONTENT: Record<string, Schema> = {
       legal: '© 2026 Your Company. All rights reserved.',
       legalLinks: 'Terms and conditions\nPrivacy policy',
       newsletter: 'Occasional notes on the work. No more than once a month.',
+      newsletterHint: 'Enter your email address',
+      newsletterNote: 'No spam, and one click to stop.',
       cta: 'Subscribe',
     },
   },

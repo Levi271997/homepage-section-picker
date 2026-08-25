@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import { SOCIAL_GLYPHS } from '@/components/previews/parts'
 import { linesOf } from '@/lib/content'
 import type { SectionContent } from '@/lib/content'
 
@@ -228,51 +228,12 @@ function EmailLine({ text }: { text?: string }) {
 function Socials({ links }: { links?: string[] }) {
   const ink = '#3f3330'
 
-  const glyphs: { name: string; path: ReactNode }[] = [
-    {
-      name: 'Facebook',
-      path: (
-        <>
-          <circle cx="8" cy="8" r="8" fill={ink} />
-          <path d="M9.4 8.3h1.2l.2-1.7H9.4V5.6c0-.5.1-.8.8-.8h.7V3.3h-1.3c-1.5 0-2.1.8-2.1 2.1v1.2H6.3v1.7h1.2v4.4h1.9z" fill="#fff" />
-        </>
-      ),
-    },
-    {
-      name: 'Instagram',
-      path: (
-        <>
-          <rect x="0.8" y="0.8" width="14.4" height="14.4" rx="4.2" fill={ink} />
-          <circle cx="8" cy="8" r="3.4" fill="none" stroke="#fff" strokeWidth="1.3" />
-          <circle cx="12.1" cy="4" r="1" fill="#fff" />
-        </>
-      ),
-    },
-    {
-      name: 'X',
-      path: (
-        <path d="M1.5 1.5l5.6 7.2-5.4 5.8h1.8l4.5-4.8 3.7 4.8h4.3L10 7.6l5-5.4h-1.8L9.2 6.6 5.8 1.5z" fill={ink} />
-      ),
-    },
-    {
-      name: 'LinkedIn',
-      path: (
-        <>
-          <rect x="0.5" y="0.5" width="15" height="15" rx="2.4" fill={ink} />
-          <circle cx="4.2" cy="4.2" r="1.2" fill="#fff" />
-          <rect x="3.2" y="6.2" width="2" height="6.6" fill="#fff" />
-          <path d="M6.6 6.2h1.9v.9c.3-.6 1-1.1 2-1.1 1.6 0 2.4 1 2.4 2.9v3.9h-2V9.3c0-.9-.3-1.4-1.1-1.4-.7 0-1.2.5-1.2 1.5v3.4h-2z" fill="#fff" />
-        </>
-      ),
-    },
-  ]
-
   return (
     <ul className="flex items-center gap-[1.4cqw]" style={{ color: ink }}>
-      {glyphs.map((glyph, i) => {
+      {SOCIAL_GLYPHS.map((glyph, i) => {
         const icon = (
           <svg viewBox="0 0 16 16" className="size-[2.2cqw]" aria-hidden="true">
-            {glyph.path}
+            {glyph.path(ink)}
           </svg>
         )
         const href = links?.[i]

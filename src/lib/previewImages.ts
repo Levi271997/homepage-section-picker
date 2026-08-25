@@ -50,6 +50,9 @@ const CTA = (v: string) => asset(`/design-sets/section-cogs/cta/Type=Call to Act
 // Figma pluralised this one, and the folder didn't follow: "contact form", "Contact Forms".
 const CONTACT = (v: string) => asset(`/design-sets/section-cogs/contact form/Type=Contact Forms ${v}.svg`)
 
+// Exported under `Style=` rather than `Type=`, like the content section.
+const FOOTER = (v: string) => asset(`/design-sets/section-cogs/footer/Style=Footer ${v}.svg`)
+
 /**
  * The artwork for one option: a file, or a function of the whole choice where
  * a second axis picks between several drawings of the same design — the content
@@ -113,6 +116,8 @@ export const PREVIEW_IMAGES: Record<string, Record<string, Artwork>> = {
   cta: Object.fromEntries(Array.from({ length: 10 }, (_, i) => [`v${i + 1}`, CTA(`V${i + 1}`)])),
 
   'contact-form': Object.fromEntries(Array.from({ length: 6 }, (_, i) => [`v${i + 1}`, CONTACT(`V${i + 1}`)])),
+
+  'site-footer': Object.fromEntries(Array.from({ length: 8 }, (_, i) => [`v${i + 1}`, FOOTER(`V${i + 1}`)])),
 }
 
 /** The artwork for this choice, or null to draw the wireframe instead. */
