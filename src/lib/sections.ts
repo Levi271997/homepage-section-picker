@@ -386,43 +386,23 @@ export const FAQ_GROUPS: OptionGroup[] = [
   },
 ]
 
-/** The team grid — a portrait, name and role per person. */
+/**
+ * The team members design set, as exported from Figma.
+ *
+ * Three drawn designs on a flat `design` axis. The portrait shape, the outline
+ * and where the name sits aren't free choices, and the set is four across in all
+ * three — so the columns axis goes too, rather than offering a three-up nobody
+ * drew.
+ */
 export const TEAM_GROUPS: OptionGroup[] = [
   {
-    id: 'layout',
-    label: 'Portrait',
+    id: 'design',
+    label: 'Design',
     display: 'cards',
     options: [
-      { id: 'thumb', name: 'Small', blurb: 'Compact square portrait above the name' },
-      { id: 'wide', name: 'Large', blurb: 'Full-width portrait filling the column' },
-    ],
-  },
-  {
-    id: 'card',
-    label: 'Card',
-    display: 'chips',
-    options: [
-      { id: 'plain', name: 'Plain' },
-      { id: 'bordered', name: 'Bordered' },
-    ],
-  },
-  {
-    id: 'align',
-    label: 'Align',
-    display: 'chips',
-    options: [
-      { id: 'center', name: 'Centred' },
-      { id: 'left', name: 'Left' },
-    ],
-  },
-  {
-    id: 'columns',
-    label: 'Columns',
-    display: 'chips',
-    defaultId: '4',
-    options: [
-      { id: '3', name: '3' },
-      { id: '4', name: '4' },
+      { id: 'v1', name: 'V1 · Thumbnail', blurb: 'Small square portrait above a centred name' },
+      { id: 'v2', name: 'V2 · Outlined', blurb: 'The same in an outlined card' },
+      { id: 'v3', name: 'V3 · Landscape', blurb: 'Wide portrait filling the column, name set left' },
     ],
   },
 ]

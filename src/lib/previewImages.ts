@@ -33,6 +33,9 @@ const QUOTES = (v: string) => asset(`/design-sets/section-cogs/testimonials/Type
 // Figma pluralised this one — the folder and the files both read "Logo Strips".
 const LOGOS = (v: string) => asset(`/design-sets/section-cogs/logo strips/Type=Logo Strips ${v}.svg`)
 
+// Lower-case "members", as Figma wrote it.
+const TEAM = (v: string) => asset(`/design-sets/section-cogs/team members/Type=Team members ${v}.svg`)
+
 /**
  * The artwork for one option: a file, or a function of the whole choice where
  * a second axis picks between several drawings of the same design — the content
@@ -82,6 +85,8 @@ export const PREVIEW_IMAGES: Record<string, Record<string, Artwork>> = {
   'client-quote': Object.fromEntries(Array.from({ length: 6 }, (_, i) => [`v${i + 1}`, QUOTES(`V${i + 1}`)])),
 
   'logo-strip': Object.fromEntries(Array.from({ length: 3 }, (_, i) => [`v${i + 1}`, LOGOS(`V${i + 1}`)])),
+
+  'about-team': Object.fromEntries(Array.from({ length: 3 }, (_, i) => [`v${i + 1}`, TEAM(`V${i + 1}`)])),
 }
 
 /** The artwork for this choice, or null to draw the wireframe instead. */

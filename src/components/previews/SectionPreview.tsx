@@ -100,15 +100,7 @@ export default function SectionPreview({
         />
       )
     case 'about-team':
-      return (
-        <TeamPreview
-          layout={choice.layout}
-          card={choice.card}
-          align={choice.align}
-          columns={choice.columns}
-          content={c}
-        />
-      )
+      return <TeamPreview design={choice.design} content={c} />
     case 'client-quote':
       return <TestimonialsPreview design={choice.design} content={c} />
     case 'pricing':

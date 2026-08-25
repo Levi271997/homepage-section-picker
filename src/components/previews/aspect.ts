@@ -124,6 +124,16 @@ const LOGO_RATIOS: Record<string, string> = {
   v3: 'aspect-[1440/817]',
 }
 
+/**
+ * Team member heights, from the artboards the designs were exported at. The
+ * landscape portraits make V3 the tall one.
+ */
+const TEAM_RATIOS: Record<string, string> = {
+  v1: 'aspect-[1440/614]',
+  v2: 'aspect-[1440/670]',
+  v3: 'aspect-[1440/733]',
+}
+
 export function aspectFor(id: string, choice: Choice): string {
   switch (id) {
     case 'hero-logo':
@@ -139,6 +149,8 @@ export function aspectFor(id: string, choice: Choice): string {
       return choice.structure === 'single' ? 'aspect-16/3' : 'aspect-16/5'
     case 'logo-strip':
       return LOGO_RATIOS[choice.design] ?? 'aspect-[1440/609]'
+    case 'about-team':
+      return TEAM_RATIOS[choice.design] ?? 'aspect-[1440/614]'
     case 'stats':
       return choice.header === 'none' ? 'aspect-16/5' : 'aspect-16/9'
     case 'cta':
