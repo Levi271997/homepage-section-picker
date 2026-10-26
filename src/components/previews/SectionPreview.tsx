@@ -63,7 +63,14 @@ export default function SectionPreview({
         />
       )
     case 'hero-logo':
-      return <HeroPreview design={choice.design} content={c} />
+      return (
+        <HeroPreview
+          design={choice.design}
+          buttonRadius={choice.buttonRadius}
+          imageRadius={choice.imageRadius}
+          content={c}
+        />
+      )
     case 'logo-strip':
       return <LogoStripPreview design={choice.design} content={c} />
     case 'cta':

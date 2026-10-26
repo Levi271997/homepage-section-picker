@@ -34,6 +34,8 @@ export type Choice = Record<string, string>
  * the design file describing the same thing. `previewImages.ts` maps each id to
  * its artwork, and `HeroPreview` rebuilds each one as a live wireframe.
  */
+const HERO_SQUARED = new Set(['v8', 'v18', 'v19', 'v20', 'v23', 'v24', 'v26', 'v28'])
+
 export const HERO_GROUPS: OptionGroup[] = [
   {
     id: 'design',
@@ -63,6 +65,36 @@ export const HERO_GROUPS: OptionGroup[] = [
       { id: 'v25', name: 'V25 · Breadcrumb', blurb: 'Breadcrumb and copy, image right' },
       { id: 'v26', name: 'V26 · Page header', blurb: 'Breadcrumb and centred copy, no image' },
       { id: 'v28', name: 'V28 · Form with details', blurb: 'Copy, date and location beside a form' },
+    ],
+  },
+  {
+    id: 'buttonRadius',
+    label: 'Buttons',
+    display: 'chips',
+    defaultId: 'subtle',
+    options: [
+      { id: 'square', name: 'Square buttons' },
+      { id: 'subtle', name: 'Subtle buttons' },
+      { id: 'rounded', name: 'Rounded buttons' },
+      { id: 'pill', name: 'Pill buttons' },
+    ],
+  },
+  {
+    id: 'imageRadius',
+    label: 'Images',
+    display: 'chips',
+    defaultId: 'subtle',
+    // Hidden where there's no corner to round: the designs whose image runs off
+    // an edge or fills the frame are squared against it, the two form designs
+    // put a form where the image would be, and V26 carries no image at all.
+    // The source of truth is `SPECS` in HeroPreview — this is the `bleed`,
+    // `background`, `media: 'form'` and no-media rows of it, named.
+    appliesTo: (choice) => !HERO_SQUARED.has(choice.design),
+    options: [
+      { id: 'square', name: 'Square images' },
+      { id: 'subtle', name: 'Subtle images' },
+      { id: 'rounded', name: 'Rounded images' },
+      { id: 'large', name: 'Large images' },
     ],
   },
 ]

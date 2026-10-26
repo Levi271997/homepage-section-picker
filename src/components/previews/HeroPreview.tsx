@@ -1,9 +1,28 @@
 import { linesOf } from '@/lib/content'
 import type { SectionContent } from '@/lib/content'
-import { BodyLine, Dots, Eyebrow, FilledButton, HeadlineLine, ImageBlock, OutlineButton } from '@/components/previews/parts'
+import {
+  BodyLine,
+  BUTTON_RADII,
+  Dots,
+  Eyebrow,
+  FilledButton,
+  HeadlineLine,
+  ImageBlock,
+  IMAGE_RADII,
+  OutlineButton,
+} from '@/components/previews/parts'
 
 /** The design set, by its Figma name — 'v1' … 'v28'. */
 export type HeroDesign = string
+
+/**
+ * The two corner settings, resolved to classes once and carried down.
+ *
+ * One object rather than two props because almost everything in here needs
+ * both or neither, and a tree this shallow reads better drilled than wrapped
+ * in a context it would otherwise have no use for.
+ */
+type Corners = { button: string; image: string }
 
 const GREEN = 'var(--brand,#3f6b30)'
 const PANEL_GREEN = 'var(--brand-soft,#e3edd8)'
@@ -118,7 +137,7 @@ function MetaRow({ text }: { text?: string }) {
 }
 
 /** Email field and submit sharing one row, with the reassurance under it. */
-function EmailCapture({ content }: { content?: SectionContent }) {
+function EmailCapture({ content, corners }: { content?: SectionContent; corners: Corners }) {
   return (
     <form className="flex w-full flex-col gap-[1.4cqw]" onSubmit={(e) => e.preventDefault()}>
       <div className="flex items-stretch gap-[1.2cqw]">
@@ -131,7 +150,7 @@ function EmailCapture({ content }: { content?: SectionContent }) {
             className="w-full bg-transparent text-[1.7cqw] text-neutral-500 placeholder:text-neutral-500"
           />
         </label>
-        <FilledButton label={content?.cta} />
+        <FilledButton label={content?.cta} radius={corners.button} />
       </div>
       {content?.note && (
         <p className="flex items-center gap-[1.2cqw]">
@@ -170,7 +189,15 @@ function Field({ label, tall }: { label: string; tall?: boolean }) {
  * so everything here is tighter than the equivalent in the contact section —
  * at these sizes the stack lands just inside its half of the hero.
  */
-function FormCard({ content, className = '' }: { content?: SectionContent; className?: string }) {
+function FormCard({
+  content,
+  className = '',
+  corners,
+}: {
+  content?: SectionContent
+  className?: string
+  corners: Corners
+}) {
   return (
     <form
       aria-label="Enquiry"
@@ -192,37 +219,55 @@ function FormCard({ content, className = '' }: { content?: SectionContent; class
         </span>
       </label>
       <div className="mt-[0.2cqw]">
-        <FilledButton label={content?.formCta} />
+        <FilledButton label={content?.formCta} radius={corners.button} />
       </div>
     </form>
   )
 }
 
 /** Two images overlapping, as the paired designs stage them. */
-function PairSquares({ a, b, lead = 'right' }: { a?: string | null; b?: string | null; lead?: 'left' | 'right' }) {
+function PairSquares({
+  a,
+  b,
+  lead = 'right',
+  corners,
+}: {
+  a?: string | null
+  b?: string | null
+  lead?: 'left' | 'right'
+  corners: Corners
+}) {
   const front = 'z-10 shadow-[0_2cqw_4cqw_rgba(0,0,0,0.10)]'
   return (
     <div className="relative block h-full w-full">
-      <ImageBlock className={`absolute top-0 left-0 h-[72%] w-[66%] ${lead === 'left' ? front : ''}`} src={a} />
-      <ImageBlock className={`absolute right-0 bottom-0 h-[72%] w-[66%] ${lead === 'right' ? front : ''}`} src={b} />
+      <ImageBlock
+        className={`absolute top-0 left-0 h-[72%] w-[66%] ${lead === 'left' ? front : ''}`}
+        radius={corners.image}
+        src={a}
+      />
+      <ImageBlock
+        className={`absolute right-0 bottom-0 h-[72%] w-[66%] ${lead === 'right' ? front : ''}`}
+        radius={corners.image}
+        src={b}
+      />
     </div>
   )
 }
 
 /** A row of images running off both edges, with the middle ones whole. */
-function CarouselRow({ src }: { src?: string | null }) {
+function CarouselRow({ src, corners }: { src?: string | null; corners: Corners }) {
   return (
     <ul className="flex h-full w-full items-stretch gap-[2cqw]">
       <li className="h-full w-[8%] shrink-0">
-        <ImageBlock className="h-full w-full" src={src} />
+        <ImageBlock className="h-full w-full" radius={corners.image} src={src} />
       </li>
       {[0, 1, 2].map((i) => (
         <li key={i} className="h-full min-w-0 flex-1">
-          <ImageBlock className="h-full w-full" src={src} />
+          <ImageBlock className="h-full w-full" radius={corners.image} src={src} />
         </li>
       ))}
       <li className="h-full w-[8%] shrink-0">
-        <ImageBlock className="h-full w-full" src={src} />
+        <ImageBlock className="h-full w-full" radius={corners.image} src={src} />
       </li>
     </ul>
   )
@@ -237,11 +282,13 @@ function Copy({
   content,
   centered,
   onImage,
+  corners,
 }: {
   spec: Spec
   content?: SectionContent
   centered?: boolean
   onImage?: boolean
+  corners: Corners
 }) {
   const ticks = linesOf(content?.items)
 
@@ -274,12 +321,12 @@ function Copy({
 
       {spec.actions === 'email' ? (
         <div className="mt-[1.5cqw] w-full">
-          <EmailCapture content={content} />
+          <EmailCapture content={content} corners={corners} />
         </div>
       ) : (
         <div className="mt-[1.5cqw] flex items-center gap-[1.5cqw]">
-          <FilledButton label={content?.cta} />
-          <OutlineButton label={content?.cta2} />
+          <FilledButton label={content?.cta} radius={corners.button} />
+          <OutlineButton label={content?.cta2} radius={corners.button} />
         </div>
       )}
 
@@ -293,47 +340,67 @@ function Copy({
 }
 
 /** Whatever fills the media half of a split design. */
-function SplitMedia({ spec, content }: { spec: Spec; content?: SectionContent }) {
+function SplitMedia({ spec, content, corners }: { spec: Spec; content?: SectionContent; corners: Corners }) {
   const image = content?.image ?? null
   const second = content?.image2 ?? image
 
-  if (spec.media === 'form') return <FormCard content={content} className="w-[44%] shrink-0" />
+  if (spec.media === 'form') {
+    return <FormCard content={content} className="w-[44%] shrink-0" corners={corners} />
+  }
 
   if (spec.media === 'pair') {
     // Both paired splits put the front image at the bottom right, whichever
     // side of the copy the pair sits on.
     return (
       <div className="h-[80%] w-1/2 shrink-0">
-        <PairSquares a={image} b={second} lead="right" />
+        <PairSquares a={image} b={second} lead="right" corners={corners} />
       </div>
     )
   }
 
-  // A bleeding image is squared off against the edge it runs into.
+  // A bleeding image stays squared against the edge it runs into whatever the
+  // section is set to — the corners a radius would round are off the frame.
+  // Said through the prop rather than a class, so it doesn't have to out-rank
+  // the default in a list Tailwind emits alphabetically.
   return (
     <ImageBlock
-      className={spec.bleed ? 'h-full w-1/2 shrink-0 rounded-none border-0' : 'h-[74%] w-1/2 shrink-0'}
+      className={spec.bleed ? 'h-full w-1/2 shrink-0 border-0' : 'h-[74%] w-1/2 shrink-0'}
+      radius={spec.bleed ? 'rounded-none' : corners.image}
       src={image}
     />
   )
 }
 
 /** Miniature of what the hero will look like on the page. */
-export default function HeroPreview({ design, content }: { design: HeroDesign; content?: SectionContent }) {
+export default function HeroPreview({
+  design,
+  buttonRadius = 'subtle',
+  imageRadius = 'subtle',
+  content,
+}: {
+  design: HeroDesign
+  buttonRadius?: string
+  imageRadius?: string
+  content?: SectionContent
+}) {
   const spec = SPECS[design] ?? SPECS.v1
   const image = content?.image ?? null
   const second = content?.image2 ?? image
+  const corners: Corners = {
+    button: BUTTON_RADII[buttonRadius] ?? BUTTON_RADII.subtle,
+    image: IMAGE_RADII[imageRadius] ?? IMAGE_RADII.subtle,
+  }
 
   if (spec.frame === 'background') {
     const centered = spec.align === 'center'
     return (
       <section aria-label="Hero" className="relative flex h-full w-full items-center">
-        <ImageBlock className="absolute inset-0 size-full rounded-none border-0" src={image} />
+        <ImageBlock className="absolute inset-0 size-full border-0" radius="rounded-none" src={image} />
         {/* Scrim, so the type stays readable whatever the photo is. */}
         <span aria-hidden="true" className="absolute inset-0 bg-black/45" />
         <div className={`relative z-10 flex w-full px-[6cqw] ${centered ? 'justify-center' : ''}`}>
           <div className={centered ? 'w-[70%]' : 'w-[58%]'}>
-            <Copy spec={spec} content={content} centered={centered} onImage />
+            <Copy spec={spec} content={content} centered={centered} onImage corners={corners} />
           </div>
         </div>
       </section>
@@ -352,11 +419,15 @@ export default function HeroPreview({ design, content }: { design: HeroDesign; c
             style={{ background: PANEL_GREEN }}
           >
             <div className="w-[75%]">
-              <Copy spec={spec} content={content} centered />
+              <Copy spec={spec} content={content} centered corners={corners} />
             </div>
           </div>
           <div className="mt-[-16%] flex h-[46%] shrink-0 justify-center px-[8cqw]">
-            <ImageBlock className="h-full w-full shadow-[0_2cqw_5cqw_rgba(0,0,0,0.12)]" src={image} />
+            <ImageBlock
+              className="h-full w-full shadow-[0_2cqw_5cqw_rgba(0,0,0,0.12)]"
+              radius={corners.image}
+              src={image}
+            />
           </div>
         </section>
       )
@@ -370,12 +441,13 @@ export default function HeroPreview({ design, content }: { design: HeroDesign; c
         className={`flex h-full w-full flex-col items-center gap-[4cqw] ${spec.bleed ? 'pt-[5cqw]' : 'p-[5cqw]'}`}
       >
         <div className="w-4/5 shrink-0">
-          <Copy spec={spec} content={content} centered />
+          <Copy spec={spec} content={content} centered corners={corners} />
         </div>
 
         {spec.media === 'single' && (
           <ImageBlock
-            className={`w-full min-h-0 flex-1 ${spec.bleed ? 'rounded-none border-x-0 border-b-0' : ''}`}
+            className={`w-full min-h-0 flex-1 ${spec.bleed ? 'border-x-0 border-b-0' : ''}`}
+            radius={spec.bleed ? 'rounded-none' : corners.image}
             src={image}
           />
         )}
@@ -386,12 +458,14 @@ export default function HeroPreview({ design, content }: { design: HeroDesign; c
               className={`absolute top-0 left-0 h-[80%] w-[54%] ${
                 spec.lead === 'left' ? 'z-10 shadow-[0_2cqw_4cqw_rgba(0,0,0,0.10)]' : ''
               }`}
+              radius={corners.image}
               src={image}
             />
             <ImageBlock
               className={`absolute right-0 bottom-0 h-[80%] w-[54%] ${
                 spec.lead === 'right' ? 'z-10 shadow-[0_2cqw_4cqw_rgba(0,0,0,0.10)]' : ''
               }`}
+              radius={corners.image}
               src={second}
             />
           </div>
@@ -402,7 +476,7 @@ export default function HeroPreview({ design, content }: { design: HeroDesign; c
             leaves would otherwise stretch them into portraits. */}
         {spec.media === 'carousel' && (
           <div className="max-h-[26cqw] min-h-0 w-full flex-1">
-            <CarouselRow src={image} />
+            <CarouselRow src={image} corners={corners} />
           </div>
         )}
       </section>
@@ -417,11 +491,11 @@ export default function HeroPreview({ design, content }: { design: HeroDesign; c
 
   return (
     <section aria-label="Hero" className={`flex h-full w-full items-center ${frame}`}>
-      {mediaFirst && <SplitMedia spec={spec} content={content} />}
+      {mediaFirst && <SplitMedia spec={spec} content={content} corners={corners} />}
       <div className={`min-w-0 flex-1 ${copyPad}`}>
-        <Copy spec={spec} content={content} />
+        <Copy spec={spec} content={content} corners={corners} />
       </div>
-      {!mediaFirst && <SplitMedia spec={spec} content={content} />}
+      {!mediaFirst && <SplitMedia spec={spec} content={content} corners={corners} />}
     </section>
   )
 }

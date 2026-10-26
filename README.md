@@ -46,7 +46,7 @@ Never move the model call into the browser to work around this: the API key woul
   | Section | Axes |
   | --- | --- |
   | Site header | Structure (4) × Nav position (3) × Nav band (3) × Button (3) |
-  | Hero | Design: the 23-strong V1…V28 set — see [Design sets](#design-sets) |
+  | Hero | Design: the 23-strong V1…V28 set — see [Design sets](#design-sets) · Buttons (4) · Images (4) |
   | Logo strip | Design: the 3-strong V1…V3 set — see [Design sets](#design-sets) |
   | Content card | Design: the 22-strong V1…V22 set × Rows (3) — see [Design sets](#design-sets) |
   | Content section | Design: the 20-strong V1…V23 set — see [Design sets](#design-sets) |

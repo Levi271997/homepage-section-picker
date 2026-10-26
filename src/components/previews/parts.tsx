@@ -49,10 +49,50 @@ export function PreviewFrame({
 }
 
 /**
+ * Corner radii a section can be set to, as whole class names.
+ *
+ * Written out rather than built from a number, because Tailwind only generates
+ * an arbitrary value it can read literally in the source. In `cqw` past the
+ * default so a radius scales with its frame the way everything else in a
+ * preview does — a fixed pixel radius would be right at one width only.
+ *
+ * `subtle` is the 2px every set is currently drawn with, which is why it's the
+ * default: a section that says nothing looks exactly as it did.
+ */
+export const BUTTON_RADII: Record<string, string> = {
+  square: 'rounded-none',
+  subtle: 'rounded-xs',
+  rounded: 'rounded-[0.55cqw]',
+  pill: 'rounded-full',
+}
+
+export const IMAGE_RADII: Record<string, string> = {
+  square: 'rounded-none',
+  subtle: 'rounded-xs',
+  rounded: 'rounded-[0.55cqw]',
+  large: 'rounded-[1.11cqw]',
+}
+
+/** What a button or an image falls back to — the 2px the sets are drawn with. */
+export const DEFAULT_RADIUS = 'rounded-xs'
+
+/**
  * Checkerboard standing in for a photo, as the placeholders appear in the
  * design file — or the client's own image once we've read their site.
+ *
+ * `radius` replaces the default rather than being appended to it, so a caller
+ * that wants square corners doesn't have to out-rank `rounded-xs` in a class
+ * list Tailwind emits alphabetically.
  */
-export function ImageBlock({ className = '', src }: { className?: string; src?: string | null }) {
+export function ImageBlock({
+  className = '',
+  src,
+  radius = DEFAULT_RADIUS,
+}: {
+  className?: string
+  src?: string | null
+  radius?: string
+}) {
   if (src) {
     return (
       // eslint-disable-next-line @next/next/no-img-element -- a third-party URL from the client's own site; next/image would need every client domain whitelisted
@@ -69,14 +109,14 @@ export function ImageBlock({ className = '', src }: { className?: string; src?: 
             `<div class="${el.className}" style="background-image:repeating-conic-gradient(#e9e9e9 0% 25%,#fafafa 0% 50%);background-size:4cqw 4cqw"></div>`,
           )
         }}
-        className={`rounded-xs border border-neutral-200 object-cover ${className}`}
+        className={`${radius} border border-neutral-200 object-cover ${className}`}
       />
     )
   }
 
   return (
     <div
-      className={`rounded-xs border border-neutral-200 ${className}`}
+      className={`${radius} border border-neutral-200 ${className}`}
       style={{
         backgroundImage: 'repeating-conic-gradient(#e9e9e9 0% 25%, #fafafa 0% 50%)',
         backgroundSize: '4cqw 4cqw',
@@ -155,29 +195,52 @@ const GREEN = 'var(--brand,#3f6b30)'
  * An unlabelled button is a bar with no accessible name, so it's hidden from
  * assistive tech: at that point it's a wireframe of a button, not one.
  */
-export function FilledButton({ label, color = GREEN }: { label?: string | null; color?: string }) {
+export function FilledButton({
+  label,
+  color = GREEN,
+  radius = DEFAULT_RADIUS,
+}: {
+  label?: string | null
+  color?: string
+  radius?: string
+}) {
   if (label) {
     return (
       <button
         type="button"
         data-role="button"
-        className="inline-flex h-[4cqw] items-center rounded-xs px-[2.5cqw] text-[1.9cqw] leading-none font-medium text-white"
+        className={`inline-flex h-[4cqw] items-center ${radius} px-[2.5cqw] text-[1.9cqw] leading-none font-medium text-white`}
         style={{ background: color }}
       >
         {label}
       </button>
     )
   }
-  return <span aria-hidden="true" data-role="button" className="block h-[3.4cqw] w-[11cqw] rounded-xs" style={{ background: color }} />
+  return (
+    <span
+      aria-hidden="true"
+      data-role="button"
+      className={`block h-[3.4cqw] w-[11cqw] ${radius}`}
+      style={{ background: color }}
+    />
+  )
 }
 
-export function OutlineButton({ label, color = GREEN }: { label?: string | null; color?: string }) {
+export function OutlineButton({
+  label,
+  color = GREEN,
+  radius = DEFAULT_RADIUS,
+}: {
+  label?: string | null
+  color?: string
+  radius?: string
+}) {
   if (label) {
     return (
       <button
         type="button"
         data-role="button"
-        className="inline-flex h-[4cqw] items-center rounded-xs border bg-white px-[2.5cqw] text-[1.9cqw] leading-none font-medium"
+        className={`inline-flex h-[4cqw] items-center ${radius} border bg-white px-[2.5cqw] text-[1.9cqw] leading-none font-medium`}
         style={{ borderColor: color, color }}
       >
         {label}
@@ -188,7 +251,7 @@ export function OutlineButton({ label, color = GREEN }: { label?: string | null;
     <span
       aria-hidden="true"
       data-role="button"
-      className="block h-[3.4cqw] w-[11cqw] rounded-xs border bg-white"
+      className={`block h-[3.4cqw] w-[11cqw] ${radius} border bg-white`}
       style={{ borderColor: color }}
     />
   )
