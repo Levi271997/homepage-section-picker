@@ -226,7 +226,7 @@ export default function SectionPicker() {
       // The client's brand colours cascade from here, so the row thumbnails and
       // the picker cards recolour along with the big preview.
       style={brand as CSSProperties | undefined}
-      className="flex w-full max-w-[1500px] flex-col items-start gap-6 lg:flex-row"
+      className="flex w-full flex-col items-start gap-6 lg:flex-row"
     >
       {/* Left: the page as it currently stands. Right: what builds it. */}
       <div className="flex w-full min-w-0 flex-col gap-2 lg:sticky lg:top-8 lg:flex-1">
