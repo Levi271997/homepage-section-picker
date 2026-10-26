@@ -201,6 +201,7 @@ export default function SectionRow({
             <ContentEditor
               sectionId={section.id}
               content={content}
+              choice={choice ?? undefined}
               onChange={onEditContent}
               onReset={onResetContent}
             />

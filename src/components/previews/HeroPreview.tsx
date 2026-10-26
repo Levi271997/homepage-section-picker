@@ -1,5 +1,15 @@
+'use client'
+
+import { useState } from 'react'
+import type { ReactNode } from 'react'
+import { Swiper, SwiperSlide } from 'swiper/react'
+import { Autoplay } from 'swiper/modules'
+import type { Swiper as SwiperClass } from 'swiper/types'
+import 'swiper/css'
+
 import { itemAt, linesOf } from '@/lib/content'
 import type { SectionContent } from '@/lib/content'
+import { usePreviewMode } from '@/components/previews/mode'
 import {
   BodyLine,
   BUTTON_RADII,
@@ -345,12 +355,15 @@ function Copy({
   centered,
   onImage,
   corners,
+  paging,
 }: {
   spec: Spec
   content?: SectionContent
   centered?: boolean
   onImage?: boolean
   corners: Corners
+  /** Working paging dots, where the design has something to page. */
+  paging?: ReactNode
 }) {
   const ticks = linesOf(content?.items)
 
@@ -398,11 +411,7 @@ function Copy({
         </div>
       )}
 
-      {spec.dots && (
-        <div className="mt-[1.5cqw]">
-          <Dots />
-        </div>
-      )}
+      {spec.dots && <div className="mt-[1.5cqw]">{paging ?? <Dots />}</div>}
     </div>
   )
 }
@@ -443,6 +452,135 @@ function SplitMedia({ spec, content, corners }: { spec: Spec; content?: SectionC
 }
 
 /** Miniature of what the hero will look like on the page. */
+/** How long each background picture holds before the next slides in. */
+const SLIDE_DELAY = 5000
+
+/**
+ * Autoplay for the background slider.
+ *
+ * `waitForTransition: false` for the same reason the logo strip sets it: the
+ * timer restarts as a move begins rather than on a `transitionend` that has
+ * been seen not to arrive, and a background that stops cycling is a bug nobody
+ * reports because it just looks like a still photograph.
+ */
+const SLIDE_AUTOPLAY = {
+  delay: SLIDE_DELAY,
+  disableOnInteraction: false,
+  waitForTransition: false,
+} as const
+
+/**
+ * V23 and V24: copy over a full-bleed photograph, which the set draws with
+ * paging dots under the buttons — so the photograph is a slideshow.
+ *
+ * One slide in view, one at a time, no arrows, and the dots the set draws are
+ * the pagination: 16 filled in the lighter green for where you are, 15 hollow
+ * on a pale edge for where you could go, 24 apart. Swiper's own pagination is
+ * styled in fixed pixels, which would be the one thing in the preview not
+ * sized against the container, so the dots stay ours and drive the instance
+ * through `slideToLoop`.
+ *
+ * Its own component because it holds state, and the branch it replaced sat
+ * inside `HeroPreview` where a hook can't go.
+ */
+function BackgroundHero({
+  spec,
+  content,
+  corners,
+}: {
+  spec: Spec
+  content?: SectionContent
+  corners: Corners
+}) {
+  const centered = spec.align === 'center'
+
+  // Blank rows are someone part-way through adding a picture in the editor;
+  // the single hero image stands in if the list is emptied altogether.
+  const slides = linesOf(content?.slides)
+  const pictures = slides.length ? slides : [content?.image ?? null]
+
+  const mode = usePreviewMode()
+  // The codebase's rule for every carousel: nothing moves outside the page
+  // view, where fourteen quietly animating thumbnails would be a distraction.
+  const live = mode === 'interactive' && pictures.length > 1
+
+  const [swiper, setSwiper] = useState<SwiperClass | null>(null)
+  const [index, setIndex] = useState(0)
+
+  const paging = pictures.length > 1 && (
+    <div className="flex items-center gap-[0.56cqw]">
+      {pictures.map((_, i) => (
+        <button
+          key={i}
+          type="button"
+          data-role="control"
+          aria-label={`Background picture ${i + 1}`}
+          aria-current={i === index || undefined}
+          onClick={() => swiper?.slideToLoop(i)}
+          className="size-[1.11cqw] rounded-full border"
+          style={
+            i === index
+              ? { background: 'var(--brand-dim,#82b764)', borderColor: 'var(--brand-dim,#82b764)' }
+              : { background: 'transparent', borderColor: 'var(--brand-soft,#e1efd8)' }
+          }
+        />
+      ))}
+    </div>
+  )
+
+  return (
+    <section aria-label="Hero" className="relative flex h-full w-full items-center">
+      {/*
+        * The slider is positioned by a wrapper rather than by classes on the
+        * Swiper itself. `swiper/css` arrives unlayered, so its own
+        * `.swiper { position: relative }` outranks any Tailwind utility — an
+        * `absolute inset-0` on the instance is silently ignored and the
+        * slider shrinks to its content, 674 of the 1440 it should fill.
+        */}
+      <div className="absolute inset-0">
+        <Swiper
+          className="size-full"
+          modules={[Autoplay]}
+          slidesPerView={1}
+          loop={pictures.length > 1}
+          allowTouchMove={mode === 'interactive'}
+          autoplay={live ? SLIDE_AUTOPLAY : false}
+          onSwiper={(instance) => {
+            setSwiper(instance)
+            // Read once here rather than through state: the setting doesn't
+            // change under us, and stopping the instance beats re-creating it
+            // with a different `autoplay` param.
+            if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) instance.autoplay?.stop()
+          }}
+          onSlideChange={(instance) => setIndex(instance.realIndex)}
+        >
+          {pictures.map((src, i) => (
+            <SwiperSlide key={i} className="h-full">
+              <ImageBlock className="size-full border-0" radius="rounded-none" src={src} />
+            </SwiperSlide>
+          ))}
+        </Swiper>
+      </div>
+
+      {/* Scrim, so the type stays readable whatever the photo is. */}
+      <span aria-hidden="true" className="absolute inset-0 z-10 bg-black/45" />
+
+      <div className={`relative z-20 flex w-full px-[6cqw] ${centered ? 'justify-center' : ''}`}>
+        <div className={centered ? 'w-[70%]' : 'w-[58%]'}>
+          <Copy
+            spec={spec}
+            content={content}
+            centered={centered}
+            onImage
+            corners={corners}
+            paging={paging || undefined}
+          />
+        </div>
+      </div>
+    </section>
+  )
+}
+
 export default function HeroPreview({
   design,
   buttonRadius = 'subtle',
@@ -463,19 +601,7 @@ export default function HeroPreview({
   }
 
   if (spec.frame === 'background') {
-    const centered = spec.align === 'center'
-    return (
-      <section aria-label="Hero" className="relative flex h-full w-full items-center">
-        <ImageBlock className="absolute inset-0 size-full border-0" radius="rounded-none" src={image} />
-        {/* Scrim, so the type stays readable whatever the photo is. */}
-        <span aria-hidden="true" className="absolute inset-0 bg-black/45" />
-        <div className={`relative z-10 flex w-full px-[6cqw] ${centered ? 'justify-center' : ''}`}>
-          <div className={centered ? 'w-[70%]' : 'w-[58%]'}>
-            <Copy spec={spec} content={content} centered={centered} onImage corners={corners} />
-          </div>
-        </div>
-      </section>
-    )
+    return <BackgroundHero spec={spec} content={content} corners={corners} />
   }
 
   if (spec.frame === 'stacked') {

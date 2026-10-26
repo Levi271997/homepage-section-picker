@@ -17,11 +17,22 @@ const SIZES: Record<Shape, [number, number]> = {
   logo: [320, 96],
 }
 
-/** A neutral that sits behind the previews without competing with brand colour. */
-const PANEL = '#eceae7'
-const GLYPH = '#c3bdb6'
+/**
+ * Neutrals that sit behind the previews without competing with brand colour.
+ *
+ * More than one because a slideshow of placeholders has to look like it is
+ * moving. Anywhere a single placeholder is asked for it is the first of these,
+ * so nothing that only ever shows one picture changes.
+ */
+const TONES: [panel: string, glyph: string][] = [
+  ['#eceae7', '#c3bdb6'],
+  ['#e6e8ea', '#bcc1c6'],
+  ['#ece9e4', '#c6bdaf'],
+  ['#e5e9e6', '#b8c3bb'],
+]
 
-function svg(shape: Shape): string {
+function svg(shape: Shape, tone: number): string {
+  const [PANEL, GLYPH] = TONES[tone % TONES.length]
   const [w, h] = SIZES[shape]
 
   // The glyph is drawn relative to the shorter edge so it stays centred and
@@ -40,9 +51,13 @@ function svg(shape: Shape): string {
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><rect width="${w}" height="${h}" fill="${PANEL}"/>${body}</svg>`
 }
 
-/** Data URI for the given shape. Encoded, not base64 — smaller and readable in devtools. */
-export const placeholderImage = (shape: Shape = 'landscape'): string =>
-  `data:image/svg+xml,${encodeURIComponent(svg(shape).replace(/\s+/g, ' ').trim())}`
+/**
+ * Data URI for the given shape. Encoded, not base64 — smaller and readable in
+ * devtools. `tone` picks one of the neutrals, for the places that show several
+ * placeholders at once and need them telling apart.
+ */
+export const placeholderImage = (shape: Shape = 'landscape', tone = 0): string =>
+  `data:image/svg+xml,${encodeURIComponent(svg(shape, tone).replace(/\s+/g, ' ').trim())}`
 
 /** True when the value is one of ours, so previews can style it differently if needed. */
 export const isPlaceholder = (src: string | null | undefined): boolean =>

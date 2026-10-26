@@ -19,6 +19,8 @@ export type ContentFieldKind =
   | 'lines'
   /** An image URL, or a data URI from a local file. */
   | 'image'
+  /** A list of images, one URL per line, that the client can add to. */
+  | 'images'
 
 export type ContentField = {
   id: string
@@ -26,6 +28,16 @@ export type ContentField = {
   kind: ContentFieldKind
   /** Shown under the input when the field needs explaining. */
   hint?: string
+  /**
+   * Limits the field to the designs that actually show it.
+   *
+   * Most fields are worth offering whatever the design is set to — a headline
+   * is a headline. A few belong to one design only, and listing them for the
+   * other twenty-seven is noise in the editor and a promise the preview won't
+   * keep. Same shape as a layout group's `appliesTo` in `sections.ts`, and
+   * left off means "always".
+   */
+  appliesTo?: (choice: Record<string, string>) => boolean
 }
 
 /** Field values keyed by field id. */
@@ -34,9 +46,19 @@ export type SectionContent = Record<string, string>
 type Schema = { fields: ContentField[]; defaults: SectionContent }
 
 const LANDSCAPE = placeholderImage('landscape')
+/** Three tellable-apart stand-ins, so an untouched background slider still reads as one. */
+const SLIDES = [0, 1, 2].map((tone) => placeholderImage('wide', tone)).join('\n')
 const PORTRAIT = placeholderImage('portrait')
 const WIDE = placeholderImage('wide')
 const LOGO = placeholderImage('logo')
+
+/**
+ * The hero designs drawn over a full-bleed photograph, which are the ones that
+ * run a background slider. The arrangement itself lives in `HeroPreview`'s
+ * `SPECS` as `frame: 'background'`; this is the same two ids, named here so a
+ * content field can ask whether it has anything to show.
+ */
+const BACKGROUND_SLIDER = new Set(['v23', 'v24'])
 
 /** Fields shared by most sections, so the labels stay consistent. */
 const heading = (label = 'Heading'): ContentField => ({ id: 'heading', label, kind: 'text' })
@@ -102,6 +124,13 @@ export const CONTENT: Record<string, Schema> = {
         kind: 'image',
         hint: 'The paired designs (V4, V5, V6, V7) and the carousel (V22) show a second picture.',
       },
+      {
+        id: 'slides',
+        label: 'Background slides',
+        kind: 'images',
+        hint: 'The pictures the background cycles through, in order. One holds still; add more and it slides.',
+        appliesTo: (choice) => BACKGROUND_SLIDER.has(choice.design),
+      },
       { id: 'items', label: 'Tick list', kind: 'lines', hint: 'One per line. Shown by V14, V15, V18, V19 and V20.' },
       { id: 'breadcrumb', label: 'Breadcrumb', kind: 'lines', hint: 'One crumb per line. Shown by V25 and V26.' },
       { id: 'date', label: 'Date', kind: 'text', hint: 'Beside the enquiry form in V28.' },
@@ -124,6 +153,7 @@ export const CONTENT: Record<string, Schema> = {
       cta2: 'Learn more',
       image: LANDSCAPE,
       image2: LANDSCAPE,
+      slides: SLIDES,
       items: 'Something they get\nSomething else they get\nAnd one more',
       breadcrumb: 'Home\nProduct\nProduct sub page',
       date: 'Date here',
@@ -488,7 +518,17 @@ export const contentOf = (sectionId: string, store: Record<string, SectionConten
 })
 
 /** Fields a section exposes for editing. */
-export const fieldsOf = (sectionId: string): ContentField[] => CONTENT[sectionId]?.fields ?? []
+/**
+ * The fields worth showing for a section, given what it's currently set to.
+ *
+ * Without a choice every field is returned, which is what the sections with no
+ * layout options want.
+ */
+export const fieldsOf = (sectionId: string, choice?: Record<string, string>): ContentField[] => {
+  const fields = CONTENT[sectionId]?.fields ?? []
+  if (!choice) return fields
+  return fields.filter((field) => !field.appliesTo || field.appliesTo(choice))
+}
 
 /** Splits a `lines` field into items, dropping blanks. */
 export const linesOf = (value: string | undefined): string[] =>
