@@ -1,10 +1,11 @@
-import { linesOf } from '@/lib/content'
+import { itemAt, linesOf } from '@/lib/content'
 import type { SectionContent } from '@/lib/content'
 import {
   BodyLine,
   BUTTON_RADII,
   Dots,
   Eyebrow,
+  FIELD_SHELL,
   FilledButton,
   HeadlineLine,
   ImageBlock,
@@ -177,22 +178,42 @@ function EmailCapture({ content, corners }: { content?: SectionContent; corners:
   )
 }
 
+/** The five the set draws, in order, with the message box last. */
+const FORM_FIELDS = ['Name', 'Email', 'Phone', 'Company', 'Message']
+
+/** What someone types, and the example sitting there until they do. */
+const TYPED =
+  'w-full bg-transparent outline-none text-neutral-700 placeholder:text-neutral-400'
+
 /**
  * One labelled input in the enquiry form.
  *
- * The bar under the label is the input itself, sized down rather than drawn as
- * a separate shape — so the wireframe look survives, and the label is attached
- * to a real control instead of to nothing.
+ * A real control rather than a picture of one: the grey bar under the label
+ * used to be an input shrunk to 0.9cqw and set `readOnly`, which read as a
+ * wireframe but couldn't be typed into. It now carries the example the set
+ * draws inside each field, and what you type takes the body ink so your own
+ * answer doesn't read as more placeholder.
+ *
+ * Safe to leave writable everywhere: `PreviewFrame` marks the row thumbnails,
+ * picker cards and swap menus `decorative`, which puts `inert` on the whole
+ * subtree. Only the full-page view renders without it.
+ *
+ * `FIELD_SHELL` brings the radius and the focus edge from
+ * `design-sets/input-fields`, the same as the contact section's form.
  */
-function Field({ label, tall }: { label: string; tall?: boolean }) {
+function Field({ label, hint, tall }: { label: string; hint?: string; tall?: boolean }) {
   return (
     <label
-      className={`flex flex-col justify-center gap-[0.6cqw] rounded-xs bg-white px-[1.4cqw] ${
-        tall ? 'h-[6cqw]' : 'h-[4.6cqw]'
+      className={`${FIELD_SHELL} flex flex-col gap-[0.4cqw] bg-white px-[1.4cqw] ${
+        tall ? 'h-[6cqw] justify-start py-[0.8cqw]' : 'h-[4.6cqw] justify-center'
       }`}
     >
       <span className="text-[1.1cqw] leading-none text-neutral-400">{label}</span>
-      <input type="text" readOnly className="h-[0.9cqw] w-[45%] rounded-full bg-neutral-300" />
+      {tall ? (
+        <textarea placeholder={hint} className={`${TYPED} h-full resize-none text-[1.39cqw] leading-[1.35]`} />
+      ) : (
+        <input type="text" placeholder={hint} className={`${TYPED} text-[1.39cqw] leading-none`} />
+      )}
     </label>
   )
 }
@@ -220,18 +241,43 @@ function FormCard({
       className={`flex flex-col gap-[1.1cqw] rounded-sm p-[2cqw] ${className}`}
       style={{ background: PANEL_GREEN }}
     >
-      <Field label="Name" />
-      <Field label="Email" />
-      <Field label="Phone" />
-      <Field label="Company" />
-      <Field label="Message" tall />
-      <label className="flex items-start gap-[1cqw]">
-        <input type="checkbox" className="mt-[0.3cqw] size-[2cqw] shrink-0 rounded-xs border border-neutral-300 bg-white" />
-        <span className="flex min-w-0 flex-1 flex-col gap-[0.5cqw]">
-          <span className="sr-only">I agree to be contacted</span>
-          <BodyLine className="w-full" />
-          <BodyLine className="w-[55%]" />
+      {FORM_FIELDS.map((label, i) => (
+        <Field
+          key={label}
+          label={label}
+          hint={itemAt(content?.fieldHints, i) || undefined}
+          tall={i === FORM_FIELDS.length - 1}
+        />
+      ))}
+
+      {/* 19 square filled with the tint and edged in green, 9 from its line, as
+          V18 and V28 both draw it. The colours are classes rather than inline
+          style so the checked state can win — an inline background would
+          outrank the utility. */}
+      <label className="flex items-start gap-[0.63cqw]">
+        <span className="relative mt-[0.3cqw] flex shrink-0">
+          <input
+            type="checkbox"
+            className="peer size-[1.32cqw] appearance-none rounded-[0.14cqw] border border-[color:var(--brand,#4b7b35)] bg-[color:var(--brand-soft,#e1efd8)] outline-none checked:bg-[color:var(--brand,#4b7b35)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--brand,#4b7b35)]"
+          />
+          <svg
+            viewBox="0 0 16 16"
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 hidden size-[1.32cqw] peer-checked:block"
+            fill="none"
+          >
+            <path d="M3.5 8.4l3 3 6-6.4" stroke="#ffffff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
         </span>
+        {content?.consent ? (
+          <span className="min-w-0 flex-1 text-[1.1cqw] leading-[1.35] text-neutral-700">{content.consent}</span>
+        ) : (
+          <span aria-hidden="true" className="flex min-w-0 flex-1 flex-col gap-[0.5cqw]">
+            <span className="sr-only">I agree to be contacted</span>
+            <BodyLine className="w-full" />
+            <BodyLine className="w-[55%]" />
+          </span>
+        )}
       </label>
       <div className="mt-[0.2cqw]">
         <FilledButton label={content?.formCta} radius={corners.button} />
