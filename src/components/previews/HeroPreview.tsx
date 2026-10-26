@@ -326,21 +326,20 @@ function PairSquares({
   )
 }
 
-/** A row of images running off both edges, with the middle ones whole. */
+/**
+ * A row of images running off both edges, with the middle ones whole. As drawn,
+ * the cards step up and down: the edge and centre cards sit 64px lower than the
+ * two between them (380px cards in a 444px band, so 85.6% tall).
+ */
 function CarouselRow({ src, corners }: { src?: string | null; corners: Corners }) {
+  const widths = ['w-[5.56cqw] shrink-0', 'min-w-0 flex-1', 'min-w-0 flex-1', 'min-w-0 flex-1', 'w-[5.56cqw] shrink-0']
   return (
-    <ul className="flex h-full w-full items-stretch gap-[2cqw]">
-      <li className="h-full w-[8%] shrink-0">
-        <ImageBlock className="h-full w-full" radius={corners.image} src={src} />
-      </li>
-      {[0, 1, 2].map((i) => (
-        <li key={i} className="h-full min-w-0 flex-1">
+    <ul className="flex h-full w-full gap-[1.39cqw]">
+      {widths.map((width, i) => (
+        <li key={i} className={`h-[85.6%] ${width} ${i % 2 ? 'self-start' : 'self-end'}`}>
           <ImageBlock className="h-full w-full" radius={corners.image} src={src} />
         </li>
       ))}
-      <li className="h-full w-[8%] shrink-0">
-        <ImageBlock className="h-full w-full" radius={corners.image} src={src} />
-      </li>
     </ul>
   )
 }
@@ -670,9 +669,10 @@ export default function HeroPreview({
 
         {/* Capped rather than filling, so the cards stay landscape: our
             wireframe type is smaller than the drawn design's, and the slack it
-            leaves would otherwise stretch them into portraits. */}
+            leaves would otherwise stretch them into portraits. The row bleeds
+            out through the side padding so the edge cards are cut by the frame. */}
         {spec.media === 'carousel' && (
-          <div className="max-h-[26cqw] min-h-0 w-full flex-1">
+          <div className="-mx-[5cqw] max-h-[30cqw] min-h-0 flex-1 self-stretch">
             <CarouselRow src={image} corners={corners} />
           </div>
         )}
