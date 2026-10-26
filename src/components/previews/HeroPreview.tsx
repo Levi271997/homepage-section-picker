@@ -201,16 +201,16 @@ const TYPED =
  * `FIELD_SHELL` brings the radius and the focus edge from
  * `design-sets/input-fields`, the same as the contact section's form.
  */
-function Field({ label, hint, tall }: { label: string; hint?: string; tall?: boolean }) {
+function Field({ label, hint, area }: { label: string; hint?: string; area?: boolean }) {
   return (
-    <label
-      className={`${FIELD_SHELL} flex flex-col gap-[0.4cqw] bg-white px-[1.4cqw] ${
-        tall ? 'h-[6cqw] justify-start py-[0.8cqw]' : 'h-[4.6cqw] justify-center'
-      }`}
-    >
+    <label className={`${FIELD_SHELL} flex h-[4.03cqw] flex-col justify-center gap-[0.4cqw] bg-white px-[1.18cqw]`}>
       <span className="text-[1.1cqw] leading-none text-neutral-400">{label}</span>
-      {tall ? (
-        <textarea placeholder={hint} className={`${TYPED} h-full resize-none text-[1.39cqw] leading-[1.35]`} />
+      {area ? (
+        <textarea
+          rows={1}
+          placeholder={hint}
+          className={`${TYPED} h-[1.39cqw] resize-none overflow-hidden border-0 p-0 text-[1.39cqw] leading-none`}
+        />
       ) : (
         <input type="text" placeholder={hint} className={`${TYPED} text-[1.39cqw] leading-none`} />
       )}
@@ -221,9 +221,10 @@ function Field({ label, hint, tall }: { label: string; hint?: string; tall?: boo
 /**
  * The enquiry form that stands in for the image in V18 and V28.
  *
- * Five fields, a consent row and a button have to fit a frame drawn 1440×648,
- * so everything here is tighter than the equivalent in the contact section —
- * at these sizes the stack lands just inside its half of the hero.
+ * Drawn 450 × 488 with an 8 corner and a 20 inset, holding five 58-tall
+ * fields on a 66 pitch, then the consent row 21 below the last of them and
+ * the button 25 below the consent copy. The gaps past the field stack are
+ * margins on top of the flex gap rather than replacements for it.
  */
 function FormCard({
   content,
@@ -238,7 +239,7 @@ function FormCard({
     <form
       aria-label="Enquiry"
       onSubmit={(e) => e.preventDefault()}
-      className={`flex flex-col gap-[1.1cqw] rounded-sm p-[2cqw] ${className}`}
+      className={`flex flex-col gap-[0.55cqw] rounded-[0.55cqw] p-[1.39cqw] ${className}`}
       style={{ background: PANEL_GREEN }}
     >
       {FORM_FIELDS.map((label, i) => (
@@ -246,7 +247,7 @@ function FormCard({
           key={label}
           label={label}
           hint={itemAt(content?.fieldHints, i) || undefined}
-          tall={i === FORM_FIELDS.length - 1}
+          area={i === FORM_FIELDS.length - 1}
         />
       ))}
 
@@ -254,8 +255,8 @@ function FormCard({
           V18 and V28 both draw it. The colours are classes rather than inline
           style so the checked state can win — an inline background would
           outrank the utility. */}
-      <label className="flex items-start gap-[0.63cqw]">
-        <span className="relative mt-[0.3cqw] flex shrink-0">
+      <label className="mt-[0.9cqw] flex items-start gap-[0.63cqw]">
+        <span className="relative flex shrink-0">
           <input
             type="checkbox"
             className="peer size-[1.32cqw] appearance-none rounded-[0.14cqw] border border-[color:var(--brand,#4b7b35)] bg-[color:var(--brand-soft,#e1efd8)] outline-none checked:bg-[color:var(--brand,#4b7b35)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--brand,#4b7b35)]"
@@ -270,7 +271,7 @@ function FormCard({
           </svg>
         </span>
         {content?.consent ? (
-          <span className="min-w-0 flex-1 text-[1.1cqw] leading-[1.35] text-neutral-700">{content.consent}</span>
+          <span className="min-w-0 flex-1 text-[0.9cqw] leading-[1.38] text-neutral-700">{content.consent}</span>
         ) : (
           <span aria-hidden="true" className="flex min-w-0 flex-1 flex-col gap-[0.5cqw]">
             <span className="sr-only">I agree to be contacted</span>
@@ -279,7 +280,7 @@ function FormCard({
           </span>
         )}
       </label>
-      <div className="mt-[0.2cqw]">
+      <div className="mt-[1.18cqw]">
         <FilledButton label={content?.formCta} radius={corners.button} />
       </div>
     </form>
@@ -412,7 +413,10 @@ function SplitMedia({ spec, content, corners }: { spec: Spec; content?: SectionC
   const second = content?.image2 ?? image
 
   if (spec.media === 'form') {
-    return <FormCard content={content} className="w-[44%] shrink-0" corners={corners} />
+    // 450 wide and 48 clear of the row's own inset, which is where both sets
+    // draw it: a percentage would hand it the frame's half instead, and at that
+    // width the consent line stops wrapping to the two the sets draw.
+    return <FormCard content={content} className="mr-[3.33cqw] w-[31.25cqw] shrink-0" corners={corners} />
   }
 
   if (spec.media === 'pair') {
