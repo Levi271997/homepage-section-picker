@@ -59,6 +59,7 @@ export default function SectionPreview({
           nav={choice.nav}
           band={choice.band}
           cta={choice.cta}
+          buttonRadius={choice.buttonRadius}
           content={c}
         />
       )
@@ -72,29 +73,29 @@ export default function SectionPreview({
         />
       )
     case 'logo-strip':
-      return <LogoStripPreview design={choice.design} content={c} />
+      return <LogoStripPreview design={choice.design} buttonRadius={choice.buttonRadius} content={c} />
     case 'cta':
-      return <CtaPreview design={choice.design} content={c} />
+      return <CtaPreview design={choice.design} buttonRadius={choice.buttonRadius} imageRadius={choice.imageRadius} content={c} />
     case 'stats':
-      return <StatsPreview design={choice.design} content={c} />
+      return <StatsPreview design={choice.design} buttonRadius={choice.buttonRadius} content={c} />
     case 'faq':
-      return <FaqPreview design={choice.design} content={c} />
+      return <FaqPreview design={choice.design} buttonRadius={choice.buttonRadius} content={c} />
     case 'about-team':
-      return <TeamPreview design={choice.design} content={c} />
+      return <TeamPreview design={choice.design} buttonRadius={choice.buttonRadius} imageRadius={choice.imageRadius} content={c} />
     case 'client-quote':
-      return <TestimonialsPreview design={choice.design} content={c} />
+      return <TestimonialsPreview design={choice.design} buttonRadius={choice.buttonRadius} imageRadius={choice.imageRadius} content={c} />
     case 'pricing':
-      return <PricingPreview design={choice.design} content={c} />
+      return <PricingPreview design={choice.design} buttonRadius={choice.buttonRadius} imageRadius={choice.imageRadius} content={c} />
     case 'blogs':
-      return <BlogsPreview design={choice.design} content={c} />
+      return <BlogsPreview design={choice.design} buttonRadius={choice.buttonRadius} imageRadius={choice.imageRadius} content={c} />
     case 'contact-form':
-      return <ContactFormPreview design={choice.design} content={c} />
+      return <ContactFormPreview design={choice.design} buttonRadius={choice.buttonRadius} imageRadius={choice.imageRadius} content={c} />
     case 'site-footer':
-      return <FooterPreview design={choice.design} copy={c} />
+      return <FooterPreview design={choice.design} buttonRadius={choice.buttonRadius} copy={c} />
     case 'content-section':
-      return <ContentSectionPreview design={choice.design} content={c} />
+      return <ContentSectionPreview design={choice.design} buttonRadius={choice.buttonRadius} imageRadius={choice.imageRadius} content={c} />
     case 'content-card':
-      return <ContentCardPreview design={choice.design} rows={choice.rows} content={c} />
+      return <ContentCardPreview design={choice.design} buttonRadius={choice.buttonRadius} imageRadius={choice.imageRadius} rows={choice.rows} content={c} />
     default:
       return <div className="h-full bg-white" />
   }

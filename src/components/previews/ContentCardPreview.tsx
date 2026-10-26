@@ -1,7 +1,8 @@
 import type { CSSProperties } from 'react'
 import { itemAt, linesOf } from '@/lib/content'
 import type { SectionContent } from '@/lib/content'
-import { BodyLine, HeadlineLine, ImageBlock, OutlineButton } from '@/components/previews/parts'
+import { BodyLine, cornersOf, HeadlineLine, ImageBlock, OutlineButton } from '@/components/previews/parts'
+import type { Corners } from '@/components/previews/parts'
 
 /** The design set, by its Figma name — 'v1' … 'v22'. */
 export type ContentCardDesign = string
@@ -10,6 +11,8 @@ export type ContentCardChoice = {
   design: ContentCardDesign
   /** Rows of cards the grid runs to: '1', '2' or '3'. The design set draws all three. */
   rows: string
+  buttonRadius?: string
+  imageRadius?: string
 }
 
 const GREEN = 'var(--brand,#3f6b30)'
@@ -113,13 +116,13 @@ function LinkLine({ text, arrow }: { text?: string; arrow?: boolean }) {
 }
 
 /** The solid green "Learn More" button V1 and V3 close their cards with. */
-function CardButton({ text }: { text?: string }) {
+function CardButton({ text, radius = 'rounded-xs' }: { text?: string; radius?: string }) {
   if (text) {
     return (
       <button
         type="button"
         data-role="button"
-        className="inline-flex h-[3.2cqw] items-center rounded-xs px-[2cqw] text-[1.4cqw] leading-none font-medium text-white"
+        className={`inline-flex h-[3.2cqw] items-center ${radius} px-[2cqw] text-[1.4cqw] leading-none font-medium text-white`}
         style={{ background: GREEN }}
       >
         {text}
@@ -127,7 +130,7 @@ function CardButton({ text }: { text?: string }) {
     )
   }
   return (
-    <span aria-hidden="true" data-role="button" className="block h-[2.8cqw] w-[42%] rounded-xs" style={{ background: GREEN }} />
+    <span aria-hidden="true" data-role="button" className={`block h-[2.8cqw] w-[42%] ${radius}`} style={{ background: GREEN }} />
   )
 }
 
@@ -181,8 +184,10 @@ function Item({
   copy,
   link,
   src,
+  corners,
 }: {
   spec: Spec
+  corners: Corners
   index: number
   title?: string
   copy?: string
@@ -208,7 +213,7 @@ function Item({
       {spec.numeral === 'top' && <Numeral index={index} />}
       <Label text={title} />
       <Copy centered={centered} text={copy} />
-      {spec.link === 'button' ? <CardButton text={link} /> : <LinkLine text={link} arrow={spec.link !== 'plain'} />}
+      {spec.link === 'button' ? <CardButton text={link} radius={corners.button} /> : <LinkLine text={link} arrow={spec.link !== 'plain'} />}
       {spec.numeral === 'footer' && <NumeralFooter index={index} />}
     </div>
   )
@@ -232,6 +237,7 @@ function Item({
                 `w-[29%] shrink-0 ${spec.bleed ? 'self-stretch rounded-none! border-0' : 'aspect-[0.87]'}`
               : 'size-[5cqw] shrink-0'
           }
+          radius={corners.image}
           src={src}
         />
         {copyBlock}
@@ -243,9 +249,19 @@ function Item({
     <li className={`flex flex-col gap-[1cqw] overflow-hidden ${cardPad} ${box.className}`} style={box.style}>
       {spec.media === 'wide' && (
         // 373×195 as drawn, so the block stays the same landscape at any width.
-        <ImageBlock className={`aspect-[1.9] w-full ${sharp} ${spec.bleed ? 'border-0' : ''}`} src={src} />
+        <ImageBlock
+          className={`aspect-[1.9] w-full ${sharp} ${spec.bleed ? 'border-0' : ''}`}
+          radius={corners.image}
+          src={src}
+        />
       )}
-      {spec.media === 'thumb' && <ImageBlock className={`size-[5cqw] ${sharp} ${centered ? 'self-center' : ''}`} src={src} />}
+      {spec.media === 'thumb' && (
+        <ImageBlock
+          className={`size-[5cqw] ${sharp} ${centered ? 'self-center' : ''}`}
+          radius={corners.image}
+          src={src}
+        />
+      )}
       {copyBlock}
     </li>
   )
@@ -255,9 +271,12 @@ function Item({
 export default function ContentCardPreview({
   design,
   rows,
+  buttonRadius,
+  imageRadius,
   content,
 }: ContentCardChoice & { content?: SectionContent }) {
   const spec = SPECS[design] ?? SPECS.v1
+  const corners = cornersOf(buttonRadius, imageRadius)
   const cols = spec.cols ?? 3
   const count = Number(rows) * cols
   const titles = linesOf(content?.items)
@@ -270,7 +289,7 @@ export default function ContentCardPreview({
         <div className="flex flex-col gap-[1.2cqw]">
           <div className="flex items-center justify-between gap-[2cqw]">
             <HeadlineLine className={content?.heading ? 'w-[60%]' : 'w-[22%]'} text={content?.heading} />
-            <OutlineButton label={content?.cta} />
+            <OutlineButton label={content?.cta} radius={corners.button} />
           </div>
           <BodyLine className="w-[54%]" text={content?.body} />
         </div>
@@ -279,7 +298,7 @@ export default function ContentCardPreview({
           <HeadlineLine className={content?.heading ? 'w-[70%]' : 'w-[30%]'} text={content?.heading} />
           <BodyLine className="w-[60%]" text={content?.body} />
           <div className="mt-[0.5cqw]">
-            <OutlineButton label={content?.cta} />
+            <OutlineButton label={content?.cta} radius={corners.button} />
           </div>
         </div>
       )}
@@ -291,6 +310,7 @@ export default function ContentCardPreview({
           <Item
             key={i}
             spec={spec}
+            corners={corners}
             index={i}
             title={titles.length ? itemAt(content?.items, i) : undefined}
             copy={content?.itemBody}

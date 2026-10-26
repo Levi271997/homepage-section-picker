@@ -1,12 +1,13 @@
 import { itemAt, linesOf, splitStat } from '@/lib/content'
 import type { SectionContent } from '@/lib/content'
-import { BodyLine, Eyebrow, FilledButton, HeadlineLine } from '@/components/previews/parts'
+import { BodyLine, cornersOf, Eyebrow, FilledButton, HeadlineLine } from '@/components/previews/parts'
 
 /** The design set, by its Figma name — 'v1' … 'v4'. */
 export type StatsDesign = string
 
 export type StatsChoice = {
   design: StatsDesign
+  buttonRadius?: string
 }
 
 /**
@@ -110,8 +111,9 @@ function Stat({
 }
 
 /** Miniature of what the stats row will look like on the page. */
-export default function StatsPreview({ design, content }: StatsChoice & { content?: SectionContent }) {
+export default function StatsPreview({ design, buttonRadius, content }: StatsChoice & { content?: SectionContent }) {
   const spec = SPECS[design] ?? SPECS.v1
+  const corners = cornersOf(buttonRadius)
   const figures = linesOf(content?.items)
   const centered = spec.header === 'centered'
 
@@ -132,7 +134,7 @@ export default function StatsPreview({ design, content }: StatsChoice & { conten
           <HeadlineLine className="w-[74%]" text={content?.heading} />
           <BodyLine className="w-[74%]" text={content?.body} />
           <div className="mt-[0.5cqw]">
-            <FilledButton label={content?.cta} />
+            <FilledButton label={content?.cta} radius={corners.button} />
           </div>
         </div>
       )}

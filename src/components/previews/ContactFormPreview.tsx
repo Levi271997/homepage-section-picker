@@ -1,12 +1,14 @@
 import { itemAt, linesOf } from '@/lib/content'
 import type { SectionContent } from '@/lib/content'
-import { BodyLine, Eyebrow, FIELD_SHELL, HeadlineLine, ImageBlock } from '@/components/previews/parts'
+import { BodyLine, cornersOf, Eyebrow, FIELD_SHELL, HeadlineLine, ImageBlock } from '@/components/previews/parts'
 
 /** The design set, by its Figma name — 'v1' … 'v6'. */
 export type ContactFormDesign = string
 
 export type ContactFormChoice = {
   design: ContactFormDesign
+  buttonRadius?: string
+  imageRadius?: string
 }
 
 const GREEN = 'var(--brand,#4b7b35)'
@@ -63,7 +65,17 @@ const POINTS = 3
  * A button at the 154×46 the set draws — smaller than the shared `FilledButton`,
  * the same as the call to action's.
  */
-function FormButton({ label, outline, submit }: { label?: string | null; outline?: boolean; submit?: boolean }) {
+function FormButton({
+  label,
+  outline,
+  submit,
+  radius = 'rounded-[0.28cqw]',
+}: {
+  label?: string | null
+  outline?: boolean
+  submit?: boolean
+  radius?: string
+}) {
   const style = outline
     ? { background: '#ffffff', color: BODY, borderColor: GREEN }
     : { background: GREEN, color: LIGHT, borderColor: GREEN }
@@ -73,7 +85,7 @@ function FormButton({ label, outline, submit }: { label?: string | null; outline
       <span
         aria-hidden="true"
         data-role="button"
-        className="block h-[3.2cqw] w-[10.7cqw] shrink-0 rounded-[0.28cqw] border"
+        className={`block h-[3.2cqw] w-[10.7cqw] shrink-0 ${radius} border`}
         style={style}
       />
     )
@@ -82,7 +94,7 @@ function FormButton({ label, outline, submit }: { label?: string | null; outline
     <button
       type={submit ? 'submit' : 'button'}
       data-role="button"
-      className="inline-flex h-[3.2cqw] shrink-0 items-center rounded-[0.28cqw] border px-[1.74cqw] text-[1.11cqw] leading-none font-medium"
+      className={`inline-flex h-[3.2cqw] shrink-0 items-center ${radius} border px-[1.74cqw] text-[1.11cqw] leading-none font-medium`}
       style={style}
     >
       {label}
@@ -151,7 +163,7 @@ function Field({ label, hint, tall, onTint }: { label?: string; hint?: string; t
 }
 
 /** The five fields, the consent line and the submit — the form itself. */
-function Form({ spec, content }: { spec: Spec; content?: SectionContent }) {
+function Form({ spec, content, buttonRadius }: { spec: Spec; content?: SectionContent; buttonRadius?: string }) {
   const onTint = spec.form === 'green'
   const labels = linesOf(content?.fieldLabels)
   const hints = linesOf(content?.fieldHints)
@@ -199,7 +211,7 @@ function Form({ spec, content }: { spec: Spec; content?: SectionContent }) {
       </label>
 
       <div className="mt-[1.74cqw]">
-        <FormButton label={content?.cta} submit />
+        <FormButton label={content?.cta} submit radius={buttonRadius} />
       </div>
     </form>
   )
@@ -237,9 +249,12 @@ function Copy({ content }: { content?: SectionContent }) {
 /** Miniature of what the contact form will look like on the page. */
 export default function ContactFormPreview({
   design,
+  buttonRadius,
+  imageRadius,
   content,
 }: ContactFormChoice & { content?: SectionContent }) {
   const spec = SPECS[design] ?? SPECS.v1
+  const corners = cornersOf(buttonRadius, imageRadius)
   const points = linesOf(content?.items)
   const right = spec.side === 'right'
 
@@ -256,10 +271,10 @@ export default function ContactFormPreview({
         <div className={`flex flex-col gap-[1.4cqw] ${right ? '' : 'order-2'}`}>
           <Copy content={content} />
           <div className="mt-[2.2cqw]">
-            <Form spec={spec} content={content} />
+            <Form spec={spec} content={content} buttonRadius={corners.button} />
           </div>
         </div>
-        <ImageBlock className="h-full w-full" src={content?.image} />
+        <ImageBlock className="h-full w-full" radius={corners.image} src={content?.image} />
       </section>
     )
   }
@@ -282,8 +297,8 @@ export default function ContactFormPreview({
           </ul>
         )}
         <div className="mt-[1.6cqw] flex items-center gap-[1.11cqw]">
-          <FormButton label={content?.cta2} />
-          <FormButton label={content?.cta3} outline />
+          <FormButton label={content?.cta2} radius={corners.button} />
+          <FormButton label={content?.cta3} outline radius={corners.button} />
         </div>
       </div>
 
@@ -292,7 +307,7 @@ export default function ContactFormPreview({
         className={`rounded-[0.55cqw] p-[1.39cqw] ${spec.form === 'white' ? 'shadow-[0_0.15cqw_0.6cqw_rgba(30,21,21,0.12)]' : ''}`}
         style={{ background: spec.form === 'green' ? TINT : '#ffffff' }}
       >
-        <Form spec={spec} content={content} />
+        <Form spec={spec} content={content} buttonRadius={corners.button} />
       </div>
     </section>
   )

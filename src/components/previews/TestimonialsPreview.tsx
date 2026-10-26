@@ -4,13 +4,15 @@ import type { CSSProperties } from 'react'
 import { useCarousel } from '@/components/previews/useCarousel'
 import { itemAt, linesOf } from '@/lib/content'
 import type { SectionContent } from '@/lib/content'
-import { BodyLine, Eyebrow, FilledButton, HeadlineLine, ImageBlock } from '@/components/previews/parts'
+import { BodyLine, cornersOf, Eyebrow, FilledButton, HeadlineLine, ImageBlock } from '@/components/previews/parts'
 
 /** The design set, by its Figma name — 'v1' … 'v6'. */
 export type TestimonialsDesign = string
 
 export type TestimonialsChoice = {
   design: TestimonialsDesign
+  buttonRadius?: string
+  imageRadius?: string
 }
 
 const GREEN = 'var(--brand,#3f6b30)'
@@ -157,20 +159,22 @@ function Attribution({
   name,
   role,
   src,
+  radius,
 }: {
   stacked?: boolean
   name?: string
   role?: string
   src?: string
+  radius?: string
 }) {
   return stacked ? (
     <figcaption className="flex flex-col items-center gap-[1.4cqw]">
-      <ImageBlock className="size-[3.4cqw]" src={src} />
+      <ImageBlock className="size-[3.4cqw]" radius={radius} src={src} />
       <Named name={name} role={role} centered />
     </figcaption>
   ) : (
     <figcaption className="flex items-center gap-[1.6cqw]">
-      <ImageBlock className="size-[3.4cqw] shrink-0" src={src} />
+      <ImageBlock className="size-[3.4cqw] shrink-0" radius={radius} src={src} />
       <Named name={name} role={role} />
     </figcaption>
   )
@@ -195,12 +199,14 @@ function QuoteCard({
   name,
   role,
   src,
+  radius,
 }: {
   spec: Spec
   quote?: string
   name?: string
   role?: string
   src?: string
+  radius?: string
 }) {
   const box = container(spec)
   return (
@@ -212,7 +218,7 @@ function QuoteCard({
         <blockquote className="flex-1">
           <Quote text={quote} />
         </blockquote>
-        <Attribution name={name} role={role} src={src} />
+        <Attribution name={name} role={role} src={src} radius={radius} />
       </figure>
     </li>
   )
@@ -225,18 +231,20 @@ function MediaQuote({
   name,
   role,
   src,
+  radius,
 }: {
   spec: Spec
   quote?: string
   name?: string
   role?: string
   src?: string
+  radius?: string
 }) {
   return (
     <li>
       <figure className="flex items-stretch gap-[2.3cqw]">
         {/* 200×278 as drawn — upright, and the full height of the row. */}
-        <ImageBlock className="w-[35%] shrink-0 self-stretch" src={src} />
+        <ImageBlock className="w-[35%] shrink-0 self-stretch" radius={radius} src={src} />
         <div className="flex min-w-0 flex-1 flex-col justify-between gap-[1.6cqw]">
           <div className="flex flex-col gap-[1.6cqw]">
             <Mark spec={spec} />
@@ -255,7 +263,7 @@ function MediaQuote({
 }
 
 /** Eyebrow, heading, sentence and button — centred, or set against the margin. */
-function Header({ spec, content }: { spec: Spec; content?: SectionContent }) {
+function Header({ spec, content, buttonRadius }: { spec: Spec; content?: SectionContent; buttonRadius?: string }) {
   const centered = spec.header === 'centered'
   return (
     <div className={`flex flex-col gap-[1.4cqw] ${centered ? 'items-center text-center' : 'items-start'}`}>
@@ -266,7 +274,7 @@ function Header({ spec, content }: { spec: Spec; content?: SectionContent }) {
       />
       <BodyLine className={centered ? 'w-[64%]' : 'w-[70%]'} text={content?.body} />
       <div className="mt-[0.5cqw]">
-        <FilledButton label={content?.cta} />
+        <FilledButton label={content?.cta} radius={buttonRadius} />
       </div>
     </div>
   )
@@ -275,9 +283,12 @@ function Header({ spec, content }: { spec: Spec; content?: SectionContent }) {
 /** Miniature of what the testimonials will look like on the page. */
 export default function TestimonialsPreview({
   design,
+  buttonRadius,
+  imageRadius,
   content,
 }: TestimonialsChoice & { content?: SectionContent }) {
   const spec = SPECS[design] ?? SPECS.v1
+  const corners = cornersOf(buttonRadius, imageRadius)
   const quotes = linesOf(content?.items)
 
   /** Everything one testimonial needs, wrapping so short lists still fill a grid. */
@@ -286,6 +297,7 @@ export default function TestimonialsPreview({
     name: itemAt(content?.names, i) || undefined,
     role: itemAt(content?.roles, i) || undefined,
     src: content?.image,
+    radius: corners.image,
   })
 
   // One slide per quote. With no quotes typed the wireframe still shows the
@@ -304,7 +316,7 @@ export default function TestimonialsPreview({
 
     return (
       <section aria-label="Testimonials" className="flex h-full flex-col gap-[3.5cqw] px-[5cqw] py-[4cqw]">
-        <Header spec={spec} content={content} />
+        <Header spec={spec} content={content} buttonRadius={corners.button} />
 
         <div {...containerProps} className={`flex flex-col items-center gap-[2.8cqw] ${containerProps.className}`}>
           {/* The arrows sit inside the section's own margin and the panel is
@@ -332,7 +344,7 @@ export default function TestimonialsPreview({
                 <blockquote>
                   <Quote centered text={at(slide).quote} />
                 </blockquote>
-                <Attribution stacked name={at(slide).name} role={at(slide).role} src={at(slide).src} />
+                <Attribution stacked {...at(slide)} />
               </figure>
             </div>
 
@@ -372,7 +384,7 @@ export default function TestimonialsPreview({
 
   return (
     <section aria-label="Testimonials" className="flex h-full flex-col gap-[3.5cqw] px-[5cqw] py-[4cqw]">
-      <Header spec={spec} content={content} />
+      <Header spec={spec} content={content} buttonRadius={corners.button} />
 
       <ul
         className={`grid items-stretch gap-x-[2.8cqw] gap-y-[2.8cqw] ${

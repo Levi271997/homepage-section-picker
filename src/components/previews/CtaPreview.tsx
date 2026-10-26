@@ -1,12 +1,14 @@
 import { itemAt, linesOf } from '@/lib/content'
 import type { SectionContent } from '@/lib/content'
-import { BodyLine, Eyebrow, HeadlineLine, ImageBlock } from '@/components/previews/parts'
+import { BodyLine, cornersOf, Eyebrow, HeadlineLine, ImageBlock } from '@/components/previews/parts'
 
 /** The design set, by its Figma name — 'v1' … 'v10'. */
 export type CtaDesign = string
 
 export type CtaChoice = {
   design: CtaDesign
+  buttonRadius?: string
+  imageRadius?: string
 }
 
 const GREEN = 'var(--brand,#4b7b35)'
@@ -76,7 +78,15 @@ function isDark(spec: Spec) {
  * fill, the outlined white one beside it, and the white fill the green grounds
  * take instead.
  */
-function CtaButton({ label, kind }: { label?: string | null; kind: 'fill' | 'outline' | 'white' | 'whiteEdge' }) {
+function CtaButton({
+  label,
+  kind,
+  radius = 'rounded-[0.28cqw]',
+}: {
+  label?: string | null
+  kind: 'fill' | 'outline' | 'white' | 'whiteEdge'
+  radius?: string
+}) {
   const style =
     kind === 'fill'
       ? { background: GREEN, color: LIGHT }
@@ -91,7 +101,7 @@ function CtaButton({ label, kind }: { label?: string | null; kind: 'fill' | 'out
       <span
         aria-hidden="true"
         data-role="button"
-        className="block h-[3.2cqw] w-[10.7cqw] shrink-0 rounded-[0.28cqw] border"
+        className={`block h-[3.2cqw] w-[10.7cqw] shrink-0 ${radius} border`}
         style={style}
       />
     )
@@ -100,7 +110,7 @@ function CtaButton({ label, kind }: { label?: string | null; kind: 'fill' | 'out
     <button
       type="button"
       data-role="button"
-      className="inline-flex h-[3.2cqw] shrink-0 items-center rounded-[0.28cqw] border px-[1.74cqw] text-[1.11cqw] leading-none font-medium"
+      className={`inline-flex h-[3.2cqw] shrink-0 items-center ${radius} border px-[1.74cqw] text-[1.11cqw] leading-none font-medium`}
       style={style}
     >
       {label}
@@ -108,13 +118,13 @@ function CtaButton({ label, kind }: { label?: string | null; kind: 'fill' | 'out
   )
 }
 
-function Buttons({ spec, content }: { spec: Spec; content?: SectionContent }) {
+function Buttons({ spec, content, radius }: { spec: Spec; content?: SectionContent; radius?: string }) {
   const onGreen = spec.ground === 'green'
   return (
     // 16px between them, as every pair in the set is drawn.
     <div className="flex items-center gap-[1.11cqw]">
-      <CtaButton label={content?.cta} kind={onGreen ? 'white' : 'fill'} />
-      {!spec.single && <CtaButton label={content?.cta2} kind={onGreen ? 'whiteEdge' : 'outline'} />}
+      <CtaButton label={content?.cta} kind={onGreen ? 'white' : 'fill'} radius={radius} />
+      {!spec.single && <CtaButton label={content?.cta2} kind={onGreen ? 'whiteEdge' : 'outline'} radius={radius} />}
     </div>
   )
 }
@@ -185,8 +195,14 @@ function PhotoGround({ src }: { src?: string }) {
 }
 
 /** Miniature of what the closing pitch will look like on the page. */
-export default function CtaPreview({ design, content }: CtaChoice & { content?: SectionContent }) {
+export default function CtaPreview({
+  design,
+  buttonRadius,
+  imageRadius,
+  content,
+}: CtaChoice & { content?: SectionContent }) {
   const spec = SPECS[design] ?? SPECS.v1
+  const corners = cornersOf(buttonRadius, imageRadius)
 
   if (spec.frame === 'panel') {
     // 1200×513 with a 24px radius and 56 of padding, as both panels are drawn.
@@ -201,11 +217,15 @@ export default function CtaPreview({ design, content }: CtaChoice & { content?: 
           <div className={`flex flex-col gap-[1.4cqw] ${spec.imageRight ? '' : 'order-2'}`}>
             <Copy spec={spec} content={content} />
             <div className="mt-[1.6cqw]">
-              <Buttons spec={spec} content={content} />
+              <Buttons spec={spec} content={content} radius={corners.button} />
             </div>
           </div>
           {/* 445×401 with an 8px radius. */}
-          <ImageBlock className="aspect-[445/401] w-full rounded-[0.55cqw]" src={content?.image} />
+          <ImageBlock
+            className="aspect-[445/401] w-full"
+            radius={corners.image ?? 'rounded-[0.55cqw]'}
+            src={content?.image}
+          />
         </div>
       </section>
     )
@@ -223,10 +243,10 @@ export default function CtaPreview({ design, content }: CtaChoice & { content?: 
         <div className={`flex flex-col gap-[1.4cqw] ${spec.imageRight ? '' : 'order-2'}`}>
           <Copy spec={spec} content={content} />
           <div className="mt-[1.6cqw]">
-            <Buttons spec={spec} content={content} />
+            <Buttons spec={spec} content={content} radius={corners.button} />
           </div>
         </div>
-        <ImageBlock className="aspect-[580/452] w-full" src={content?.image} />
+        <ImageBlock className="aspect-[580/452] w-full" radius={corners.image} src={content?.image} />
       </section>
     )
   }
@@ -250,14 +270,14 @@ export default function CtaPreview({ design, content }: CtaChoice & { content?: 
             <Copy spec={spec} content={content} headingWidth="w-full" bodyWidth="w-full" />
           </div>
           <div className="shrink-0">
-            <Buttons spec={spec} content={content} />
+            <Buttons spec={spec} content={content} radius={corners.button} />
           </div>
         </div>
       ) : (
         <div className={`relative flex flex-col gap-[1.4cqw] ${centered ? 'items-center text-center' : ''}`}>
           <Copy spec={spec} content={content} headingWidth="w-[74%]" bodyWidth="w-[74%]" />
           <div className="mt-[1.6cqw]">
-            <Buttons spec={spec} content={content} />
+            <Buttons spec={spec} content={content} radius={corners.button} />
           </div>
         </div>
       )}

@@ -1,12 +1,13 @@
 import { itemAt, linesOf } from '@/lib/content'
 import type { SectionContent } from '@/lib/content'
-import { FIELD_JUDGED, FIELD_SHELL, ImageBlock, SOCIAL_GLYPHS } from '@/components/previews/parts'
+import { cornersOf, FIELD_JUDGED, FIELD_SHELL, ImageBlock, SOCIAL_GLYPHS } from '@/components/previews/parts'
 
 /** The design set, by its Figma name — 'v1' … 'v8'. */
 export type FooterDesign = string
 
 export type FooterChoice = {
   design: FooterDesign
+  buttonRadius?: string
 }
 
 const GREEN = 'var(--brand,#4b7b35)'
@@ -187,7 +188,15 @@ function BrandColumn({ src, tagline }: { src?: string; tagline?: string }) {
 }
 
 /** The sign-up block that takes the last column on the two designs that draw one. */
-function Signup({ spec, content }: { spec: Spec; content?: SectionContent }) {
+function Signup({
+  spec,
+  content,
+  radius = 'rounded-[0.28cqw]',
+}: {
+  spec: Spec
+  content?: SectionContent
+  radius?: string
+}) {
   const inline = spec.signup === 'inline'
   /**
    * A real field, not a picture of one: on the assembled page the footer
@@ -237,7 +246,7 @@ function Signup({ spec, content }: { spec: Spec; content?: SectionContent }) {
               type="submit"
               data-role="button"
               aria-label={content?.cta || 'Subscribe'}
-              className="flex size-[3.33cqw] shrink-0 items-center justify-center rounded-[0.28cqw]"
+              className={`flex size-[3.33cqw] shrink-0 items-center justify-center ${radius}`}
               style={{ background: GREEN }}
             >
               <svg viewBox="0 0 16 16" className="size-[0.97cqw]" fill="none" aria-hidden="true">
@@ -266,7 +275,7 @@ function Signup({ spec, content }: { spec: Spec; content?: SectionContent }) {
             type="submit"
             data-role="button"
             // 108×46, its own size rather than the header button's.
-            className="mt-[0.83cqw] inline-flex h-[3.2cqw] w-fit items-center rounded-[0.28cqw] px-[1.45cqw] text-[1.11cqw] leading-none font-medium"
+            className={`mt-[0.83cqw] inline-flex h-[3.2cqw] w-fit items-center ${radius} px-[1.45cqw] text-[1.11cqw] leading-none font-medium`}
             style={{ background: GREEN, color: LIGHT }}
           >
             {content?.cta || 'Subscribe'}
@@ -278,8 +287,9 @@ function Signup({ spec, content }: { spec: Spec; content?: SectionContent }) {
 }
 
 /** Miniature of what the site footer will look like on the page. */
-export default function FooterPreview({ design, copy }: FooterChoice & { copy?: SectionContent }) {
+export default function FooterPreview({ design, buttonRadius, copy }: FooterChoice & { copy?: SectionContent }) {
   const spec = SPECS[design] ?? SPECS.v1
+  const corners = cornersOf(buttonRadius)
   const src = copy?.image
   const legal = copy?.legal
   const legalLinks = linesOf(copy?.legalLinks)
@@ -328,7 +338,7 @@ export default function FooterPreview({ design, copy }: FooterChoice & { copy?: 
             links={columnLinks.length ? columnLinks : undefined}
           />
         ))}
-        {spec.signup && <Signup spec={spec} content={copy} />}
+        {spec.signup && <Signup spec={spec} content={copy} radius={corners.button} />}
       </div>
 
       <span aria-hidden="true" className="mt-[2.9cqw] h-px w-full" style={{ background: HAIRLINE }} />

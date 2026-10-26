@@ -27,6 +27,51 @@ export type OptionGroup = {
 export type Choice = Record<string, string>
 
 /**
+ * The two corner settings every section carries, as `HeroPreview` first had
+ * them. Resolved to classes by `cornersOf` in `previews/parts`.
+ *
+ * `subtle` is the default and means "as drawn": each design keeps whatever
+ * radius its artwork gives a button or a picture, so a section nobody touches
+ * looks exactly like its design.
+ *
+ * `appliesTo` hides a group on the designs where it would do nothing — no
+ * button to round, or no picture with a corner left to show. Each section's
+ * list below is read off that section's `SPECS` table, named.
+ */
+const buttonRadiusGroup = (appliesTo?: (choice: Choice) => boolean): OptionGroup => ({
+  id: 'buttonRadius',
+  label: 'Buttons',
+  display: 'chips',
+  defaultId: 'subtle',
+  appliesTo,
+  options: [
+    { id: 'square', name: 'Square buttons' },
+    { id: 'subtle', name: 'Subtle buttons' },
+    { id: 'rounded', name: 'Rounded buttons' },
+    { id: 'pill', name: 'Pill buttons' },
+  ],
+})
+
+const imageRadiusGroup = (appliesTo?: (choice: Choice) => boolean): OptionGroup => ({
+  id: 'imageRadius',
+  label: 'Images',
+  display: 'chips',
+  defaultId: 'subtle',
+  appliesTo,
+  options: [
+    { id: 'square', name: 'Square images' },
+    { id: 'subtle', name: 'Subtle images' },
+    { id: 'rounded', name: 'Rounded images' },
+    { id: 'large', name: 'Large images' },
+  ],
+})
+
+/** Shown only on the listed designs. */
+const onDesigns = (...ids: string[]) => (choice: Choice) => ids.includes(choice.design)
+/** Shown on every design but the listed ones. */
+const exceptDesigns = (...ids: string[]) => (choice: Choice) => !ids.includes(choice.design)
+
+/**
  * The hero design set, as exported from Figma.
  *
  * One flat axis rather than the combinable axes other sections use: these are
@@ -67,36 +112,13 @@ export const HERO_GROUPS: OptionGroup[] = [
       { id: 'v28', name: 'V28 · Form with details', blurb: 'Copy, date and location beside a form' },
     ],
   },
-  {
-    id: 'buttonRadius',
-    label: 'Buttons',
-    display: 'chips',
-    defaultId: 'subtle',
-    options: [
-      { id: 'square', name: 'Square buttons' },
-      { id: 'subtle', name: 'Subtle buttons' },
-      { id: 'rounded', name: 'Rounded buttons' },
-      { id: 'pill', name: 'Pill buttons' },
-    ],
-  },
-  {
-    id: 'imageRadius',
-    label: 'Images',
-    display: 'chips',
-    defaultId: 'subtle',
-    // Hidden where there's no corner to round: the designs whose image runs off
-    // an edge or fills the frame are squared against it, the two form designs
-    // put a form where the image would be, and V26 carries no image at all.
-    // The source of truth is `SPECS` in HeroPreview — this is the `bleed`,
-    // `background`, `media: 'form'` and no-media rows of it, named.
-    appliesTo: (choice) => !HERO_SQUARED.has(choice.design),
-    options: [
-      { id: 'square', name: 'Square images' },
-      { id: 'subtle', name: 'Subtle images' },
-      { id: 'rounded', name: 'Rounded images' },
-      { id: 'large', name: 'Large images' },
-    ],
-  },
+  buttonRadiusGroup(),
+  // Hidden where there's no corner to round: the designs whose image runs off
+  // an edge or fills the frame are squared against it, the two form designs
+  // put a form where the image would be, and V26 carries no image at all.
+  // The source of truth is `SPECS` in HeroPreview — this is the `bleed`,
+  // `background`, `media: 'form'` and no-media rows of it, named.
+  imageRadiusGroup((choice) => !HERO_SQUARED.has(choice.design)),
 ]
 
 /**
@@ -118,6 +140,9 @@ export const LOGO_GROUPS: OptionGroup[] = [
       { id: 'v3', name: 'V3 · Headed grid', blurb: 'Centred header above three rows of six, standing still' },
     ],
   },
+  // The button is the header's, so the bare strip has none; the logos are
+  // marks, not pictures.
+  buttonRadiusGroup(onDesigns('v1', 'v3')),
 ]
 
 /**
@@ -168,6 +193,10 @@ export const CONTENT_CARD_GROUPS: OptionGroup[] = [
       { id: '3', name: '3 rows' },
     ],
   },
+  buttonRadiusGroup(),
+  // V13 and V14 are drawn square, V16's panel is squared against its card, and
+  // the numbered designs carry no picture.
+  imageRadiusGroup(exceptDesigns('v13', 'v14', 'v16', 'v19', 'v20', 'v21', 'v22')),
 ]
 
 /**
@@ -207,6 +236,10 @@ export const CONTENT_SECTION_GROUPS: OptionGroup[] = [
       { id: 'v23', name: 'V23 · Email capture, image right', blurb: 'Inline email field, picture to the right' },
     ],
   },
+  buttonRadiusGroup(),
+  // V7 and V8's only picture runs off the edge, squared against it; V22 has none.
+  // V9 and V10 bleed too, but their media rows still have corners to round.
+  imageRadiusGroup(exceptDesigns('v7', 'v8', 'v22')),
 ]
 
 /**
@@ -257,6 +290,7 @@ export const HEADER_GROUPS: OptionGroup[] = [
       { id: 'none', name: 'None' },
     ],
   },
+  buttonRadiusGroup((choice) => choice.cta !== 'none'),
 ]
 
 /**
@@ -287,6 +321,9 @@ export const CTA_GROUPS: OptionGroup[] = [
       { id: 'v10', name: 'V10 · Centred on green', blurb: 'Centred copy on the brand green' },
     ],
   },
+  buttonRadiusGroup(),
+  // The photo designs set their picture behind the copy, edge to edge.
+  imageRadiusGroup(onDesigns('v5', 'v6', 'v7', 'v8')),
 ]
 
 /**
@@ -310,6 +347,8 @@ export const STATS_GROUPS: OptionGroup[] = [
       { id: 'v4', name: 'V4 · Green band', blurb: 'The same row, reversed out of the brand green' },
     ],
   },
+  // The button is the header's; the bare row and the band carry none.
+  buttonRadiusGroup(onDesigns('v1', 'v2')),
 ]
 
 /**
@@ -335,6 +374,8 @@ export const FAQ_GROUPS: OptionGroup[] = [
       { id: 'v5', name: 'V5 · Copy beside', blurb: 'Seven ruled questions beside a heading, points and buttons' },
     ],
   },
+  // Only the design with copy beside the list draws buttons.
+  buttonRadiusGroup(onDesigns('v5')),
 ]
 
 /**
@@ -356,6 +397,8 @@ export const TEAM_GROUPS: OptionGroup[] = [
       { id: 'v3', name: 'V3 · Landscape', blurb: 'Wide portrait filling the column, name set left' },
     ],
   },
+  buttonRadiusGroup(),
+  imageRadiusGroup(),
 ]
 
 /**
@@ -381,6 +424,8 @@ export const TESTIMONIAL_GROUPS: OptionGroup[] = [
       { id: 'v6', name: 'V6 · Outlined, six up', blurb: 'Two rows of three outlined quote cards' },
     ],
   },
+  buttonRadiusGroup(),
+  imageRadiusGroup(),
 ]
 
 /**
@@ -405,6 +450,8 @@ export const PRICING_GROUPS: OptionGroup[] = [
       { id: 'v6', name: 'V6 · Price only', blurb: 'Name, price and summary — no feature list' },
     ],
   },
+  buttonRadiusGroup(),
+  imageRadiusGroup(onDesigns('v5')),
 ]
 
 /**
@@ -430,6 +477,8 @@ export const BLOGS_GROUPS: OptionGroup[] = [
       { id: 'v6', name: 'V6 · Paged grid', blurb: 'No header — three rows of three and a load-more button' },
     ],
   },
+  buttonRadiusGroup(),
+  imageRadiusGroup(),
 ]
 
 /**
@@ -456,6 +505,8 @@ export const CONTACT_FORM_GROUPS: OptionGroup[] = [
       { id: 'v6', name: 'V6 · Picture, then form', blurb: 'The same with the picture on the left' },
     ],
   },
+  buttonRadiusGroup(),
+  imageRadiusGroup(onDesigns('v5', 'v6')),
 ]
 
 /**
@@ -484,6 +535,8 @@ export const FOOTER_GROUPS: OptionGroup[] = [
       { id: 'v8', name: 'V8 · Legal bar and social', blurb: 'The same line with the social marks at the end' },
     ],
   },
+  // Only the sign-up designs carry a button; the logo isn't a picture to round.
+  buttonRadiusGroup(onDesigns('v5', 'v6')),
 ]
 
 export type Section = {

@@ -1,4 +1,4 @@
-import { SOCIAL_GLYPHS } from '@/components/previews/parts'
+import { cornersOf, SOCIAL_GLYPHS } from '@/components/previews/parts'
 import { linesOf } from '@/lib/content'
 import type { SectionContent } from '@/lib/content'
 
@@ -7,6 +7,7 @@ export type HeaderChoice = {
   nav: string
   band: string
   cta: string
+  buttonRadius?: string
 }
 
 const GREEN = 'var(--brand,#3f6b30)'
@@ -144,13 +145,23 @@ function Nav({
   )
 }
 
-function Cta({ kind, accent = GREEN, label }: { kind: string; accent?: string; label?: string }) {
+function Cta({
+  kind,
+  accent = GREEN,
+  label,
+  radius,
+}: {
+  kind: string
+  accent?: string
+  label?: string
+  /** The corner setting; unset keeps what each form is drawn with. */
+  radius?: string
+}) {
   if (kind === 'none') return null
 
   if (label) {
     // Every button in the design carries a trailing arrow.
-    const shell =
-      'inline-flex h-[5cqw] items-center justify-center gap-[1.2cqw] rounded-sm px-[3cqw] text-[1.8cqw] leading-none font-medium whitespace-nowrap'
+    const shell = `inline-flex h-[5cqw] items-center justify-center gap-[1.2cqw] ${radius ?? 'rounded-sm'} px-[3cqw] text-[1.8cqw] leading-none font-medium whitespace-nowrap`
     const inner = (color: string) => (
       <>
         {label}
@@ -178,12 +189,17 @@ function Cta({ kind, accent = GREEN, label }: { kind: string; accent?: string; l
   }
 
   return kind === 'solid' ? (
-    <span aria-hidden="true" data-role="button" className="block h-[4.4cqw] w-[16cqw] rounded-xs" style={{ background: accent }} />
+    <span
+      aria-hidden="true"
+      data-role="button"
+      className={`block h-[4.4cqw] w-[16cqw] ${radius ?? 'rounded-xs'}`}
+      style={{ background: accent }}
+    />
   ) : (
     <span
       aria-hidden="true"
       data-role="button"
-      className="block h-[4.4cqw] w-[16cqw] rounded-xs border"
+      className={`block h-[4.4cqw] w-[16cqw] ${radius ?? 'rounded-xs'} border`}
       style={{ borderColor: accent }}
     />
   )
@@ -293,6 +309,7 @@ function NavRow({
   labels,
   menu,
   accent,
+  buttonRadius,
 }: {
   nav: string
   band: string
@@ -301,6 +318,7 @@ function NavRow({
   labels?: string[]
   menu?: string[]
   accent?: string
+  buttonRadius?: string
 }) {
   const fill = BAND_FILL[band]
   const onDark = band === 'dark'
@@ -314,7 +332,7 @@ function NavRow({
           <Nav onDark={onDark} labels={labels} accent={accent} menu={menu} />
         </div>
         <div className="flex justify-end">
-          <Cta kind={cta} accent={accent} label={ctaLabel} />
+          <Cta kind={cta} accent={accent} label={ctaLabel} radius={buttonRadius} />
         </div>
       </div>
     )
@@ -325,7 +343,7 @@ function NavRow({
       {nav === 'right' ? <span /> : <Nav onDark={onDark} labels={labels} accent={accent} menu={menu} />}
       <div className="flex items-center gap-[3cqw]">
         {nav === 'right' && <Nav onDark={onDark} labels={labels} accent={accent} menu={menu} />}
-        <Cta kind={cta} accent={accent} label={ctaLabel} />
+        <Cta kind={cta} accent={accent} label={ctaLabel} radius={buttonRadius} />
       </div>
     </div>
   )
@@ -339,7 +357,9 @@ export default function HeaderPreview({
   band,
   cta,
   content,
+  ...corners
 }: HeaderChoice & { content?: SectionContent }) {
+  const buttonRadius = cornersOf(corners.buttonRadius).button
   const logo = content?.image ?? null
   // Brand colour arrives through the --brand custom property, not as a prop.
   const accent = GREEN
@@ -362,7 +382,7 @@ export default function HeaderPreview({
           </div>
           <div className="flex flex-col items-end gap-[2cqw]">
             <CallUs greenNumber phone={content?.phone} />
-            <Cta kind={cta} accent={accent} label={ctaLabel} />
+            <Cta kind={cta} accent={accent} label={ctaLabel} radius={buttonRadius} />
           </div>
         </div>
         <span aria-hidden="true" className="h-px w-full bg-neutral-200" />
@@ -383,7 +403,7 @@ export default function HeaderPreview({
                 <Nav onDark={onDark} labels={labels} accent={accent} menu={menu} />
               </div>
               <div className="flex justify-end">
-                <Cta kind={cta} accent={accent} label={ctaLabel} />
+                <Cta kind={cta} accent={accent} label={ctaLabel} radius={buttonRadius} />
               </div>
             </div>
           ) : nav === 'left' ? (
@@ -391,7 +411,7 @@ export default function HeaderPreview({
               <Logo src={logo} />
               <Nav onDark={onDark} labels={labels} accent={accent} menu={menu} />
               <div className="ml-auto">
-                <Cta kind={cta} accent={accent} label={ctaLabel} />
+                <Cta kind={cta} accent={accent} label={ctaLabel} radius={buttonRadius} />
               </div>
             </div>
           ) : (
@@ -399,7 +419,7 @@ export default function HeaderPreview({
               <Logo src={logo} />
               <div className="ml-auto flex items-center gap-[4cqw]">
                 <Nav onDark={onDark} labels={labels} accent={accent} menu={menu} />
-                <Cta kind={cta} accent={accent} label={ctaLabel} />
+                <Cta kind={cta} accent={accent} label={ctaLabel} radius={buttonRadius} />
               </div>
             </div>
           )}
@@ -429,7 +449,16 @@ export default function HeaderPreview({
         </div>
       )}
 
-      <NavRow nav={nav} band={band} cta={cta} ctaLabel={ctaLabel} labels={labels} accent={accent} menu={menu} />
+      <NavRow
+        nav={nav}
+        band={band}
+        cta={cta}
+        ctaLabel={ctaLabel}
+        labels={labels}
+        accent={accent}
+        menu={menu}
+        buttonRadius={buttonRadius}
+      />
     </header>
   )
 }

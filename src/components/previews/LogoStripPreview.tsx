@@ -9,13 +9,23 @@ import 'swiper/css'
 import { linesOf } from '@/lib/content'
 import type { SectionContent } from '@/lib/content'
 import { usePreviewMode } from '@/components/previews/mode'
-import { BodyLine, Dots, Eyebrow, FilledButton, HeadlineLine, LogoMark, LogoRow } from '@/components/previews/parts'
+import {
+  BodyLine,
+  cornersOf,
+  Dots,
+  Eyebrow,
+  FilledButton,
+  HeadlineLine,
+  LogoMark,
+  LogoRow,
+} from '@/components/previews/parts'
 
 /** The design set, by its Figma name — 'v1' … 'v3'. */
 export type LogoStripDesign = string
 
 export type LogoStripChoice = {
   design: LogoStripDesign
+  buttonRadius?: string
 }
 
 /** How many logos fit on one row — six across, as all three designs are drawn. */
@@ -94,14 +104,14 @@ const SPECS: Record<string, Spec> = {
  * wrapper is otherwise sized by its widest child, so a `w-4/5` heading would be
  * four fifths of itself and wrap for no reason.
  */
-function Header({ content }: { content?: SectionContent }) {
+function Header({ content, buttonRadius }: { content?: SectionContent; buttonRadius?: string }) {
   return (
     <div className="flex w-[62%] flex-col items-center gap-[1.5cqw] text-center">
       <Eyebrow text={content?.eyebrow} />
       <HeadlineLine className="w-full" text={content?.heading} />
       <BodyLine className="w-full" text={content?.body} />
       <div className="mt-[1cqw]">
-        <FilledButton label={content?.cta} />
+        <FilledButton label={content?.cta} radius={buttonRadius} />
       </div>
     </div>
   )
@@ -110,9 +120,11 @@ function Header({ content }: { content?: SectionContent }) {
 /** Miniature of what the logo strip will look like on the page. */
 export default function LogoStripPreview({
   design,
+  buttonRadius,
   content,
 }: LogoStripChoice & { content?: SectionContent }) {
   const spec = SPECS[design] ?? SPECS.v1
+  const corners = cornersOf(buttonRadius)
   const names = linesOf(content?.items)
   const logos = names.length ? names : undefined
 
@@ -218,7 +230,7 @@ export default function LogoStripPreview({
 
   return (
     <section aria-label="Client logos" className={frame}>
-      <Header content={content} />
+      <Header content={content} buttonRadius={corners.button} />
 
       {spec.rows > 1 ? (
         // Each row starts further along the list, so the grid isn't three

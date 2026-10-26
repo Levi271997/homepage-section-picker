@@ -77,6 +77,21 @@ export const IMAGE_RADII: Record<string, string> = {
 export const DEFAULT_RADIUS = 'rounded-xs'
 
 /**
+ * A section's two corner settings, resolved to classes.
+ *
+ * `undefined` wherever the setting is `subtle` or unset, so each part keeps
+ * the radius its own design draws — not every set is drawn at 2px, and a
+ * section left on the default should look exactly as drawn. Call sites fall
+ * back with `??`, or let a component's default parameter do it.
+ */
+export type Corners = { button?: string; image?: string }
+
+export const cornersOf = (buttonRadius?: string, imageRadius?: string): Corners => ({
+  button: buttonRadius && buttonRadius !== 'subtle' ? BUTTON_RADII[buttonRadius] : undefined,
+  image: imageRadius && imageRadius !== 'subtle' ? IMAGE_RADII[imageRadius] : undefined,
+})
+
+/**
  * Checkerboard standing in for a photo, as the placeholders appear in the
  * design file — or the client's own image once we've read their site.
  *

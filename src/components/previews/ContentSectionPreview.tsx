@@ -1,12 +1,23 @@
 import { itemAt, linesOf, splitStat } from '@/lib/content'
 import type { SectionContent } from '@/lib/content'
-import { BodyLine, Eyebrow, FilledButton, HeadlineLine, ImageBlock, OutlineButton } from '@/components/previews/parts'
+import {
+  BodyLine,
+  cornersOf,
+  Eyebrow,
+  FilledButton,
+  HeadlineLine,
+  ImageBlock,
+  OutlineButton,
+} from '@/components/previews/parts'
+import type { Corners } from '@/components/previews/parts'
 
 /** The design set, by its Figma name — 'v1' … 'v23'. */
 export type ContentSectionDesign = string
 
 export type ContentSectionChoice = {
   design: ContentSectionDesign
+  buttonRadius?: string
+  imageRadius?: string
 }
 
 const GREEN = 'var(--brand,#3f6b30)'
@@ -69,11 +80,11 @@ const SPECS: Record<string, Spec> = {
   v23: { frame: 'split', side: 'right', actions: 'email' },
 }
 
-function Buttons({ primary, secondary }: { primary?: string; secondary?: string }) {
+function Buttons({ primary, secondary, radius }: { primary?: string; secondary?: string; radius?: string }) {
   return (
     <div className="mt-[1cqw] flex items-center gap-[1.5cqw]">
-      <FilledButton label={primary} />
-      <OutlineButton label={secondary} />
+      <FilledButton label={primary} radius={radius} />
+      <OutlineButton label={secondary} radius={radius} />
     </div>
   )
 }
@@ -93,7 +104,7 @@ function CheckRow({ text }: { text?: string }) {
 }
 
 /** Email field and submit sharing one row, with the reassurance under it. */
-function EmailCapture({ content }: { content?: SectionContent }) {
+function EmailCapture({ content, radius }: { content?: SectionContent; radius?: string }) {
   return (
     <form className="mt-[1cqw] flex w-full flex-col gap-[1.2cqw]" onSubmit={(e) => e.preventDefault()}>
       <div className="flex items-stretch gap-[1.2cqw]">
@@ -106,7 +117,7 @@ function EmailCapture({ content }: { content?: SectionContent }) {
             className="w-full bg-transparent text-[1.5cqw] text-neutral-500 placeholder:text-neutral-500"
           />
         </label>
-        <FilledButton label={content?.cta} />
+        <FilledButton label={content?.cta} radius={radius} />
       </div>
       {content?.note && (
         <p className="flex items-center gap-[1cqw]">
@@ -119,10 +130,10 @@ function EmailCapture({ content }: { content?: SectionContent }) {
 }
 
 /** Thumbnail beside a label and two lines of copy. */
-function MediaRow({ title, body, src }: { title?: string; body?: string; src?: string }) {
+function MediaRow({ title, body, src, radius }: { title?: string; body?: string; src?: string; radius?: string }) {
   return (
     <li className="flex items-start gap-[1.8cqw]">
-      <ImageBlock className="size-[7cqw] shrink-0" src={src} />
+      <ImageBlock className="size-[7cqw] shrink-0" radius={radius} src={src} />
       <div className="flex min-w-0 flex-1 flex-col gap-[0.8cqw] pt-[0.5cqw]">
         {title ? (
           <h3 className="text-[1.9cqw] leading-tight font-semibold text-neutral-900">{title}</h3>
@@ -168,15 +179,17 @@ function MiniCard({
   body,
   src,
   centered,
+  radius,
 }: {
   title?: string
   body?: string
   src?: string
   centered?: boolean
+  radius?: string
 }) {
   return (
     <li className={`flex flex-col gap-[1cqw] ${centered ? 'items-center text-center' : ''}`}>
-      <ImageBlock className="size-[7cqw]" src={src} />
+      <ImageBlock className="size-[7cqw]" radius={radius} src={src} />
       {title ? (
         <h3 className="text-[1.8cqw] leading-tight font-semibold text-neutral-900">{title}</h3>
       ) : (
@@ -216,7 +229,7 @@ function TextColumn({ title, body, link }: { title?: string; body?: string; link
 }
 
 /** The heading block the stacked and flanked designs open with. */
-function Header({ spec, content }: { spec: Spec; content?: SectionContent }) {
+function Header({ spec, content, corners }: { spec: Spec; content?: SectionContent; corners: Corners }) {
   const heading = content?.heading
   const body = content?.body
 
@@ -225,7 +238,7 @@ function Header({ spec, content }: { spec: Spec; content?: SectionContent }) {
       <div className="flex flex-col gap-[1.5cqw]">
         <div className="flex items-center justify-between gap-[3cqw]">
           <HeadlineLine className={heading ? 'w-[62%]' : 'w-[45%]'} text={heading} />
-          <OutlineButton label={content?.cta} />
+          <OutlineButton label={content?.cta} radius={corners.button} />
         </div>
         <BodyLine className="w-[70%]" text={body} />
       </div>
@@ -237,14 +250,14 @@ function Header({ spec, content }: { spec: Spec; content?: SectionContent }) {
       <HeadlineLine className={heading ? 'w-[70%]' : 'w-[45%]'} text={heading} />
       <BodyLine className="w-[70%]" text={body} />
       <div className="mt-[0.5cqw]">
-        <OutlineButton label={content?.cta} />
+        <OutlineButton label={content?.cta} radius={corners.button} />
       </div>
     </div>
   )
 }
 
 /** The copy column of a split design — what fills it depends on the design. */
-function Copy({ spec, content }: { spec: Spec; content?: SectionContent }) {
+function Copy({ spec, content, corners }: { spec: Spec; content?: SectionContent; corners: Corners }) {
   const list = linesOf(content?.items)
   const heading = content?.heading
   const named = list.length > 0
@@ -278,6 +291,7 @@ function Copy({ spec, content }: { spec: Spec; content?: SectionContent }) {
               title={named ? itemAt(content?.items, i) : undefined}
               body={content?.body}
               src={content?.image}
+              radius={corners.image}
             />
           ))}
         </ul>
@@ -294,9 +308,9 @@ function Copy({ spec, content }: { spec: Spec; content?: SectionContent }) {
       )}
 
       {spec.actions === 'email' ? (
-        <EmailCapture content={content} />
+        <EmailCapture content={content} radius={corners.button} />
       ) : (
-        <Buttons primary={content?.cta} secondary={content?.cta2} />
+        <Buttons primary={content?.cta} secondary={content?.cta2} radius={corners.button} />
       )}
     </div>
   )
@@ -305,9 +319,12 @@ function Copy({ spec, content }: { spec: Spec; content?: SectionContent }) {
 /** Miniature of what the content section will look like on the page. */
 export default function ContentSectionPreview({
   design,
+  buttonRadius,
+  imageRadius,
   content,
 }: ContentSectionChoice & { content?: SectionContent }) {
   const spec = SPECS[design] ?? SPECS.v1
+  const corners = cornersOf(buttonRadius, imageRadius)
   const list = linesOf(content?.items)
   const named = list.length > 0
   const src = content?.image
@@ -319,6 +336,7 @@ export default function ContentSectionPreview({
       body={content?.body}
       src={src}
       centered={centered}
+      radius={corners.image}
     />
   )
 
@@ -329,7 +347,7 @@ export default function ContentSectionPreview({
       <section className="flex h-full flex-col justify-center gap-[1.6cqw] px-[5cqw] py-[5cqw]">
         <HeadlineLine className={content?.heading ? 'w-[70%]' : 'w-[45%]'} text={content?.heading} />
         <BodyLine className="w-[70%]" text={content?.body} />
-        <Buttons primary={content?.cta} secondary={content?.cta2} />
+        <Buttons primary={content?.cta} secondary={content?.cta2} radius={corners.button} />
       </section>
     )
   }
@@ -337,12 +355,12 @@ export default function ContentSectionPreview({
   if (spec.frame === 'flanked') {
     return (
       <section className="flex h-full flex-col gap-[4cqw] px-[5cqw] py-[5cqw]">
-        <Header spec={spec} content={content} />
+        <Header spec={spec} content={content} corners={corners} />
         <div className="flex min-h-0 flex-1 items-center gap-[4cqw]">
           <ul className="flex w-[28%] shrink-0 flex-col gap-[3cqw]">{[0, 1].map((i) => card(i, true))}</ul>
           {/* The picture the pairs face across — drawn upright, so it takes the
               height the frame leaves rather than a ratio of its own. */}
-          <ImageBlock className="h-full min-w-0 flex-1" src={src} />
+          <ImageBlock className="h-full min-w-0 flex-1" radius={corners.image} src={src} />
           <ul className="flex w-[28%] shrink-0 flex-col gap-[3cqw]">{[2, 3].map((i) => card(i, true))}</ul>
         </div>
       </section>
@@ -352,8 +370,8 @@ export default function ContentSectionPreview({
   if (spec.frame === 'stacked') {
     return (
       <section className="flex h-full flex-col gap-[4cqw] px-[5cqw] py-[5cqw]">
-        <Header spec={spec} content={content} />
-        <ImageBlock className="min-h-0 w-full flex-1" src={src} />
+        <Header spec={spec} content={content} corners={corners} />
+        <ImageBlock className="min-h-0 w-full flex-1" radius={corners.image} src={src} />
         <ul className="grid shrink-0 grid-cols-3 gap-[3cqw]">
           {Array.from({ length: spec.columns ?? 3 }, (_, i) => (
             <TextColumn
@@ -373,7 +391,8 @@ export default function ContentSectionPreview({
     <ul className="grid w-[46%] shrink-0 grid-cols-2 gap-x-[3cqw] gap-y-[3cqw]">{[0, 1, 2, 3].map((i) => card(i))}</ul>
   ) : (
     <ImageBlock
-      className={spec.bleed ? 'h-full w-[46%] shrink-0 rounded-none! border-0' : 'h-[78%] w-[46%] shrink-0'}
+      className={spec.bleed ? 'h-full w-[46%] shrink-0 border-0' : 'h-[78%] w-[46%] shrink-0'}
+      radius={spec.bleed ? 'rounded-none' : corners.image}
       src={src}
     />
   )
@@ -389,7 +408,7 @@ export default function ContentSectionPreview({
     <section className={`flex h-full items-center ${frame}`}>
       {imageFirst && visual}
       <div className={`flex min-w-0 flex-1 ${copyPad}`}>
-        <Copy spec={spec} content={content} />
+        <Copy spec={spec} content={content} corners={corners} />
       </div>
       {!imageFirst && visual}
     </section>

@@ -1,12 +1,15 @@
 import { itemAt, linesOf, splitOnDot } from '@/lib/content'
 import type { SectionContent } from '@/lib/content'
-import { BodyLine, Eyebrow, FilledButton, HeadlineLine, ImageBlock } from '@/components/previews/parts'
+import { BodyLine, cornersOf, Eyebrow, FilledButton, HeadlineLine, ImageBlock } from '@/components/previews/parts'
+import type { Corners } from '@/components/previews/parts'
 
 /** The design set, by its Figma name — 'v1' … 'v6'. */
 export type BlogsDesign = string
 
 export type BlogsChoice = {
   design: BlogsDesign
+  buttonRadius?: string
+  imageRadius?: string
 }
 
 const GREEN = 'var(--brand,#4b7b35)'
@@ -128,8 +131,10 @@ function Post({
   excerpt,
   author,
   src,
+  corners,
 }: {
   spec: Spec
+  corners: Corners
   title?: string
   category?: string
   date?: string
@@ -173,7 +178,7 @@ function Post({
         style={spec.card ? { borderColor: HAIRLINE } : undefined}
       >
         {/* 195 tall in all six, whatever the column does around it. */}
-        <ImageBlock className="h-[13.5cqw] w-full" src={src} />
+        <ImageBlock className="h-[13.5cqw] w-full" radius={corners.image} src={src} />
 
         {spec.metaBelow ? (
           <>
@@ -202,24 +207,30 @@ function Post({
 }
 
 /** The "Load more" button under the paged grid, at the 101×36 it's drawn. */
-function MoreButton({ label }: { label?: string }) {
+function MoreButton({ label, radius = 'rounded-xs' }: { label?: string; radius?: string }) {
   if (label) {
     return (
       <span
         data-role="button"
-        className="inline-flex h-[2.5cqw] items-center rounded-xs px-[1.25cqw] text-[1.1cqw] leading-none font-medium text-white"
+        className={`inline-flex h-[2.5cqw] items-center ${radius} px-[1.25cqw] text-[1.1cqw] leading-none font-medium text-white`}
         style={{ background: GREEN }}
       >
         {label}
       </span>
     )
   }
-  return <span aria-hidden="true" data-role="button" className="block h-[2.5cqw] w-[7cqw] rounded-xs" style={{ background: GREEN }} />
+  return <span aria-hidden="true" data-role="button" className={`block h-[2.5cqw] w-[7cqw] ${radius}`} style={{ background: GREEN }} />
 }
 
 /** Miniature of what the blog grid will look like on the page. */
-export default function BlogsPreview({ design, content }: BlogsChoice & { content?: SectionContent }) {
+export default function BlogsPreview({
+  design,
+  buttonRadius,
+  imageRadius,
+  content,
+}: BlogsChoice & { content?: SectionContent }) {
   const spec = SPECS[design] ?? SPECS.v1
+  const corners = cornersOf(buttonRadius, imageRadius)
   const count = spec.rows * COLUMNS
   const titles = linesOf(content?.items)
   // "Insights · 12 March" — one field carrying both halves of the meta line.
@@ -239,7 +250,7 @@ export default function BlogsPreview({ design, content }: BlogsChoice & { conten
           <HeadlineLine className="w-[74%]" text={content?.heading} />
           <BodyLine className="w-[74%]" text={content?.body} />
           <div className="mt-[0.5cqw]">
-            <FilledButton label={content?.cta} />
+            <FilledButton label={content?.cta} radius={corners.button} />
           </div>
         </div>
       )}
@@ -249,6 +260,7 @@ export default function BlogsPreview({ design, content }: BlogsChoice & { conten
           <Post
             key={i}
             spec={spec}
+            corners={corners}
             title={titles.length ? itemAt(content?.items, i) : undefined}
             category={category || undefined}
             date={date || undefined}
@@ -261,7 +273,7 @@ export default function BlogsPreview({ design, content }: BlogsChoice & { conten
 
       {spec.more && (
         <div className="mt-[2.8cqw] flex justify-center">
-          <MoreButton label={content?.more} />
+          <MoreButton label={content?.more} radius={corners.button} />
         </div>
       )}
     </section>

@@ -1,12 +1,15 @@
 import { itemAt, linesOf } from '@/lib/content'
 import type { SectionContent } from '@/lib/content'
-import { BodyLine, Eyebrow, FilledButton, HeadlineLine } from '@/components/previews/parts'
+import { BodyLine, cornersOf, Eyebrow, FilledButton, HeadlineLine } from '@/components/previews/parts'
+import type { Corners } from '@/components/previews/parts'
 
 /** The design set, by its Figma name — 'v1' … 'v6'. */
 export type PricingDesign = string
 
 export type PricingChoice = {
   design: PricingDesign
+  buttonRadius?: string
+  imageRadius?: string
 }
 
 const GREEN = 'var(--brand,#4b7b35)'
@@ -156,12 +159,12 @@ function FeatureRow({ side, muted, text }: { side: 'left' | 'right'; muted: bool
  * The plan's own button, drawn at the 126×36 the set gives it. Smaller than the
  * header's, so it doesn't borrow the shared `FilledButton`.
  */
-function PlanButton({ label }: { label?: string }) {
+function PlanButton({ label, radius = 'rounded-xs' }: { label?: string; radius?: string }) {
   if (label) {
     return (
       <span
         data-role="button"
-        className="inline-flex h-[2.5cqw] items-center rounded-xs px-[1.25cqw] text-[1.1cqw] leading-none font-medium text-white"
+        className={`inline-flex h-[2.5cqw] items-center ${radius} px-[1.25cqw] text-[1.1cqw] leading-none font-medium text-white`}
         style={{ background: GREEN }}
       >
         {label}
@@ -172,7 +175,7 @@ function PlanButton({ label }: { label?: string }) {
     <span
       aria-hidden="true"
       data-role="button"
-      className="block h-[2.5cqw] w-[8.75cqw] rounded-xs"
+      className={`block h-[2.5cqw] w-[8.75cqw] ${radius}`}
       style={{ background: GREEN }}
     />
   )
@@ -183,8 +186,10 @@ function Plan({
   best,
   index,
   content,
+  corners,
 }: {
   spec: Spec
+  corners: Corners
   best: boolean
   index: number
   content?: SectionContent
@@ -209,7 +214,11 @@ function Plan({
         <>
           <div className="flex items-start justify-between gap-[1cqw]">
             {/* 64px square, in the pale blue the set uses for a picture. */}
-            <span aria-hidden="true" className="size-[4.4cqw] rounded-xs" style={{ background: '#d6ecff' }} />
+            <span
+              aria-hidden="true"
+              className={`size-[4.4cqw] ${corners.image ?? 'rounded-xs'}`}
+              style={{ background: '#d6ecff' }}
+            />
             {best && <BestPlanBadge label={badge} />}
           </div>
           <div className="mt-[1.5cqw]">
@@ -260,15 +269,21 @@ function Plan({
       )}
 
       <div className="mt-[1.8cqw]">
-        <PlanButton label={content?.cta} />
+        <PlanButton label={content?.cta} radius={corners.button} />
       </div>
     </li>
   )
 }
 
 /** Miniature of what the pricing table will look like on the page. */
-export default function PricingPreview({ design, content }: PricingChoice & { content?: SectionContent }) {
+export default function PricingPreview({
+  design,
+  buttonRadius,
+  imageRadius,
+  content,
+}: PricingChoice & { content?: SectionContent }) {
   const spec = SPECS[design] ?? SPECS.v1
+  const corners = cornersOf(buttonRadius, imageRadius)
 
   return (
     // 80px of margin top and bottom, 120 either side, as all six are drawn —
@@ -280,13 +295,13 @@ export default function PricingPreview({ design, content }: PricingChoice & { co
         <HeadlineLine className="w-[74%]" text={content?.heading} />
         <BodyLine className="w-[74%]" text={content?.body} />
         <div className="mt-[0.5cqw]">
-          <FilledButton label={content?.headerCta} />
+          <FilledButton label={content?.headerCta} radius={corners.button} />
         </div>
       </div>
 
       <ul className="grid grid-cols-3 gap-[2.8cqw]">
         {Array.from({ length: PLANS }, (_, i) => (
-          <Plan key={i} spec={spec} best={i === 1} index={i} content={content} />
+          <Plan key={i} spec={spec} corners={corners} best={i === 1} index={i} content={content} />
         ))}
       </ul>
     </section>

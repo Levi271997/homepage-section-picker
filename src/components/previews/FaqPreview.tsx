@@ -1,12 +1,13 @@
 import { itemAt, linesOf } from '@/lib/content'
 import type { SectionContent } from '@/lib/content'
-import { BodyLine, Eyebrow, FilledButton, HeadlineLine, OutlineButton } from '@/components/previews/parts'
+import { BodyLine, cornersOf, Eyebrow, FilledButton, HeadlineLine, OutlineButton } from '@/components/previews/parts'
 
 /** The design set, by its Figma name — 'v1' … 'v5'. */
 export type FaqDesign = string
 
 export type FaqChoice = {
   design: FaqDesign
+  buttonRadius?: string
 }
 
 const GREEN = 'var(--brand,#4b7b35)'
@@ -171,8 +172,9 @@ function CheckRow({ text }: { text?: string }) {
 }
 
 /** Miniature of what the FAQ accordion will look like on the page. */
-export default function FaqPreview({ design, content }: FaqChoice & { content?: SectionContent }) {
+export default function FaqPreview({ design, buttonRadius, content }: FaqChoice & { content?: SectionContent }) {
   const spec = SPECS[design] ?? SPECS.v1
+  const corners = cornersOf(buttonRadius)
 
   if (spec.header === 'aside') {
     const points = linesOf(content?.points)
@@ -194,8 +196,8 @@ export default function FaqPreview({ design, content }: FaqChoice & { content?: 
             ))}
           </ul>
           <div className="mt-[2.9cqw] flex items-center gap-[1.1cqw]">
-            <FilledButton label={content?.cta} />
-            <OutlineButton label={content?.cta2} />
+            <FilledButton label={content?.cta} radius={corners.button} />
+            <OutlineButton label={content?.cta2} radius={corners.button} />
           </div>
         </div>
 

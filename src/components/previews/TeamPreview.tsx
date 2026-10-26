@@ -1,12 +1,14 @@
 import { itemAt, linesOf } from '@/lib/content'
 import type { SectionContent } from '@/lib/content'
-import { BodyLine, Eyebrow, FilledButton, HeadlineLine, ImageBlock } from '@/components/previews/parts'
+import { BodyLine, cornersOf, Eyebrow, FilledButton, HeadlineLine, ImageBlock } from '@/components/previews/parts'
 
 /** The design set, by its Figma name — 'v1' … 'v3'. */
 export type TeamDesign = string
 
 export type TeamChoice = {
   design: TeamDesign
+  buttonRadius?: string
+  imageRadius?: string
 }
 
 const TAN = 'var(--brand-accent,#a1806a)'
@@ -47,11 +49,13 @@ function Member({
   name,
   role,
   src,
+  radius,
 }: {
   spec: Spec
   name?: string
   role?: string
   src?: string
+  radius?: string
 }) {
   const centered = spec.align === 'center'
 
@@ -64,9 +68,9 @@ function Member({
     >
       {spec.portrait === 'wide' ? (
         // 270×195 as drawn, so the picture keeps its landscape at any width.
-        <ImageBlock className="aspect-[270/195] w-full" src={src} />
+        <ImageBlock className="aspect-[270/195] w-full" radius={radius} src={src} />
       ) : (
-        <ImageBlock className="size-[4.4cqw]" src={src} />
+        <ImageBlock className="size-[4.4cqw]" radius={radius} src={src} />
       )}
 
       <div className={`flex flex-col gap-[1cqw] ${centered ? 'items-center text-center' : 'items-start'}`}>
@@ -88,8 +92,14 @@ function Member({
 }
 
 /** Miniature of what the team grid will look like on the page. */
-export default function TeamPreview({ design, content }: TeamChoice & { content?: SectionContent }) {
+export default function TeamPreview({
+  design,
+  buttonRadius,
+  imageRadius,
+  content,
+}: TeamChoice & { content?: SectionContent }) {
   const spec = SPECS[design] ?? SPECS.v1
+  const corners = cornersOf(buttonRadius, imageRadius)
   const names = linesOf(content?.items)
 
   return (
@@ -103,7 +113,7 @@ export default function TeamPreview({ design, content }: TeamChoice & { content?
         <HeadlineLine className="w-[74%]" text={content?.heading} />
         <BodyLine className="w-[74%]" text={content?.body} />
         <div className="mt-[0.5cqw]">
-          <FilledButton label={content?.cta} />
+          <FilledButton label={content?.cta} radius={corners.button} />
         </div>
       </div>
 
@@ -118,6 +128,7 @@ export default function TeamPreview({ design, content }: TeamChoice & { content?
             name={names.length ? itemAt(content?.items, i) : undefined}
             role={itemAt(content?.roles, i) || undefined}
             src={content?.image}
+            radius={corners.image}
           />
         ))}
       </ul>
