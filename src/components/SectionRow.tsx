@@ -100,7 +100,7 @@ export default function SectionRow({
   const panes =
     picker && fields.length ? (
       <div className="grid gap-5 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] lg:gap-6">
-        <section aria-label={`${section.label} layout`} className="flex min-w-0 flex-col gap-3">
+        <section aria-label={`${section.label} layout`} className="@container flex min-w-0 flex-col gap-3">
           <h4 className="text-xs font-medium tracking-wide text-ink-muted uppercase">Layout</h4>
           {picker}
         </section>
@@ -113,7 +113,9 @@ export default function SectionRow({
         </section>
       </div>
     ) : (
-      picker || editor
+      // On its own the pane is the whole panel, so it still needs to be the
+      // thing the cards measure themselves against.
+      <div className="@container">{picker || editor}</div>
     )
 
   return (

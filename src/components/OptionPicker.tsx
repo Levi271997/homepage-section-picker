@@ -55,7 +55,18 @@ export default function OptionPicker({ section, choice, content, onPick }: Props
             </span>
           </div>
         ) : (
-          <div key={group.id} role="radiogroup" aria-label={group.label} className="grid gap-3 sm:grid-cols-3">
+          // Three across, measured against the pane this sits in rather than
+          // the window. It used to be `sm:grid-cols-3`, which was the same
+          // thing back when the panel was one full-width column per tab; now
+          // that layout shares the row with the content editor, the viewport
+          // says nothing useful about how much room these cards have. Two only
+          // when the pane is too narrow for three to stay legible.
+          <div
+            key={group.id}
+            role="radiogroup"
+            aria-label={group.label}
+            className="grid grid-cols-2 gap-3 @sm:grid-cols-3"
+          >
             {group.options.map((option) => {
               const selected = option.id === choice[group.id]
               return (
