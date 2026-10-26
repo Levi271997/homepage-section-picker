@@ -136,12 +136,20 @@ function MetaRow({ text }: { text?: string }) {
   )
 }
 
-/** Email field and submit sharing one row, with the reassurance under it. */
+/**
+ * Email field and submit sharing one row, with the reassurance under it.
+ *
+ * V13 draws the pair the same height — 48 each — so the field takes its height
+ * from the row rather than setting one. `items-stretch` was already on the
+ * container and had nothing to do while both children named their own size.
+ * Stretching keeps them level through the shared button's two states, which
+ * aren't the same height as each other.
+ */
 function EmailCapture({ content, corners }: { content?: SectionContent; corners: Corners }) {
   return (
     <form className="flex w-full flex-col gap-[1.4cqw]" onSubmit={(e) => e.preventDefault()}>
       <div className="flex items-stretch gap-[1.2cqw]">
-        <label className="flex h-[5cqw] min-w-0 flex-1 items-center rounded-xs px-[2cqw]" style={{ background: PANEL_GREEN }}>
+        <label className="flex min-w-0 flex-1 items-center rounded-xs px-[2cqw]" style={{ background: PANEL_GREEN }}>
           <span className="sr-only">Email address</span>
           <input
             type="email"
@@ -152,9 +160,10 @@ function EmailCapture({ content, corners }: { content?: SectionContent; corners:
         </label>
         <FilledButton label={content?.cta} radius={corners.button} />
       </div>
+      {/* 16 across, 10 from the line it sits beside, as V13 draws them. */}
       {content?.note && (
-        <p className="flex items-center gap-[1.2cqw]">
-          <span aria-hidden="true" className="size-[1.8cqw] shrink-0 rounded-full" style={{ background: GREEN }} />
+        <p className="flex items-center gap-[0.7cqw]">
+          <span aria-hidden="true" className="size-[1.11cqw] shrink-0 rounded-full" style={{ background: GREEN }} />
           <span className="text-[1.4cqw] leading-none text-neutral-500">{content.note}</span>
         </p>
       )}
