@@ -319,9 +319,15 @@ function Copy({
         text={content?.body}
       />
 
+      {/*
+        * Every line the client types, not the three the set happens to draw.
+        * It used to slice to three, so a fourth tick went into the editor and
+        * nowhere else — the field asks for one per line and has to mean it.
+        * Three is only what stands in while the field is empty.
+        */}
       {spec.list === 'ticks' && (
         <ul className="mt-[0.6cqw] flex w-full flex-col gap-[1.2cqw]">
-          {(ticks.length ? ticks : [undefined, undefined, undefined]).slice(0, 3).map((item, i) => (
+          {(ticks.length ? ticks : [undefined, undefined, undefined]).map((item, i) => (
             <CheckRow key={i} text={item} />
           ))}
         </ul>
