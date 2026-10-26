@@ -32,7 +32,6 @@ export default function SectionPicker() {
   const [ids, setIds] = useState<string[]>(SUGGESTED_IDS)
   const [layouts, setLayouts] = useState<Record<string, Choice>>({})
   const [choosingLayout, setChoosingLayout] = useState<string | null>(null)
-  const [panelTab, setPanelTab] = useState<'layout' | 'content'>('layout')
   /** Edited words and pictures, per section. Unset fields fall back to placeholders. */
   const [contentStore, setContentStore] = useState<Record<string, SectionContent>>({})
   const [swapping, setSwapping] = useState<string | null>(null)
@@ -397,12 +396,8 @@ export default function SectionPicker() {
                   setCardMenu(false)
                   setAdding(false)
                   setSwapping(null)
-                  // Opening a different row starts on Layout again.
-                  setPanelTab('layout')
                   setChoosingLayout((cur) => (cur === id ? null : id))
                 }}
-                tab={panelTab}
-                onTabChange={setPanelTab}
                 content={contentOf(id, contentStore)}
                 onEditContent={(fieldId, value) =>
                   setContentStore((prev) => ({ ...prev, [id]: { ...contentOf(id, prev), [fieldId]: value } }))

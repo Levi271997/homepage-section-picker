@@ -20,9 +20,6 @@ type Props = {
   optionsOpen: boolean
   onToggleOptions: () => void
   onPickOption: (groupId: string, optionId: string) => void
-  /** Which pane of the expanded panel is showing. */
-  tab: 'layout' | 'content'
-  onTabChange: (tab: 'layout' | 'content') => void
   /** The section's words and pictures, and the handlers that change them. */
   content: SectionContent
   onEditContent: (fieldId: string, value: string) => void
@@ -49,8 +46,6 @@ export default function SectionRow({
   optionsOpen,
   onToggleOptions,
   onPickOption,
-  tab,
-  onTabChange,
   content,
   onEditContent,
   onResetContent,
@@ -71,6 +66,55 @@ export default function SectionRow({
     e.dataTransfer.effectAllowed = 'move'
     onDragStart()
   }
+
+  const picker = section.options && choice && (
+    <OptionPicker section={section} choice={choice} content={content} onPick={onPickOption} />
+  )
+  // Always built, never conditional: with no fields at all it is the one thing
+  // that says so, which is better than an empty panel.
+  const fields = fieldsOf(section.id, choice ?? undefined)
+  const editor = (
+    <ContentEditor
+      sectionId={section.id}
+      content={content}
+      choice={choice ?? undefined}
+      onChange={onEditContent}
+      onReset={onResetContent}
+    />
+  )
+
+  /*
+   * Both at once, side by side, rather than a tab each.
+   *
+   * They answer different questions — how the section is arranged, and what it
+   * says — and you change one to see what it does to the other. Behind tabs
+   * that meant picking a layout, switching, typing, switching back to see it;
+   * the option cards preview the section's real content, so the thing you were
+   * checking was a tab away from the thing you were changing.
+   *
+   * Layout takes the wider column because it is a grid of preview cards and
+   * the editor is a stack of text fields. One column when there is only one
+   * pane to show, and one column on a narrow screen, where side by side would
+   * leave the cards too small to read.
+   */
+  const panes =
+    picker && fields.length ? (
+      <div className="grid gap-5 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] lg:gap-6">
+        <section aria-label={`${section.label} layout`} className="flex min-w-0 flex-col gap-3">
+          <h4 className="text-xs font-medium tracking-wide text-ink-muted uppercase">Layout</h4>
+          {picker}
+        </section>
+        <section
+          aria-label={`${section.label} content`}
+          className="flex min-w-0 flex-col gap-3 border-t border-hairline pt-5 lg:border-t-0 lg:border-l lg:pt-0 lg:pl-6"
+        >
+          <h4 className="text-xs font-medium tracking-wide text-ink-muted uppercase">Content</h4>
+          {editor}
+        </section>
+      </div>
+    ) : (
+      picker || editor
+    )
 
   return (
     <li
@@ -177,38 +221,7 @@ export default function SectionRow({
 
       {/* Layout and content expand in place — the list above and below stays put. */}
       {optionsOpen && (
-        <div className="border-t border-hairline bg-card/60 px-4 py-4">
-          {section.options && choice && fieldsOf(section.id).length > 0 && (
-            <div role="tablist" aria-label={`${section.label} settings`} className="mb-4 flex gap-1">
-              {(['layout', 'content'] as const).map((value) => (
-                <button
-                  key={value}
-                  type="button"
-                  role="tab"
-                  aria-selected={tab === value}
-                  onClick={() => onTabChange(value)}
-                  className={`rounded-lg px-3 py-1.5 text-sm capitalize transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-badge-ink ${
-                    tab === value ? 'bg-badge font-medium text-badge-ink' : 'text-ink-muted hover:bg-row-hover hover:text-ink'
-                  }`}
-                >
-                  {value}
-                </button>
-              ))}
-            </div>
-          )}
-
-          {tab === 'content' || !section.options || !choice ? (
-            <ContentEditor
-              sectionId={section.id}
-              content={content}
-              choice={choice ?? undefined}
-              onChange={onEditContent}
-              onReset={onResetContent}
-            />
-          ) : (
-            <OptionPicker section={section} choice={choice} content={content} onPick={onPickOption} />
-          )}
-        </div>
+        <div className="border-t border-hairline bg-card/60 px-4 py-4">{panes}</div>
       )}
 
       <span className="sr-only">Position {index + 1}</span>
