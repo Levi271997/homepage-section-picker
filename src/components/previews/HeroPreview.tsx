@@ -108,11 +108,17 @@ function Breadcrumb({ items, centered }: { items: string[]; centered?: boolean }
   )
 }
 
-/** Green tick followed by a line of text. */
+/**
+ * Green tick followed by a line of text.
+ *
+ * 19.2 across with 11 beside it, which is what all five of the designs that
+ * draw a tick list — V14, V15, V18, V19 and V20 — set it at; ours was 28.8
+ * with 21.6, half as big again as drawn and pushed too far from its line.
+ */
 function CheckRow({ text }: { text?: string }) {
   return (
-    <li className="flex items-center gap-[1.5cqw]">
-      <span aria-hidden="true" className="size-[2cqw] shrink-0 rounded-full" style={{ background: GREEN }} />
+    <li className="flex items-center gap-[0.76cqw]">
+      <span aria-hidden="true" className="size-[1.33cqw] shrink-0 rounded-full" style={{ background: GREEN }} />
       {text ? (
         <span className="text-[1.7cqw] leading-tight text-neutral-700">{text}</span>
       ) : (
