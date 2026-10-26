@@ -16,6 +16,18 @@ import type { SectionContent } from '@/lib/content'
 import type { Choice } from '@/lib/sections'
 import type { SiteProfile } from '@/lib/siteProfile'
 
+/**
+ * The "read my site" panel, hidden for now.
+ *
+ * Only the panel: the state it writes to, the handler and the /api/analyze
+ * route behind it are all untouched, and the JSX is still here rather than
+ * deleted. With nothing filling them in, the page just takes the path it
+ * already had for someone with no site yet.
+ *
+ * Typed rather than inferred so it reads as a switch instead of a constant,
+ * and so flipping it is the only edit.
+ */
+const SHOW_SITE_AUDIT: boolean = false
 export default function SectionPicker() {
   const [ids, setIds] = useState<string[]>(SUGGESTED_IDS)
   const [layouts, setLayouts] = useState<Record<string, Choice>>({})
@@ -291,74 +303,76 @@ export default function SectionPicker() {
       </div>
 
       {/* Asked before the sections, since the existing site is what we carry over from. */}
-      <div className="mt-5 rounded-xl border border-hairline bg-row px-4 py-3">
-        <label htmlFor="site-url" className="text-sm text-ink">
-          What&rsquo;s your current website address?
-        </label>
-        <div className="mt-2 flex gap-2">
-          <input
-            id="site-url"
-            type="text"
-            inputMode="url"
-            autoComplete="url"
-            spellCheck={false}
-            value={siteUrl}
-            onChange={(e) => setSiteUrl(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && canAnalyze) analyze()
-            }}
-            placeholder="yoursite.com"
-            className="min-w-0 flex-1 rounded-lg border border-hairline bg-card px-3 py-2 text-sm text-ink placeholder:text-ink-faint focus-visible:border-ink-faint focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-badge-ink"
-          />
-          {canAnalyze && (
-            <button
-              type="button"
-              onClick={analyze}
-              disabled={!siteUrl.trim() || analyzing}
-              className="shrink-0 rounded-lg border border-hairline bg-card px-3.5 py-2 text-sm text-ink transition-colors hover:bg-row-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-badge-ink disabled:cursor-not-allowed disabled:text-ink-faint disabled:hover:bg-card"
-            >
-              {analyzing ? 'Reading…' : 'Read my site'}
-            </button>
+      {SHOW_SITE_AUDIT && (
+        <div className="mt-5 rounded-xl border border-hairline bg-row px-4 py-3">
+          <label htmlFor="site-url" className="text-sm text-ink">
+            What&rsquo;s your current website address?
+          </label>
+          <div className="mt-2 flex gap-2">
+            <input
+              id="site-url"
+              type="text"
+              inputMode="url"
+              autoComplete="url"
+              spellCheck={false}
+              value={siteUrl}
+              onChange={(e) => setSiteUrl(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && canAnalyze) analyze()
+              }}
+              placeholder="yoursite.com"
+              className="min-w-0 flex-1 rounded-lg border border-hairline bg-card px-3 py-2 text-sm text-ink placeholder:text-ink-faint focus-visible:border-ink-faint focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-badge-ink"
+            />
+            {canAnalyze && (
+              <button
+                type="button"
+                onClick={analyze}
+                disabled={!siteUrl.trim() || analyzing}
+                className="shrink-0 rounded-lg border border-hairline bg-card px-3.5 py-2 text-sm text-ink transition-colors hover:bg-row-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-badge-ink disabled:cursor-not-allowed disabled:text-ink-faint disabled:hover:bg-card"
+              >
+                {analyzing ? 'Reading…' : 'Read my site'}
+              </button>
+            )}
+          </div>
+
+          {analyzing ? (
+            <p className="mt-1.5 text-xs text-ink-muted">
+              Fetching the page and pulling out your brand, copy and images&hellip;
+            </p>
+          ) : profile?.error ? (
+            <p className="mt-1.5 text-xs text-ink-muted">
+              Couldn&rsquo;t read it &mdash; {profile.error} The preview stays as an outline.
+            </p>
+          ) : profile ? (
+            <p className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-ink-muted">
+              {profile.brand.primary && (
+                <span
+                  aria-hidden="true"
+                  className="size-3 shrink-0 rounded-full border border-hairline"
+                  style={{ background: profile.brand.primary }}
+                />
+              )}
+              <span>
+                Using {profile.brand.name ?? 'your site'}&rsquo;s{' '}
+                {[
+                  profile.brand.logoUrl && 'logo',
+                  profile.brand.primary && 'colour',
+                  profile.hero.headline && 'headline',
+                  profile.hero.imageUrl && 'hero image',
+                ]
+                  .filter(Boolean)
+                  .join(', ') || 'details'}{' '}
+                in the preview.
+              </span>
+            </p>
+          ) : (
+            <p className="mt-1.5 text-xs text-ink-muted">
+              We&rsquo;ll audit it first and carry over anything worth keeping. No site yet? Leave this blank and
+              we&rsquo;ll build from scratch.
+            </p>
           )}
         </div>
-
-        {analyzing ? (
-          <p className="mt-1.5 text-xs text-ink-muted">
-            Fetching the page and pulling out your brand, copy and images&hellip;
-          </p>
-        ) : profile?.error ? (
-          <p className="mt-1.5 text-xs text-ink-muted">
-            Couldn&rsquo;t read it &mdash; {profile.error} The preview stays as an outline.
-          </p>
-        ) : profile ? (
-          <p className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-ink-muted">
-            {profile.brand.primary && (
-              <span
-                aria-hidden="true"
-                className="size-3 shrink-0 rounded-full border border-hairline"
-                style={{ background: profile.brand.primary }}
-              />
-            )}
-            <span>
-              Using {profile.brand.name ?? 'your site'}&rsquo;s{' '}
-              {[
-                profile.brand.logoUrl && 'logo',
-                profile.brand.primary && 'colour',
-                profile.hero.headline && 'headline',
-                profile.hero.imageUrl && 'hero image',
-              ]
-                .filter(Boolean)
-                .join(', ') || 'details'}{' '}
-              in the preview.
-            </span>
-          </p>
-        ) : (
-          <p className="mt-1.5 text-xs text-ink-muted">
-            We&rsquo;ll audit it first and carry over anything worth keeping. No site yet? Leave this blank and
-            we&rsquo;ll build from scratch.
-          </p>
-        )}
-      </div>
+      )}
 
       <div className="relative mt-5">
         <ul
