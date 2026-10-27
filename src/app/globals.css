@@ -175,6 +175,39 @@ html {
 [data-scrolled] [data-header='nav'] {
   font-size: 1.5cqw;
 }
+/* The "Call us" number — stacked header and phone utility bar alike — and the
+   social utility bar's icons. */
+[data-header='phone'],
+[data-header='social'],
+[data-header^='email'] {
+  transition:
+    font-size 0.2s ease,
+    height 0.2s ease,
+    width 0.2s ease;
+}
+[data-scrolled] a[data-header='phone'] {
+  font-size: 1.7cqw;
+}
+[data-scrolled] span[data-header='phone'] {
+  height: 1.5cqw;
+  width: 10cqw;
+}
+[data-scrolled] [data-header='social'] {
+  height: 1.7cqw;
+  width: 1.7cqw;
+}
+/* The social utility bar's email, with its envelope. */
+[data-scrolled] [data-header='email'] {
+  font-size: 1.3cqw;
+}
+[data-scrolled] [data-header='email-icon'] {
+  height: 1.4cqw;
+  width: 2cqw;
+}
+[data-scrolled] [data-header='email-bar'] {
+  height: 1cqw;
+  width: 13cqw;
+}
 [data-scrolled] button[data-header='cta'] {
   height: 3.6cqw;
   padding-inline: 2.2cqw;
@@ -193,6 +226,9 @@ html {
   [data-header='row'],
   [data-header='logo'],
   [data-header='nav'],
+  [data-header='phone'],
+  [data-header='social'],
+  [data-header^='email'],
   [data-header='cta'],
   [data-header='cta'] svg {
     transition: none;

@@ -228,16 +228,21 @@ function EmailLine({ text }: { text?: string }) {
   const ink = '#3f3330'
   const inner = (
     <>
-      <svg viewBox="0 0 18 13" className="h-[1.8cqw] w-[2.5cqw]" aria-hidden="true">
+      <svg viewBox="0 0 18 13" data-header="email-icon" className="h-[1.8cqw] w-[2.5cqw]" aria-hidden="true">
         <rect x="0.5" y="0.5" width="17" height="12" rx="1.4" fill={ink} />
         <path d="M1.6 2L9 7.2 16.4 2" fill="none" stroke="#fff" strokeWidth="1.2" strokeLinejoin="round" />
       </svg>
       {text ? (
-        <span className="text-[1.6cqw] leading-none whitespace-nowrap" style={{ color: ink }}>
+        <span data-header="email" className="text-[1.6cqw] leading-none whitespace-nowrap" style={{ color: ink }}>
           {text}
         </span>
       ) : (
-        <span aria-hidden="true" className="h-[1.2cqw] w-[16cqw] rounded-full" style={{ background: ink }} />
+        <span
+          aria-hidden="true"
+          data-header="email-bar"
+          className="h-[1.2cqw] w-[16cqw] rounded-full"
+          style={{ background: ink }}
+        />
       )}
     </>
   )
@@ -266,7 +271,7 @@ function Socials({ links }: { links?: string[] }) {
     <ul className="flex items-center gap-[1.4cqw]" style={{ color: ink }}>
       {SOCIAL_GLYPHS.map((glyph, i) => {
         const icon = (
-          <svg viewBox="0 0 16 16" className="size-[2.2cqw]" aria-hidden="true">
+          <svg viewBox="0 0 16 16" data-header="social" className="size-[2.2cqw]" aria-hidden="true">
             {glyph.path(ink)}
           </svg>
         )
@@ -302,6 +307,7 @@ function CallUs({ greenNumber, phone }: { greenNumber?: boolean; phone?: string 
         <a
           href={`tel:${phone.replace(/[^+\d]/g, '')}`}
           data-role="ext-link"
+          data-header="phone"
           className="text-[2.2cqw] leading-none font-semibold no-underline"
           style={{ color: greenNumber ? GREEN : '#2b2b2b' }}
         >
@@ -310,6 +316,7 @@ function CallUs({ greenNumber, phone }: { greenNumber?: boolean; phone?: string 
       ) : (
         <span
           aria-hidden="true"
+          data-header="phone"
           className="h-[2cqw] w-[13cqw] rounded-full"
           style={{ background: greenNumber ? GREEN : '#2b2b2b' }}
         />
