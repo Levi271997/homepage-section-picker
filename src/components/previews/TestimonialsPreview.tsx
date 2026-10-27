@@ -1,10 +1,17 @@
 'use client'
 
+import { useState } from 'react'
 import type { CSSProperties } from 'react'
-import { useCarousel } from '@/components/previews/useCarousel'
+import { Swiper, SwiperSlide } from 'swiper/react'
+import { Autoplay } from 'swiper/modules'
+import type { Swiper as SwiperClass } from 'swiper/types'
+import 'swiper/css'
+
 import { itemAt, linesOf } from '@/lib/content'
 import type { SectionContent } from '@/lib/content'
+import { usePreviewMode } from '@/components/previews/mode'
 import { BodyLine, cornersOf, Eyebrow, FilledButton, HeadlineLine, ImageBlock } from '@/components/previews/parts'
+import type { Corners } from '@/components/previews/parts'
 
 /** The design set, by its Figma name — 'v1' … 'v6'. */
 export type TestimonialsDesign = string
@@ -280,6 +287,145 @@ function Header({ spec, content, buttonRadius }: { spec: Spec; content?: Section
   )
 }
 
+/** How long a quote holds before the next slides in. */
+const QUOTE_DELAY = 5000
+
+/**
+ * `waitForTransition: false` for the same reason the logo strip sets it: the
+ * timer restarts as a move begins rather than on a `transitionend` that has
+ * been seen not to arrive.
+ */
+const QUOTE_AUTOPLAY = {
+  delay: QUOTE_DELAY,
+  disableOnInteraction: false,
+  pauseOnMouseEnter: true,
+  waitForTransition: false,
+} as const
+
+/**
+ * V2: one quote at a time, between the two arrows the set draws, with the
+ * dots underneath.
+ *
+ * The arrows and the dots stay our own markup and drive the instance, rather
+ * than Swiper's `Navigation` and `Pagination`. Both of those come styled in
+ * fixed pixels, and everything in a preview is sized against the container —
+ * they would be the one thing that didn't change with it. What Swiper is here
+ * for is the moving: the slide track, the wrap, the touch drag and the clock.
+ *
+ * Its own component because it holds state, and the branch it replaced sat
+ * inside `TestimonialsPreview` where a hook can't go.
+ */
+function CarouselFrame({
+  spec,
+  content,
+  corners,
+  at,
+  slides,
+}: {
+  spec: Spec
+  content?: SectionContent
+  corners: Corners
+  at: (i: number) => { quote?: string; name?: string; role?: string; src?: string; radius?: string }
+  slides: number
+}) {
+  const mode = usePreviewMode()
+  // The codebase's rule for every carousel: nothing moves outside the page
+  // view, where fourteen quietly animating thumbnails would be a distraction.
+  const live = mode === 'interactive' && slides > 1
+
+  const [swiper, setSwiper] = useState<SwiperClass | null>(null)
+  const [index, setIndex] = useState(0)
+
+  // Square 40px buttons, outlined in green. The drawing greys the left one to
+  // show the first slide; this one wraps, so neither arrow is ever a dead end.
+  const arrowButton =
+    'flex size-[2.8cqw] shrink-0 items-center justify-center border transition-colors hover:bg-[color:var(--brand-soft,#f2f8ed)]'
+
+  return (
+    <section aria-label="Testimonials" className="flex h-full flex-col gap-[3.5cqw] px-[5cqw] py-[4cqw]">
+      <Header spec={spec} content={content} buttonRadius={corners.button} />
+
+      <div className="flex flex-col items-center gap-[2.8cqw]">
+        {/* The arrows sit inside the section's own margin and the panel is
+            narrower again — 176.5 and 276 of 1440 as drawn, which is what the
+            extra padding and the wide gap add up to. */}
+        <div className="flex w-full items-center gap-[4.15cqw] px-[7.25cqw]">
+          <button
+            type="button"
+            data-role="control"
+            aria-label="Previous testimonial"
+            onClick={() => swiper?.slidePrev()}
+            className={arrowButton}
+            style={{ borderColor: GREEN, color: GREEN }}
+          >
+            <Arrow direction="left" />
+          </button>
+
+          <div
+            className="min-w-0 flex-1 overflow-hidden rounded-sm px-[4cqw] py-[3cqw]"
+            style={{ background: PANEL }}
+          >
+            <Swiper
+              className="w-full"
+              modules={[Autoplay]}
+              slidesPerView={1}
+              loop={slides > 1}
+              allowTouchMove={mode === 'interactive'}
+              autoplay={live ? QUOTE_AUTOPLAY : false}
+              onSwiper={(instance) => {
+                setSwiper(instance)
+                // Read once here rather than through state: the setting doesn't
+                // change under us, and stopping the instance beats re-creating
+                // it with a different `autoplay` param.
+                if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) instance.autoplay?.stop()
+              }}
+              onSlideChange={(instance) => setIndex(instance.realIndex)}
+            >
+              {Array.from({ length: slides }, (_, i) => (
+                <SwiperSlide key={i}>
+                  <figure className="flex flex-col items-center gap-[2cqw]">
+                    <Mark spec={spec} />
+                    <blockquote>
+                      <Quote centered text={at(i).quote} />
+                    </blockquote>
+                    <Attribution stacked {...at(i)} />
+                  </figure>
+                </SwiperSlide>
+              ))}
+            </Swiper>
+          </div>
+
+          <button
+            type="button"
+            data-role="control"
+            aria-label="Next testimonial"
+            onClick={() => swiper?.slideNext()}
+            className={arrowButton}
+            style={{ borderColor: GREEN, color: GREEN }}
+          >
+            <Arrow direction="right" />
+          </button>
+        </div>
+
+        <div className="flex items-center gap-[1.2cqw]">
+          {Array.from({ length: slides }, (_, i) => (
+            <button
+              key={i}
+              type="button"
+              data-role="control"
+              aria-label={`Testimonial ${i + 1}`}
+              aria-current={i === index || undefined}
+              onClick={() => swiper?.slideToLoop(i)}
+              className="size-[0.9cqw] rounded-full"
+              style={{ background: i === index ? GREEN : DIM_GREEN }}
+            />
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
 /** Miniature of what the testimonials will look like on the page. */
 export default function TestimonialsPreview({
   design,
@@ -303,80 +449,9 @@ export default function TestimonialsPreview({
   // One slide per quote. With no quotes typed the wireframe still shows the
   // design's five dots, so the carousel reads as a carousel either way.
   const slides = quotes.length || 5
-  const { slide, setSlide, containerProps, motion } = useCarousel({
-    slides,
-    enabled: spec.frame === 'carousel',
-  })
 
   if (spec.frame === 'carousel') {
-    // Square 40px buttons, outlined in green. The drawing greys the left one to
-    // show the first slide; this one wraps, so neither arrow is ever a dead end.
-    const arrowButton =
-      'flex size-[2.8cqw] shrink-0 items-center justify-center border transition-colors hover:bg-[color:var(--brand-soft,#f2f8ed)]'
-
-    return (
-      <section aria-label="Testimonials" className="flex h-full flex-col gap-[3.5cqw] px-[5cqw] py-[4cqw]">
-        <Header spec={spec} content={content} buttonRadius={corners.button} />
-
-        <div {...containerProps} className={`flex flex-col items-center gap-[2.8cqw] ${containerProps.className}`}>
-          {/* The arrows sit inside the section's own margin and the panel is
-              narrower again — 176.5 and 276 of 1440 as drawn, which is what the
-              extra padding and the wide gap add up to. */}
-          <div className="flex w-full items-center gap-[4.15cqw] px-[7.25cqw]">
-            <button
-              type="button"
-              data-role="control"
-              aria-label="Previous testimonial"
-              onClick={() => setSlide((n) => (n - 1 + slides) % slides)}
-              className={arrowButton}
-              style={{ borderColor: GREEN, color: GREEN }}
-            >
-              <Arrow direction="left" />
-            </button>
-
-            <div
-              className="flex flex-1 flex-col items-center gap-[2cqw] overflow-hidden rounded-sm px-[4cqw] py-[3cqw]"
-              style={{ background: PANEL }}
-            >
-              {/* Keyed on the slide so the transition replays each time it changes. */}
-              <figure key={slide} {...motion} className={`${motion.className} flex flex-col items-center gap-[2cqw]`}>
-                <Mark spec={spec} />
-                <blockquote>
-                  <Quote centered text={at(slide).quote} />
-                </blockquote>
-                <Attribution stacked {...at(slide)} />
-              </figure>
-            </div>
-
-            <button
-              type="button"
-              data-role="control"
-              aria-label="Next testimonial"
-              onClick={() => setSlide((n) => (n + 1) % slides)}
-              className={arrowButton}
-              style={{ borderColor: GREEN, color: GREEN }}
-            >
-              <Arrow direction="right" />
-            </button>
-          </div>
-
-          <div className="flex items-center gap-[1.2cqw]">
-            {Array.from({ length: slides }, (_, i) => (
-              <button
-                key={i}
-                type="button"
-                data-role="control"
-                aria-label={`Testimonial ${i + 1}`}
-                aria-current={i === slide || undefined}
-                onClick={() => setSlide(i)}
-                className="size-[0.9cqw] rounded-full"
-                style={{ background: i === slide ? GREEN : DIM_GREEN }}
-              />
-            ))}
-          </div>
-        </div>
-      </section>
-    )
+    return <CarouselFrame spec={spec} content={content} corners={corners} at={at} slides={slides} />
   }
 
   const columns = spec.columns ?? 3
