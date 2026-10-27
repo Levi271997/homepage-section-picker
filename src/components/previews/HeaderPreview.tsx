@@ -39,10 +39,17 @@ function Logo({ src }: { src?: string | null }) {
   return <span aria-hidden="true" data-header="logo" className="block h-[4cqw] w-[15cqw] rounded-[1px] bg-neutral-300" />
 }
 
-/** The small caret marking a nav item that opens a dropdown. */
+/**
+ * The small caret marking a nav item that opens a dropdown.
+ *
+ * Sized off the artwork: every header that draws one draws it 12.3 wide and
+ * 6.9 tall, beside a 12-tall label. The box was 23 by 14.4, which the mark
+ * filled — near twice the drawn size, and the only thing in the bar bigger
+ * than the type it sits next to.
+ */
 function Caret({ color }: { color: string }) {
   return (
-    <svg viewBox="0 0 10 6" className="h-[1cqw] w-[1.6cqw]" fill="none" aria-hidden="true">
+    <svg viewBox="0 0 10 6" className="h-[0.52cqw] w-[0.89cqw]" fill="none" aria-hidden="true">
       <path d="M1 1l4 4 4-4" stroke={color} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   )
