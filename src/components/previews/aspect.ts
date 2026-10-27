@@ -230,8 +230,10 @@ export function aspectFor(id: string, choice: Choice): string {
     case 'client-quote':
       return QUOTE_RATIOS[choice.design] ?? 'aspect-[1440/731]'
     case 'site-header':
-      // A single bar is a thin strip; the two-tier and stacked ones need room.
-      return choice.structure === 'single' ? 'aspect-16/3' : 'aspect-16/5'
+      // No ratio: the header stands as tall as its own rows. A fixed one left
+      // white space under the bar, since every layout is shorter than its box,
+      // and everything inside is in cqw, so the height still scales with width.
+      return 'aspect-auto'
     case 'logo-strip':
       return LOGO_RATIOS[choice.design] ?? 'aspect-[1440/609]'
     case 'about-team':

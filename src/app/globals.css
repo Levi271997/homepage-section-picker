@@ -118,6 +118,88 @@ html {
 }
 
 /*
+ * The bar under a nav item. The current page's is always drawn; every other
+ * item's is laid out but hidden, and grows in from the centre when the item is
+ * pointed at or tabbed to — in the page view only, like every hover here.
+ */
+[data-role='nav-underline']:not([data-current]) {
+  opacity: 0;
+  transform: scaleX(0);
+}
+.page-view [data-role='nav-underline'] {
+  transition:
+    opacity 0.15s ease,
+    transform 0.2s ease;
+}
+.page-view li:hover > [data-role='nav-underline'],
+.page-view li:focus-within > [data-role='nav-underline'] {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-view [data-role='nav-underline'] {
+    transition: none;
+  }
+}
+
+/*
+ * The sticky header, compacted once the page under it has scrolled: shallower
+ * rows, a smaller logo and a smaller call to action. `data-scrolled` is set on
+ * the scrolling element by `useScrolled` — the page view and the live preview —
+ * so thumbnails, which never scroll, always show the header as drawn.
+ *
+ * Unlayered, so these outrank the Tailwind sizes they replace without `!`.
+ */
+[data-header='row'],
+[data-header='logo'],
+[data-header='nav'],
+[data-header='cta'],
+[data-header='cta'] svg {
+  transition:
+    padding 0.2s ease,
+    height 0.2s ease,
+    width 0.2s ease,
+    font-size 0.2s ease;
+}
+[data-scrolled] [data-header='row'] {
+  padding-top: 1.4cqw;
+  padding-bottom: 1.4cqw;
+}
+[data-scrolled] [data-header='logo'] {
+  height: 3cqw;
+}
+[data-scrolled] span[data-header='logo'] {
+  width: 11cqw;
+}
+[data-scrolled] [data-header='nav'] {
+  font-size: 1.5cqw;
+}
+[data-scrolled] button[data-header='cta'] {
+  height: 3.6cqw;
+  padding-inline: 2.2cqw;
+  font-size: 1.4cqw;
+}
+[data-scrolled] button[data-header='cta'] svg {
+  height: 1.1cqw;
+  width: 1.6cqw;
+}
+[data-scrolled] span[data-header='cta'] {
+  height: 3.4cqw;
+  width: 12.5cqw;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-header='row'],
+  [data-header='logo'],
+  [data-header='nav'],
+  [data-header='cta'],
+  [data-header='cta'] svg {
+    transition: none;
+  }
+}
+
+/*
  * A slide arriving in a carousel: it enters from the right and settles, so the
  * content reads as moving leftwards. Keyed on the slide index, so the animation
  * replays every time it changes.

@@ -5,6 +5,7 @@ import SectionPreview from '@/components/previews/SectionPreview'
 import { PreviewFrame } from '@/components/previews/parts'
 import { aspectFor } from '@/components/previews/aspect'
 import { Icon } from '@/components/icons'
+import { useScrolled } from '@/components/useScrolled'
 import { byId, choiceOf } from '@/lib/sections'
 import type { Choice } from '@/lib/sections'
 import { contentOf } from "@/lib/content"
@@ -36,6 +37,7 @@ export default function PagePreview({
   onOpenWindow,
 }: Props) {
   const rows = useRef(new Map<string, HTMLDivElement>())
+  const scrolled = useScrolled()
 
   // Bring whatever is being edited into view, so the effect of a choice is visible.
   useEffect(() => {
@@ -69,7 +71,7 @@ export default function PagePreview({
         )}
       </div>
 
-      <div className="max-h-[60vh] overflow-y-auto bg-white lg:max-h-none lg:flex-1">
+      <div {...scrolled} className="max-h-[60vh] overflow-y-auto bg-white lg:max-h-none lg:flex-1">
         {ids.map((id) => {
           const section = byId(id)
           const choice = choiceOf(section, layouts)
@@ -81,7 +83,8 @@ export default function PagePreview({
                 if (el) rows.current.set(id, el)
                 else rows.current.delete(id)
               }}
-              className="group/section relative"
+              // The header stays pinned as the preview scrolls, as it does on the page.
+              className={`group/section ${id === 'site-header' ? 'sticky top-0 z-10' : 'relative'}`}
             >
               <PreviewFrame aspect={aspectFor(id, choice)} decorative>
                 <SectionPreview sectionId={id} choice={choice} content={contentOf(id, contentStore)} />

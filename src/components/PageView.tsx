@@ -101,7 +101,7 @@ export default function PageView({
         layouts={layouts}
         contentStore={contentStore}
         brandStyle={brandStyle}
-        className="flex-1"
+        className="min-h-0 flex-1"
       />
     </div>
   )

@@ -113,7 +113,9 @@ export default function PreviewWindow() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-canvas">
+    // A fixed height, not a minimum: the page has to scroll inside `PageBody`
+    // rather than the window, or its sticky header has nothing to stick to.
+    <div className="flex h-screen flex-col bg-canvas">
       {/* One slim bar, so the page below can be the whole width of the window. */}
       <div className="flex shrink-0 items-center gap-3 border-b border-hairline bg-card px-4 py-2">
         <span className="text-sm font-medium text-ink">{domain || 'Your homepage'}</span>
@@ -137,7 +139,7 @@ export default function PreviewWindow() {
         layouts={page.layouts}
         contentStore={page.contentStore}
         brandStyle={page.brand as CSSProperties | undefined}
-        className="flex-1"
+        className="min-h-0 flex-1"
         width="full"
       />
     </div>

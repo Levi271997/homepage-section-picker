@@ -6,6 +6,7 @@ import SectionPreview from '@/components/previews/SectionPreview'
 import { PreviewFrame } from '@/components/previews/parts'
 import { aspectFor } from '@/components/previews/aspect'
 import { PreviewModeProvider } from '@/components/previews/mode'
+import { useScrolled } from '@/components/useScrolled'
 import { byId, choiceOf } from '@/lib/sections'
 import { contentOf } from '@/lib/content'
 import type { Choice } from '@/lib/sections'
@@ -47,13 +48,20 @@ export default function PageBody({
 }: Props) {
   const sections = useRef(new Map<number, HTMLDivElement>())
   const scroller = useRef<HTMLDivElement>(null)
+  const scrolled = useScrolled()
 
   const scrollTo = (index: number) => {
-    if (index <= 0) {
-      scroller.current?.scrollTo({ top: 0, behavior: 'smooth' })
+    const box = scroller.current
+    const target = sections.current.get(index)
+    if (!box || !target || index <= 0) {
+      box?.scrollTo({ top: 0, behavior: 'smooth' })
       return
     }
-    sections.current.get(index)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    // The header is sticky, so a section brought to the very top would sit
+    // underneath it. Stop short by the header's height instead.
+    const header = sections.current.get(ids.indexOf('site-header'))
+    const top = target.getBoundingClientRect().top - box.getBoundingClientRect().top + box.scrollTop
+    box.scrollTo({ top: top - (header?.offsetHeight ?? 0), behavior: 'smooth' })
   }
 
   /**
@@ -91,7 +99,7 @@ export default function PageBody({
           off — hover states, the nav underline, and keeping dropdowns shut until
           they're pointed at. It belongs here rather than on either caller, so
           neither can render the page without it. */}
-      <div ref={scroller} className={`page-view overflow-y-auto ${className}`} style={brandStyle}>
+      <div ref={scroller} {...scrolled} className={`page-view overflow-y-auto ${className}`} style={brandStyle}>
         <div
           onClick={onClick}
           className={`mx-auto w-full bg-white ${width === 'full' ? '' : 'max-w-300 shadow-2xl shadow-black/40'}`}
@@ -99,7 +107,8 @@ export default function PageBody({
           {ids.map((id, index) => {
             const section = byId(id)
             const choice = choiceOf(section, layouts)
-            // The header's dropdown has to escape its frame and sit above what follows.
+            // The header stays pinned to the top as the page scrolls, and its
+            // dropdown has to escape its frame and sit above what follows.
             const isHeader = id === 'site-header'
             return (
               <div
@@ -108,7 +117,7 @@ export default function PageBody({
                   if (el) sections.current.set(index, el)
                   else sections.current.delete(index)
                 }}
-                className={isHeader ? 'relative z-10' : undefined}
+                className={isHeader ? 'sticky top-0 z-10' : undefined}
               >
                 <PreviewFrame aspect={aspectFor(id, choice)} clip={!isHeader}>
                   <SectionPreview sectionId={id} choice={choice} content={contentOf(id, contentStore)} />

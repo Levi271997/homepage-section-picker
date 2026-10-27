@@ -31,11 +31,12 @@ function Logo({ src }: { src?: string | null }) {
         onError={(e) => {
           e.currentTarget.style.visibility = 'hidden'
         }}
+        data-header="logo"
         className="block h-[4.5cqw] w-auto max-w-[24cqw] object-contain object-left"
       />
     )
   }
-  return <span aria-hidden="true" className="block h-[4cqw] w-[15cqw] rounded-[1px] bg-neutral-300" />
+  return <span aria-hidden="true" data-header="logo" className="block h-[4cqw] w-[15cqw] rounded-[1px] bg-neutral-300" />
 }
 
 /** The small caret marking a nav item that opens a dropdown. */
@@ -88,19 +89,22 @@ function Nav({
                 aria-haspopup={dropdown && menu?.length ? true : undefined}
                 className="flex items-center gap-[0.8cqw]"
               >
-                <span className="text-[1.8cqw] leading-none whitespace-nowrap" style={{ color }}>
+                <span data-header="nav" className="text-[1.8cqw] leading-none whitespace-nowrap" style={{ color }}>
                   {label}
                 </span>
                 {dropdown && <Caret color={color} />}
               </a>
 
-              {i === 0 && (
-                <span
-                  aria-hidden="true"
-                  className="h-[0.4cqw] w-full rounded-full"
-                  style={{ background: onDark ? '#ffffff' : accent }}
-                />
-              )}
+              {/* Drawn under every item so they all stand the same height; only
+                  the current page's shows at rest; the rest appear on hover
+                  in the page view (globals.css). */}
+              <span
+                aria-hidden="true"
+                data-role="nav-underline"
+                data-current={i === 0 || undefined}
+                className="h-[0.4cqw] w-full rounded-full"
+                style={{ background: onDark ? '#ffffff' : accent }}
+              />
 
               {dropdown && menu?.length && (
                 <ul
@@ -178,11 +182,23 @@ function Cta({
     )
 
     return kind === 'solid' ? (
-      <button type="button" data-role="button" className={shell} style={{ background: accent, color: '#ffffff' }}>
+      <button
+        type="button"
+        data-role="button"
+        data-header="cta"
+        className={shell}
+        style={{ background: accent, color: '#ffffff' }}
+      >
         {inner('#ffffff')}
       </button>
     ) : (
-      <button type="button" data-role="button" className={`${shell} border`} style={{ borderColor: accent, color: accent }}>
+      <button
+        type="button"
+        data-role="button"
+        data-header="cta"
+        className={`${shell} border`}
+        style={{ borderColor: accent, color: accent }}
+      >
         {inner(accent)}
       </button>
     )
@@ -192,6 +208,7 @@ function Cta({
     <span
       aria-hidden="true"
       data-role="button"
+      data-header="cta"
       className={`block h-[4.4cqw] w-[16cqw] ${radius ?? 'rounded-xs'}`}
       style={{ background: accent }}
     />
@@ -199,6 +216,7 @@ function Cta({
     <span
       aria-hidden="true"
       data-role="button"
+      data-header="cta"
       className={`block h-[4.4cqw] w-[16cqw] ${radius ?? 'rounded-xs'} border`}
       style={{ borderColor: accent }}
     />
@@ -326,7 +344,7 @@ function NavRow({
 
   if (nav === 'center') {
     return (
-      <div className={`${shell} grid grid-cols-3`} style={{ background: fill }}>
+      <div data-header="row" className={`${shell} grid grid-cols-3`} style={{ background: fill }}>
         <span />
         <div className="flex justify-center">
           <Nav onDark={onDark} labels={labels} accent={accent} menu={menu} />
@@ -339,7 +357,7 @@ function NavRow({
   }
 
   return (
-    <div className={`${shell} justify-between gap-[3cqw]`} style={{ background: fill }}>
+    <div data-header="row" className={`${shell} justify-between gap-[3cqw]`} style={{ background: fill }}>
       {nav === 'right' ? <span /> : <Nav onDark={onDark} labels={labels} accent={accent} menu={menu} />}
       <div className="flex items-center gap-[3cqw]">
         {nav === 'right' && <Nav onDark={onDark} labels={labels} accent={accent} menu={menu} />}
@@ -375,7 +393,7 @@ export default function HeaderPreview({
   if (structure === 'stacked') {
     return (
       <header className="flex h-full flex-col">
-        <div className="flex items-start justify-between gap-[3cqw] px-[5cqw] pt-[4cqw] pb-[3cqw]">
+        <div data-header="row" className="flex items-start justify-between gap-[3cqw] px-[5cqw] pt-[4cqw] pb-[3cqw]">
           <div className="flex flex-col gap-[2.5cqw]">
             <Logo src={logo} />
             <Nav labels={labels} accent={accent} menu={menu} />
@@ -395,7 +413,7 @@ export default function HeaderPreview({
     const fill = BAND_FILL[band]
     return (
       <header className="flex h-full flex-col">
-        <div className="flex items-center px-[5cqw] py-[3cqw]" style={{ background: fill }}>
+        <div data-header="row" className="flex items-center px-[5cqw] py-[3cqw]" style={{ background: fill }}>
           {nav === 'center' ? (
             <div className="grid w-full grid-cols-3 items-center">
               <Logo src={logo} />
@@ -433,7 +451,7 @@ export default function HeaderPreview({
   return (
     <header className="flex h-full flex-col">
       {structure === 'utility-social' ? (
-        <div className="grid grid-cols-3 items-center px-[5cqw] py-[3cqw]">
+        <div data-header="row" className="grid grid-cols-3 items-center px-[5cqw] py-[3cqw]">
           <EmailLine text={content?.email} />
           <div className="flex justify-center">
             <Logo src={logo} />
@@ -443,7 +461,7 @@ export default function HeaderPreview({
           </div>
         </div>
       ) : (
-        <div className="flex items-center justify-between px-[5cqw] py-[3cqw]">
+        <div data-header="row" className="flex items-center justify-between px-[5cqw] py-[3cqw]">
           <Logo src={logo} />
           <CallUs phone={content?.phone} />
         </div>
