@@ -254,9 +254,19 @@ export default function CtaPreview({
   const centered = spec.align === 'center'
 
   return (
+    // Centred, so what the band has spare — or is short of — is shared between
+    // top and bottom rather than all landing at the bottom.
+    //
+    // Every band draws its copy with matching margins: 85 above the eyebrow and
+    // 79 below the buttons in V3, 80 and 82 in V4, 85 and 79 in V9 and V10. The
+    // padding was already that 79, but the block stacked from the top, and our
+    // type runs taller than the drawn type — enough that V9 and V10 reached
+    // within 1 of the bottom edge while keeping the full 79 above. Centring
+    // splits the difference and the margins match again, which is what the
+    // set draws even though the number is now smaller than 79.
     <section
       aria-label="Get in touch"
-      className="relative flex h-full flex-col overflow-hidden px-[8.3cqw] py-[5.5cqw]"
+      className="relative flex h-full flex-col justify-center overflow-hidden px-[8.3cqw] py-[5.5cqw]"
       style={spec.ground === 'green' ? { background: BAND_GREEN } : undefined}
     >
       {spec.ground === 'photo' && <PhotoGround src={content?.image} />}
