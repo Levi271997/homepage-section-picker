@@ -199,8 +199,23 @@ const CONTACT_RATIOS: Record<string, string> = {
   v2: 'aspect-[1440/648]',
   v3: 'aspect-[1440/648]',
   v4: 'aspect-[1440/648]',
-  v5: 'aspect-[1440/820]',
-  v6: 'aspect-[1440/790]',
+  /*
+   * V5 and V6 take the height their contents come to rather than a drawn one.
+   *
+   * Both are drawn with 80 above and 80 below — the picture and the form run
+   * the same span, which is the whole of why the two artboards differ in
+   * height by exactly their pictures. A fixed 820 and 790 held that only while
+   * the copy was the copy in the file: ours runs taller, the column overflowed
+   * by about 51, and all of it came off the bottom margin, leaving 79 above
+   * and 28 below. It would drift again the moment anyone typed a longer
+   * sentence or added a field.
+   *
+   * Sized to content, the section is the 5.5cqw padding plus whatever the
+   * column needs plus the same 5.5cqw, so the two margins are equal by
+   * construction and stay that way whatever is typed into it.
+   */
+  v5: 'h-auto',
+  v6: 'h-auto',
 }
 
 /**
