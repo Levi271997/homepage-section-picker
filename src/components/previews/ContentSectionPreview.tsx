@@ -49,6 +49,8 @@ type Spec = {
   bleed?: boolean
   /** Email capture in place of the two buttons. */
   actions?: 'email'
+  /** Smaller bullet dots on the ticks, or before the email note. */
+  smallDots?: boolean
   /** A 2×2 block of small cards stands where the image would be. */
   cards?: boolean
   /** Text columns under the wide image, on the stacked designs. */
@@ -60,15 +62,15 @@ type Spec = {
 const SPECS: Record<string, Spec> = {
   v1: { frame: 'split', side: 'right' },
   v2: { frame: 'split', side: 'left' },
-  v3: { frame: 'split', side: 'right', list: 'ticks', ticks: 3 },
-  v4: { frame: 'split', side: 'left', list: 'ticks', ticks: 3 },
-  v5: { frame: 'split', side: 'right', list: 'ticks', ticks: 6 },
-  v6: { frame: 'split', side: 'left', list: 'ticks', ticks: 6 },
-  v7: { frame: 'split', side: 'right', list: 'ticks', ticks: 3, bleed: true },
-  v8: { frame: 'split', side: 'left', list: 'ticks', ticks: 3, bleed: true },
+  v3: { frame: 'split', side: 'right', list: 'ticks', ticks: 3, smallDots: true },
+  v4: { frame: 'split', side: 'left', list: 'ticks', ticks: 3, smallDots: true },
+  v5: { frame: 'split', side: 'right', list: 'ticks', ticks: 6, smallDots: true },
+  v6: { frame: 'split', side: 'left', list: 'ticks', ticks: 6, smallDots: true },
+  v7: { frame: 'split', side: 'right', list: 'ticks', ticks: 3, bleed: true, smallDots: true },
+  v8: { frame: 'split', side: 'left', list: 'ticks', ticks: 3, bleed: true, smallDots: true },
   v9: { frame: 'split', side: 'right', list: 'media', bleed: true },
   v10: { frame: 'split', side: 'left', list: 'media', bleed: true },
-  v13: { frame: 'split', side: 'left', actions: 'email' },
+  v13: { frame: 'split', side: 'left', actions: 'email', smallDots: true },
   v15: { frame: 'split', side: 'right', list: 'stats' },
   v16: { frame: 'split', side: 'left', list: 'stats' },
   v17: { frame: 'stacked', header: 'centered', columns: 3 },
@@ -90,10 +92,10 @@ function Buttons({ primary, secondary, radius }: { primary?: string; secondary?:
 }
 
 /** Green tick followed by a line of text. */
-function CheckRow({ text }: { text?: string }) {
+function CheckRow({ text, small }: { text?: string; small?: boolean }) {
   return (
     <li className="flex items-center gap-[1.5cqw]">
-      <span aria-hidden="true" className="size-[2cqw] shrink-0 rounded-full" style={{ background: GREEN }} />
+      <span aria-hidden="true" className={`${small ? 'size-[1.2cqw]' : 'size-[2cqw]'} shrink-0 rounded-full`} style={{ background: GREEN }} />
       {text ? (
         <span className="text-[1.7cqw] leading-tight text-neutral-700">{text}</span>
       ) : (
@@ -104,7 +106,7 @@ function CheckRow({ text }: { text?: string }) {
 }
 
 /** Email field and submit sharing one row, with the reassurance under it. */
-function EmailCapture({ content, radius }: { content?: SectionContent; radius?: string }) {
+function EmailCapture({ content, radius, smallDot }: { content?: SectionContent; radius?: string; smallDot?: boolean }) {
   return (
     <form className="mt-[1cqw] flex w-full flex-col gap-[1.2cqw]" onSubmit={(e) => e.preventDefault()}>
       <div className="flex items-stretch gap-[1.2cqw]">
@@ -121,7 +123,7 @@ function EmailCapture({ content, radius }: { content?: SectionContent; radius?: 
       </div>
       {content?.note && (
         <p className="flex items-center gap-[1cqw]">
-          <span aria-hidden="true" className="size-[1.6cqw] shrink-0 rounded-full" style={{ background: GREEN }} />
+          <span aria-hidden="true" className={`${smallDot ? 'size-[1cqw]' : 'size-[1.6cqw]'} shrink-0 rounded-full`} style={{ background: GREEN }} />
           <span className="text-[1.3cqw] leading-none text-neutral-500">{content.note}</span>
         </p>
       )}
@@ -278,7 +280,7 @@ function Copy({ spec, content, corners }: { spec: Spec; content?: SectionContent
       {spec.list === 'ticks' && (
         <ul className="mt-[0.8cqw] flex flex-col gap-[1.2cqw]">
           {Array.from({ length: spec.ticks ?? 3 }, (_, i) => (
-            <CheckRow key={i} text={named ? itemAt(content?.items, i) : undefined} />
+            <CheckRow key={i} small={spec.smallDots} text={named ? itemAt(content?.items, i) : undefined} />
           ))}
         </ul>
       )}
@@ -308,7 +310,7 @@ function Copy({ spec, content, corners }: { spec: Spec; content?: SectionContent
       )}
 
       {spec.actions === 'email' ? (
-        <EmailCapture content={content} radius={corners.button} />
+        <EmailCapture content={content} radius={corners.button} smallDot={spec.smallDots} />
       ) : (
         <Buttons primary={content?.cta} secondary={content?.cta2} radius={corners.button} />
       )}
