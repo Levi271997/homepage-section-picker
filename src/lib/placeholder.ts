@@ -14,7 +14,7 @@ const SIZES: Record<Shape, [number, number]> = {
   portrait: [480, 640],
   square: [480, 480],
   wide: [1200, 420],
-  logo: [320, 96],
+  logo: [120, 56],
 }
 
 /**
@@ -31,7 +31,16 @@ const TONES: [panel: string, glyph: string][] = [
   ['#e5e9e6', '#b8c3bb'],
 ]
 
+/**
+ * The logo placeholder: the word "Logo" and nothing behind it, so it sits on
+ * whatever the header or footer is filled with. Pinned to its box with
+ * `textLength`, because the font is whatever the viewer's system substitutes
+ * and an unpinned word could run past the edge.
+ */
+const LOGO_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="120" height="56" viewBox="0 0 120 56"><text x="0" y="43" textLength="116" lengthAdjust="spacingAndGlyphs" font-family="Arial, Helvetica, sans-serif" font-size="44" font-weight="700" fill="#2b2421">Logo</text></svg>`
+
 function svg(shape: Shape, tone: number): string {
+  if (shape === 'logo') return LOGO_SVG
   const [PANEL, GLYPH] = TONES[tone % TONES.length]
   const [w, h] = SIZES[shape]
 
@@ -42,10 +51,7 @@ function svg(shape: Shape, tone: number): string {
   const cy = h / 2
   const s = unit * 0.22
 
-  const body =
-    shape === 'logo'
-      ? `<rect x="${cx - s * 1.6}" y="${cy - s * 0.35}" width="${s * 3.2}" height="${s * 0.7}" rx="${s * 0.14}" fill="${GLYPH}"/>`
-      : `<circle cx="${cx + s * 0.55}" cy="${cy - s * 0.5}" r="${s * 0.28}" fill="${GLYPH}"/>
+  const body = `<circle cx="${cx + s * 0.55}" cy="${cy - s * 0.5}" r="${s * 0.28}" fill="${GLYPH}"/>
          <path d="M ${cx - s} ${cy + s * 0.7} L ${cx - s * 0.25} ${cy - s * 0.15} L ${cx + s * 0.35} ${cy + s * 0.45} L ${cx + s * 0.7} ${cy + s * 0.1} L ${cx + s * 1.1} ${cy + s * 0.7} Z" fill="${GLYPH}"/>`
 
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><rect width="${w}" height="${h}" fill="${PANEL}"/>${body}</svg>`

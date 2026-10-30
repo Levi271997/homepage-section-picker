@@ -1,6 +1,7 @@
 import { itemAt, linesOf } from '@/lib/content'
 import type { SectionContent } from '@/lib/content'
-import { cornersOf, FIELD_JUDGED, FIELD_SHELL, ImageBlock, SOCIAL_GLYPHS } from '@/components/previews/parts'
+import { placeholderImage } from '@/lib/placeholder'
+import { cornersOf, FIELD_JUDGED, FIELD_SHELL, SOCIAL_GLYPHS } from '@/components/previews/parts'
 
 /** The design set, by its Figma name — 'v1' … 'v8'. */
 export type FooterDesign = string
@@ -15,6 +16,7 @@ const TAN = 'var(--brand-accent,#917061)'
 const BODY = '#563f3d'
 const HAIRLINE = '#d0c3b8'
 const LIGHT = '#f5f3f1'
+const LOGO = placeholderImage('logo')
 
 /** The circled check beside the sign-up note, the same glyph the rest of the sets use. */
 const CHECK =
@@ -58,15 +60,15 @@ const SPECS: Record<string, Spec> = {
 /** Five under every heading, as the set draws them. */
 const LINKS_PER_COLUMN = 5
 
-/** The logo, at the 172×54 the set gives it — or the taller lockup V4 stands alone on. */
+/**
+ * The logo, at the 172×54 the set gives it — or the taller lockup V4 stands
+ * alone on. The "Logo" placeholder where there isn't one.
+ */
 function Logo({ className = 'h-[3.75cqw] w-[11.94cqw]', src }: { className?: string; src?: string }) {
-  if (src) {
-    return (
-      // eslint-disable-next-line @next/next/no-img-element -- arbitrary URL or data URI
-      <img src={src} alt="" loading="lazy" className={`${className} object-contain object-left`} />
-    )
-  }
-  return <ImageBlock className={className} />
+  return (
+    // eslint-disable-next-line @next/next/no-img-element -- arbitrary URL or data URI
+    <img src={src || LOGO} alt="" loading="lazy" className={`${className} object-contain object-left`} />
+  )
 }
 
 /** "Copyright © 2024 Digitalfeet | All Rights Reserved" */

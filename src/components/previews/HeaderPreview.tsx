@@ -1,6 +1,7 @@
 import { cornersOf, SOCIAL_GLYPHS } from '@/components/previews/parts'
 import { linesOf } from '@/lib/content'
 import type { SectionContent } from '@/lib/content'
+import { isPlaceholder, placeholderImage } from '@/lib/placeholder'
 
 export type HeaderChoice = {
   structure: string
@@ -20,23 +21,28 @@ const BAND_FILL: Record<string, string | undefined> = {
   green: 'var(--brand-soft,#dceccf)',
 }
 
-function Logo({ src }: { src?: string | null }) {
-  if (src) {
-    return (
-      // eslint-disable-next-line @next/next/no-img-element -- a third-party URL from the client's own site
-      <img
-        src={src}
-        alt=""
-        loading="lazy"
-        onError={(e) => {
-          e.currentTarget.style.visibility = 'hidden'
-        }}
-        data-header="logo"
-        className="block h-[4.5cqw] w-auto max-w-[24cqw] object-contain object-left"
-      />
-    )
-  }
-  return <span aria-hidden="true" data-header="logo" className="block h-[4cqw] w-[15cqw] rounded-[1px] bg-neutral-300" />
+const LOGO = placeholderImage('logo')
+
+/**
+ * The client's logo, or the "Logo" placeholder where there isn't one. On the
+ * dark band the placeholder is turned white — its dark type would vanish
+ * there — but a real logo is left exactly as supplied.
+ */
+function Logo({ src, onDark }: { src?: string | null; onDark?: boolean }) {
+  const placeholder = !src || isPlaceholder(src)
+  return (
+    // eslint-disable-next-line @next/next/no-img-element -- a third-party URL from the client's own site
+    <img
+      src={src || LOGO}
+      alt=""
+      loading="lazy"
+      onError={(e) => {
+        e.currentTarget.style.visibility = 'hidden'
+      }}
+      data-header="logo"
+      className={`block h-[4.5cqw] w-auto max-w-[24cqw] object-contain object-left ${placeholder && onDark ? 'brightness-0 invert' : ''}`}
+    />
+  )
 }
 
 /**
@@ -430,7 +436,7 @@ export default function HeaderPreview({
         <div data-header="row" className="flex items-center px-[5cqw] py-[3cqw]" style={{ background: fill }}>
           {nav === 'center' ? (
             <div className="grid w-full grid-cols-3 items-center">
-              <Logo src={logo} />
+              <Logo src={logo} onDark={onDark} />
               <div className="flex justify-center">
                 <Nav onDark={onDark} labels={labels} accent={accent} menu={menu} />
               </div>
@@ -440,7 +446,7 @@ export default function HeaderPreview({
             </div>
           ) : nav === 'left' ? (
             <div className="flex w-full items-center gap-[4cqw]">
-              <Logo src={logo} />
+              <Logo src={logo} onDark={onDark} />
               <Nav onDark={onDark} labels={labels} accent={accent} menu={menu} />
               <div className="ml-auto">
                 <Cta kind={cta} accent={accent} label={ctaLabel} radius={buttonRadius} />
@@ -448,7 +454,7 @@ export default function HeaderPreview({
             </div>
           ) : (
             <div className="flex w-full items-center">
-              <Logo src={logo} />
+              <Logo src={logo} onDark={onDark} />
               <div className="ml-auto flex items-center gap-[4cqw]">
                 <Nav onDark={onDark} labels={labels} accent={accent} menu={menu} />
                 <Cta kind={cta} accent={accent} label={ctaLabel} radius={buttonRadius} />
