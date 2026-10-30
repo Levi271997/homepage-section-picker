@@ -20,6 +20,9 @@ export type ContentSectionChoice = {
   imageRadius?: string
 }
 
+/** A length on the 1440-wide artboard, in the cqw everything here is sized in. */
+const cqw = (px: number) => `${(px / 14.4).toFixed(2)}cqw`
+
 const GREEN = 'var(--brand,#3f6b30)'
 const TAN = 'var(--brand-accent,#a1806a)'
 const PANEL = 'var(--brand-soft,#eef4ea)'
@@ -39,6 +42,12 @@ const PANEL = 'var(--brand-soft,#eef4ea)'
 type Spec = {
   /** copy beside media | heading above media | copy between cards | copy alone */
   frame: 'split' | 'stacked' | 'flanked' | 'banner'
+  /**
+   * The artboard's height at 1440 wide. A floor, not a fixed size: the section
+   * stands at least this tall, so it looks as drawn, and grows past it when the
+   * copy runs longer than the file's — a fixed height cut the column off.
+   */
+  height: number
   /** Which side the media sits on, for split designs. */
   side?: 'left' | 'right'
   /** What sits under the paragraph in the copy column. */
@@ -60,26 +69,26 @@ type Spec = {
 }
 
 const SPECS: Record<string, Spec> = {
-  v1: { frame: 'split', side: 'right' },
-  v2: { frame: 'split', side: 'left' },
-  v3: { frame: 'split', side: 'right', list: 'ticks', ticks: 3, smallDots: true },
-  v4: { frame: 'split', side: 'left', list: 'ticks', ticks: 3, smallDots: true },
-  v5: { frame: 'split', side: 'right', list: 'ticks', ticks: 6, smallDots: true },
-  v6: { frame: 'split', side: 'left', list: 'ticks', ticks: 6, smallDots: true },
-  v7: { frame: 'split', side: 'right', list: 'ticks', ticks: 3, bleed: true, smallDots: true },
-  v8: { frame: 'split', side: 'left', list: 'ticks', ticks: 3, bleed: true, smallDots: true },
-  v9: { frame: 'split', side: 'right', list: 'media', bleed: true },
-  v10: { frame: 'split', side: 'left', list: 'media', bleed: true },
-  v13: { frame: 'split', side: 'left', actions: 'email', smallDots: true },
-  v15: { frame: 'split', side: 'right', list: 'stats' },
-  v16: { frame: 'split', side: 'left', list: 'stats' },
-  v17: { frame: 'stacked', header: 'centered', columns: 3 },
-  v18: { frame: 'stacked', header: 'left', columns: 3 },
-  v19: { frame: 'split', side: 'right', cards: true },
-  v20: { frame: 'split', side: 'left', cards: true },
-  v21: { frame: 'flanked', header: 'centered' },
-  v22: { frame: 'banner' },
-  v23: { frame: 'split', side: 'right', actions: 'email' },
+  v1: { frame: 'split', side: 'right', height: 613 },
+  v2: { frame: 'split', side: 'left', height: 613 },
+  v3: { frame: 'split', side: 'right', list: 'ticks', ticks: 3, smallDots: true, height: 613 },
+  v4: { frame: 'split', side: 'left', list: 'ticks', ticks: 3, smallDots: true, height: 613 },
+  v5: { frame: 'split', side: 'right', list: 'ticks', ticks: 6, smallDots: true, height: 660 },
+  v6: { frame: 'split', side: 'left', list: 'ticks', ticks: 6, smallDots: true, height: 660 },
+  v7: { frame: 'split', side: 'right', list: 'ticks', ticks: 3, bleed: true, smallDots: true, height: 652 },
+  v8: { frame: 'split', side: 'left', list: 'ticks', ticks: 3, bleed: true, smallDots: true, height: 652 },
+  v9: { frame: 'split', side: 'right', list: 'media', bleed: true, height: 652 },
+  v10: { frame: 'split', side: 'left', list: 'media', bleed: true, height: 652 },
+  v13: { frame: 'split', side: 'left', actions: 'email', smallDots: true, height: 613 },
+  v15: { frame: 'split', side: 'right', list: 'stats', height: 696 },
+  v16: { frame: 'split', side: 'left', list: 'stats', height: 688 },
+  v17: { frame: 'stacked', header: 'centered', columns: 3, height: 1053 },
+  v18: { frame: 'stacked', header: 'left', columns: 3, height: 967 },
+  v19: { frame: 'split', side: 'right', cards: true, height: 614 },
+  v20: { frame: 'split', side: 'left', cards: true, height: 614 },
+  v21: { frame: 'flanked', header: 'centered', height: 941 },
+  v22: { frame: 'banner', height: 351 },
+  v23: { frame: 'split', side: 'right', actions: 'email', height: 613 },
 }
 
 function Buttons({ primary, secondary, radius }: { primary?: string; secondary?: string; radius?: string }) {
@@ -318,6 +327,25 @@ function Copy({ spec, content, corners }: { spec: Spec; content?: SectionContent
   )
 }
 
+/**
+ * A picture that takes the size the layout gives it.
+ *
+ * Positioned over an empty box rather than laid out itself: a client's photo
+ * brings its own proportions, and a stretched `img` lets them push the section
+ * taller than its copy needs. The box has none, so only the layout sizes it.
+ */
+function Fill({ className, src, radius, bleed }: { className: string; src?: string; radius?: string; bleed?: boolean }) {
+  return (
+    <div className={`relative ${className}`}>
+      <ImageBlock
+        className={`absolute inset-0 size-full ${bleed ? 'border-0' : ''}`}
+        radius={bleed ? 'rounded-none' : radius}
+        src={src}
+      />
+    </div>
+  )
+}
+
 /** Miniature of what the content section will look like on the page. */
 export default function ContentSectionPreview({
   design,
@@ -330,6 +358,8 @@ export default function ContentSectionPreview({
   const list = linesOf(content?.items)
   const named = list.length > 0
   const src = content?.image
+
+  const minHeight = { minHeight: cqw(spec.height) }
 
   const card = (i: number, centered?: boolean) => (
     <MiniCard
@@ -346,7 +376,7 @@ export default function ContentSectionPreview({
     // No image and no eyebrow: the shortest design in the set is a heading,
     // a sentence and the two buttons.
     return (
-      <section className="flex h-full flex-col justify-center gap-[1.6cqw] px-[5cqw] py-[5cqw]">
+      <section className="flex flex-col justify-center gap-[1.6cqw] px-[5cqw] py-[5cqw]" style={minHeight}>
         <HeadlineLine className={content?.heading ? 'w-[70%]' : 'w-[45%]'} text={content?.heading} />
         <BodyLine className="w-[70%]" text={content?.body} />
         <Buttons primary={content?.cta} secondary={content?.cta2} radius={corners.button} />
@@ -356,13 +386,13 @@ export default function ContentSectionPreview({
 
   if (spec.frame === 'flanked') {
     return (
-      <section className="flex h-full flex-col gap-[4cqw] px-[5cqw] py-[5cqw]">
+      <section className="flex flex-col gap-[4cqw] px-[5cqw] py-[5cqw]" style={minHeight}>
         <Header spec={spec} content={content} corners={corners} />
-        <div className="flex min-h-0 flex-1 items-center gap-[4cqw]">
+        <div className="flex flex-1 items-center gap-[4cqw]">
           <ul className="flex w-[28%] shrink-0 flex-col gap-[3cqw]">{[0, 1].map((i) => card(i, true))}</ul>
           {/* The picture the pairs face across — drawn upright, so it takes the
-              height the frame leaves rather than a ratio of its own. */}
-          <ImageBlock className="h-full min-w-0 flex-1" radius={corners.image} src={src} />
+              height the row comes to rather than a ratio of its own. */}
+          <Fill className="min-w-0 flex-1 self-stretch" radius={corners.image} src={src} />
           <ul className="flex w-[28%] shrink-0 flex-col gap-[3cqw]">{[2, 3].map((i) => card(i, true))}</ul>
         </div>
       </section>
@@ -371,9 +401,10 @@ export default function ContentSectionPreview({
 
   if (spec.frame === 'stacked') {
     return (
-      <section className="flex h-full flex-col gap-[4cqw] px-[5cqw] py-[5cqw]">
+      <section className="flex flex-col gap-[4cqw] px-[5cqw] py-[5cqw]" style={minHeight}>
         <Header spec={spec} content={content} corners={corners} />
-        <ImageBlock className="min-h-0 w-full flex-1" radius={corners.image} src={src} />
+        {/* Takes what the floor leaves over, but never less than a band. */}
+        <Fill className="min-h-[20cqw] w-full flex-1" radius={corners.image} src={src} />
         <ul className="grid shrink-0 grid-cols-3 gap-[3cqw]">
           {Array.from({ length: spec.columns ?? 3 }, (_, i) => (
             <TextColumn
@@ -391,12 +422,15 @@ export default function ContentSectionPreview({
   // Split: copy one side, media the other.
   const visual = spec.cards ? (
     <ul className="grid w-[46%] shrink-0 grid-cols-2 gap-x-[3cqw] gap-y-[3cqw]">{[0, 1, 2, 3].map((i) => card(i))}</ul>
+  ) : spec.bleed ? (
+    // Stretched rather than sized, so it runs top to bottom however tall the copy makes the section.
+    <Fill className="w-[46%] shrink-0 self-stretch" bleed src={src} />
   ) : (
-    <ImageBlock
-      className={spec.bleed ? 'h-full w-[46%] shrink-0 border-0' : 'h-[78%] w-[46%] shrink-0'}
-      radius={spec.bleed ? 'rounded-none' : corners.image}
-      src={src}
-    />
+    // Inset, it keeps the height it's drawn at — 78% of the artboard inside its
+    // padding — and stays centred if the copy runs taller.
+    <div className="w-[46%] shrink-0" style={{ height: cqw(0.78 * (spec.height - 144)) }}>
+      <ImageBlock className="size-full" radius={corners.image} src={src} />
+    </div>
   )
 
   const imageFirst = spec.side === 'left'
@@ -407,7 +441,7 @@ export default function ContentSectionPreview({
   const copyPad = spec.bleed ? (imageFirst ? 'py-[5cqw] pr-[5cqw]' : 'py-[5cqw] pl-[5cqw]') : ''
 
   return (
-    <section className={`flex h-full items-center ${frame}`}>
+    <section className={`flex items-center ${frame}`} style={minHeight}>
       {imageFirst && visual}
       <div className={`flex min-w-0 flex-1 ${copyPad}`}>
         <Copy spec={spec} content={content} corners={corners} />

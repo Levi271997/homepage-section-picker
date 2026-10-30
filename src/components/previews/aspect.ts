@@ -73,34 +73,6 @@ const CARD_RATIOS: Record<string, Record<string, string>> = {
 }
 
 /**
- * Content section heights, from the artboards the designs were exported at.
- * The banner is a strip at 1440×351; the flanked and stacked designs are the
- * tall ones. Same literal-class rule as the cards above.
- */
-const SECTION_RATIOS: Record<string, string> = {
-  v1: 'aspect-[1440/613]',
-  v2: 'aspect-[1440/613]',
-  v3: 'aspect-[1440/613]',
-  v4: 'aspect-[1440/613]',
-  v5: 'aspect-[1440/660]',
-  v6: 'aspect-[1440/660]',
-  v7: 'aspect-[1440/652]',
-  v8: 'aspect-[1440/652]',
-  v9: 'aspect-[1440/652]',
-  v10: 'aspect-[1440/652]',
-  v13: 'aspect-[1440/613]',
-  v15: 'aspect-[1440/696]',
-  v16: 'aspect-[1440/688]',
-  v17: 'aspect-[1440/1053]',
-  v18: 'aspect-[1440/967]',
-  v19: 'aspect-[1440/614]',
-  v20: 'aspect-[1440/614]',
-  v21: 'aspect-[1440/941]',
-  v22: 'aspect-[1440/351]',
-  v23: 'aspect-[1440/613]',
-}
-
-/**
  * Testimonial heights, from the artboards the designs were exported at. The
  * three-up grids are the short ones; V4's two rows of portraits and V6's two
  * rows of cards are the tall ones. Same literal-class rule as above.
@@ -241,7 +213,9 @@ export function aspectFor(id: string, choice: Choice): string {
     case 'content-card':
       return CARD_RATIOS[choice.design]?.[choice.rows] ?? 'aspect-16/10'
     case 'content-section':
-      return SECTION_RATIOS[choice.design] ?? 'aspect-[1440/613]'
+      // No ratio: each design stands at least as tall as its artboard and grows
+      // past it when the copy runs longer. The floors live in its own SPECS.
+      return 'h-auto'
     case 'client-quote':
       return QUOTE_RATIOS[choice.design] ?? 'aspect-[1440/731]'
     case 'site-header':
