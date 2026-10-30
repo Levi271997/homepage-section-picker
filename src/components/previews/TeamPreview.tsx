@@ -9,6 +9,7 @@ export type TeamChoice = {
   design: TeamDesign
   buttonRadius?: string
   imageRadius?: string
+  cardRadius?: string
 }
 
 const TAN = 'var(--brand-accent,#a1806a)'
@@ -50,8 +51,10 @@ function Member({
   role,
   src,
   radius,
+  cardRadius,
 }: {
   spec: Spec
+  cardRadius?: string
   name?: string
   role?: string
   src?: string
@@ -62,7 +65,7 @@ function Member({
   return (
     <li
       className={`flex flex-col gap-[2.2cqw] ${centered ? 'items-center' : 'items-start'} ${
-        spec.card ? 'rounded-xs border p-[2.2cqw]' : ''
+        spec.card ? `${cardRadius ?? 'rounded-xs'} border p-[2.2cqw]` : ''
       }`}
       style={spec.card ? { borderColor: HAIRLINE } : undefined}
     >
@@ -96,10 +99,11 @@ export default function TeamPreview({
   design,
   buttonRadius,
   imageRadius,
+  cardRadius,
   content,
 }: TeamChoice & { content?: SectionContent }) {
   const spec = SPECS[design] ?? SPECS.v1
-  const corners = cornersOf(buttonRadius, imageRadius)
+  const corners = cornersOf(buttonRadius, imageRadius, cardRadius)
   const names = linesOf(content?.items)
 
   return (
@@ -129,6 +133,7 @@ export default function TeamPreview({
             role={itemAt(content?.roles, i) || undefined}
             src={content?.image}
             radius={corners.image}
+            cardRadius={corners.card}
           />
         ))}
       </ul>

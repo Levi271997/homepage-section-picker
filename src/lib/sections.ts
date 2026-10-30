@@ -212,8 +212,8 @@ export const CONTENT_CARD_GROUPS: OptionGroup[] = [
   // V13 and V14 are drawn square, V16's panel is squared against its card, and
   // the numbered designs carry no picture.
   imageRadiusGroup(exceptDesigns('v13', 'v14', 'v16', 'v19', 'v20', 'v21', 'v22')),
-  // The even designs are the ones that enclose each card in a box.
-  cardRadiusGroup(onDesigns('v4', 'v6', 'v8', 'v10', 'v12', 'v14', 'v16', 'v18', 'v20', 'v22')),
+  // The designs that enclose each card in a box.
+  cardRadiusGroup(onDesigns('v3', 'v4', 'v6', 'v8', 'v10', 'v12', 'v14', 'v16', 'v18', 'v20', 'v22')),
 ]
 
 /**
@@ -416,6 +416,8 @@ export const TEAM_GROUPS: OptionGroup[] = [
   },
   buttonRadiusGroup(),
   imageRadiusGroup(),
+  // The outlined design.
+  cardRadiusGroup(onDesigns('v2')),
 ]
 
 /**
@@ -443,6 +445,8 @@ export const TESTIMONIAL_GROUPS: OptionGroup[] = [
   },
   buttonRadiusGroup(),
   imageRadiusGroup(),
+  // The outlined and raised grids, and the carousel's tinted panel.
+  cardRadiusGroup(onDesigns('v1', 'v2', 'v5', 'v6')),
 ]
 
 /**
@@ -498,6 +502,8 @@ export const BLOGS_GROUPS: OptionGroup[] = [
   },
   buttonRadiusGroup(),
   imageRadiusGroup(),
+  // The outlined designs.
+  cardRadiusGroup(onDesigns('v1', 'v5', 'v6')),
 ]
 
 /**
@@ -526,6 +532,8 @@ export const CONTACT_FORM_GROUPS: OptionGroup[] = [
   },
   buttonRadiusGroup(),
   imageRadiusGroup(onDesigns('v5', 'v6')),
+  // The four that set the form on a panel.
+  cardRadiusGroup(onDesigns('v1', 'v2', 'v3', 'v4')),
 ]
 
 /**

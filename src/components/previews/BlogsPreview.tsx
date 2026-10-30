@@ -10,6 +10,7 @@ export type BlogsChoice = {
   design: BlogsDesign
   buttonRadius?: string
   imageRadius?: string
+  cardRadius?: string
 }
 
 const GREEN = 'var(--brand,#4b7b35)'
@@ -174,7 +175,7 @@ function Post({
     <li>
       <article
         // 16px of padding and an 8px radius, as the outlined designs are drawn.
-        className={`flex h-full flex-col ${spec.card ? 'rounded-[0.55cqw] border p-[1.1cqw]' : ''}`}
+        className={`flex h-full flex-col ${spec.card ? `${corners.card ?? 'rounded-[0.55cqw]'} border p-[1.1cqw]` : ''}`}
         style={spec.card ? { borderColor: HAIRLINE } : undefined}
       >
         {/* 195 tall in all six, whatever the column does around it. */}
@@ -227,10 +228,11 @@ export default function BlogsPreview({
   design,
   buttonRadius,
   imageRadius,
+  cardRadius,
   content,
 }: BlogsChoice & { content?: SectionContent }) {
   const spec = SPECS[design] ?? SPECS.v1
-  const corners = cornersOf(buttonRadius, imageRadius)
+  const corners = cornersOf(buttonRadius, imageRadius, cardRadius)
   const count = spec.rows * COLUMNS
   const titles = linesOf(content?.items)
   // "Insights · 12 March" — one field carrying both halves of the meta line.

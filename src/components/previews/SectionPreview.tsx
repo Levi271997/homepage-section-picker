@@ -81,15 +81,15 @@ export default function SectionPreview({
     case 'faq':
       return <FaqPreview design={choice.design} buttonRadius={choice.buttonRadius} content={c} />
     case 'about-team':
-      return <TeamPreview design={choice.design} buttonRadius={choice.buttonRadius} imageRadius={choice.imageRadius} content={c} />
+      return <TeamPreview design={choice.design} buttonRadius={choice.buttonRadius} imageRadius={choice.imageRadius} cardRadius={choice.cardRadius} content={c} />
     case 'client-quote':
-      return <TestimonialsPreview design={choice.design} buttonRadius={choice.buttonRadius} imageRadius={choice.imageRadius} content={c} />
+      return <TestimonialsPreview design={choice.design} buttonRadius={choice.buttonRadius} imageRadius={choice.imageRadius} cardRadius={choice.cardRadius} content={c} />
     case 'pricing':
       return <PricingPreview design={choice.design} buttonRadius={choice.buttonRadius} imageRadius={choice.imageRadius} cardRadius={choice.cardRadius} content={c} />
     case 'blogs':
-      return <BlogsPreview design={choice.design} buttonRadius={choice.buttonRadius} imageRadius={choice.imageRadius} content={c} />
+      return <BlogsPreview design={choice.design} buttonRadius={choice.buttonRadius} imageRadius={choice.imageRadius} cardRadius={choice.cardRadius} content={c} />
     case 'contact-form':
-      return <ContactFormPreview design={choice.design} buttonRadius={choice.buttonRadius} imageRadius={choice.imageRadius} content={c} />
+      return <ContactFormPreview design={choice.design} buttonRadius={choice.buttonRadius} imageRadius={choice.imageRadius} cardRadius={choice.cardRadius} content={c} />
     case 'site-footer':
       return <FooterPreview design={choice.design} buttonRadius={choice.buttonRadius} copy={c} />
     case 'content-section':

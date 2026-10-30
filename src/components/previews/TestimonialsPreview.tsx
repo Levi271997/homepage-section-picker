@@ -20,6 +20,7 @@ export type TestimonialsChoice = {
   design: TestimonialsDesign
   buttonRadius?: string
   imageRadius?: string
+  cardRadius?: string
 }
 
 const GREEN = 'var(--brand,#3f6b30)'
@@ -187,13 +188,16 @@ function Attribution({
   )
 }
 
-/** Background, border and corners of the box a design sets its quotes in. */
-function container(spec: Spec): { className: string; style?: CSSProperties } {
+/**
+ * Background, border and corners of the box a design sets its quotes in. The
+ * card setting, once it's moved off `subtle`, overrides the drawn corners.
+ */
+function container(spec: Spec, radius?: string): { className: string; style?: CSSProperties } {
   switch (spec.card) {
     case 'bordered':
-      return { className: 'rounded-xs border p-[1.6cqw]', style: { borderColor: HAIRLINE } }
+      return { className: `${radius ?? 'rounded-xs'} border p-[1.6cqw]`, style: { borderColor: HAIRLINE } }
     case 'raised':
-      return { className: 'rounded-sm bg-white p-[1.6cqw] shadow-[0_1.2cqw_2.2cqw_rgba(62,52,69,0.10)]' }
+      return { className: `${radius ?? 'rounded-sm'} bg-white p-[1.6cqw] shadow-[0_1.2cqw_2.2cqw_rgba(62,52,69,0.10)]` }
     default:
       return { className: '' }
   }
@@ -207,6 +211,7 @@ function QuoteCard({
   role,
   src,
   radius,
+  cardRadius,
 }: {
   spec: Spec
   quote?: string
@@ -214,8 +219,9 @@ function QuoteCard({
   role?: string
   src?: string
   radius?: string
+  cardRadius?: string
 }) {
-  const box = container(spec)
+  const box = container(spec, cardRadius)
   return (
     <li>
       {/* Justified, so the attribution sits on the card's floor however long
@@ -362,7 +368,7 @@ function CarouselFrame({
           </button>
 
           <div
-            className="min-w-0 flex-1 overflow-hidden rounded-sm px-[4cqw] py-[3cqw]"
+            className={`min-w-0 flex-1 overflow-hidden ${corners.card ?? 'rounded-sm'} px-[4cqw] py-[3cqw]`}
             style={{ background: PANEL }}
           >
             <Swiper
@@ -431,10 +437,11 @@ export default function TestimonialsPreview({
   design,
   buttonRadius,
   imageRadius,
+  cardRadius,
   content,
 }: TestimonialsChoice & { content?: SectionContent }) {
   const spec = SPECS[design] ?? SPECS.v1
-  const corners = cornersOf(buttonRadius, imageRadius)
+  const corners = cornersOf(buttonRadius, imageRadius, cardRadius)
   const quotes = linesOf(content?.items)
 
   /** Everything one testimonial needs, wrapping so short lists still fill a grid. */
@@ -470,7 +477,7 @@ export default function TestimonialsPreview({
           spec.frame === 'media' ? (
             <MediaQuote key={i} spec={spec} {...at(i)} />
           ) : (
-            <QuoteCard key={i} spec={spec} {...at(i)} />
+            <QuoteCard key={i} spec={spec} cardRadius={corners.card} {...at(i)} />
           ),
         )}
       </ul>

@@ -9,6 +9,7 @@ export type ContactFormChoice = {
   design: ContactFormDesign
   buttonRadius?: string
   imageRadius?: string
+  cardRadius?: string
 }
 
 const GREEN = 'var(--brand,#4b7b35)'
@@ -251,10 +252,11 @@ export default function ContactFormPreview({
   design,
   buttonRadius,
   imageRadius,
+  cardRadius,
   content,
 }: ContactFormChoice & { content?: SectionContent }) {
   const spec = SPECS[design] ?? SPECS.v1
-  const corners = cornersOf(buttonRadius, imageRadius)
+  const corners = cornersOf(buttonRadius, imageRadius, cardRadius)
   const points = linesOf(content?.items)
   const right = spec.side === 'right'
 
@@ -304,7 +306,7 @@ export default function ContactFormPreview({
 
       {/* 20px of padding and an 8px radius, as both panels are drawn. */}
       <div
-        className={`rounded-[0.55cqw] p-[1.39cqw] ${spec.form === 'white' ? 'shadow-[0_0.15cqw_0.6cqw_rgba(30,21,21,0.12)]' : ''}`}
+        className={`${corners.card ?? 'rounded-[0.55cqw]'} p-[1.39cqw] ${spec.form === 'white' ? 'shadow-[0_0.15cqw_0.6cqw_rgba(30,21,21,0.12)]' : ''}`}
         style={{ background: spec.form === 'green' ? TINT : '#ffffff' }}
       >
         <Form spec={spec} content={content} buttonRadius={corners.button} />
