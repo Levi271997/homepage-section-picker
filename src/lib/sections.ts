@@ -66,6 +66,21 @@ const imageRadiusGroup = (appliesTo?: (choice: Choice) => boolean): OptionGroup 
   ],
 })
 
+/** The corners of the box a design sets its cards in, where it draws one. */
+const cardRadiusGroup = (appliesTo?: (choice: Choice) => boolean): OptionGroup => ({
+  id: 'cardRadius',
+  label: 'Cards',
+  display: 'chips',
+  defaultId: 'subtle',
+  appliesTo,
+  options: [
+    { id: 'square', name: 'Square cards' },
+    { id: 'subtle', name: 'Subtle cards' },
+    { id: 'rounded', name: 'Rounded cards' },
+    { id: 'large', name: 'Large cards' },
+  ],
+})
+
 /** Shown only on the listed designs. */
 const onDesigns = (...ids: string[]) => (choice: Choice) => ids.includes(choice.design)
 /** Shown on every design but the listed ones. */
@@ -197,6 +212,8 @@ export const CONTENT_CARD_GROUPS: OptionGroup[] = [
   // V13 and V14 are drawn square, V16's panel is squared against its card, and
   // the numbered designs carry no picture.
   imageRadiusGroup(exceptDesigns('v13', 'v14', 'v16', 'v19', 'v20', 'v21', 'v22')),
+  // The even designs are the ones that enclose each card in a box.
+  cardRadiusGroup(onDesigns('v4', 'v6', 'v8', 'v10', 'v12', 'v14', 'v16', 'v18', 'v20', 'v22')),
 ]
 
 /**

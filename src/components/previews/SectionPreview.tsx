@@ -95,7 +95,7 @@ export default function SectionPreview({
     case 'content-section':
       return <ContentSectionPreview design={choice.design} buttonRadius={choice.buttonRadius} imageRadius={choice.imageRadius} content={c} />
     case 'content-card':
-      return <ContentCardPreview design={choice.design} buttonRadius={choice.buttonRadius} imageRadius={choice.imageRadius} rows={choice.rows} content={c} />
+      return <ContentCardPreview design={choice.design} buttonRadius={choice.buttonRadius} imageRadius={choice.imageRadius} cardRadius={choice.cardRadius} rows={choice.rows} content={c} />
     default:
       return <div className="h-full bg-white" />
   }

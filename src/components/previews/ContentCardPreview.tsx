@@ -13,6 +13,7 @@ export type ContentCardChoice = {
   rows: string
   buttonRadius?: string
   imageRadius?: string
+  cardRadius?: string
 }
 
 const GREEN = 'var(--brand,#3f6b30)'
@@ -162,9 +163,12 @@ function NumeralFooter({ index }: { index: number }) {
   )
 }
 
-/** Background, border and corners of the box a design sets its cards in. */
-function container(spec: Spec): { className: string; style?: CSSProperties } {
-  const corners = spec.sharp ? '' : 'rounded-xs'
+/**
+ * Background, border and corners of the box a design sets its cards in. The
+ * card setting, once it's moved off `subtle`, overrides the drawn corners.
+ */
+function container(spec: Spec, radius?: string): { className: string; style?: CSSProperties } {
+  const corners = radius ?? (spec.sharp ? '' : 'rounded-xs')
   switch (spec.card) {
     case 'bordered':
       return { className: `border ${corners}`, style: { borderColor: HAIRLINE } }
@@ -195,7 +199,7 @@ function Item({
   src?: string
 }) {
   const centered = spec.align === 'center'
-  const box = container(spec)
+  const box = container(spec, corners.card)
   // A bleeding design pads the copy instead of the card, so the media can reach
   // the card's own edges; everything else pads the card and lets the copy fill it.
   const cardPad = spec.card && !spec.bleed ? 'p-[1.6cqw]' : ''
@@ -273,10 +277,11 @@ export default function ContentCardPreview({
   rows,
   buttonRadius,
   imageRadius,
+  cardRadius,
   content,
 }: ContentCardChoice & { content?: SectionContent }) {
   const spec = SPECS[design] ?? SPECS.v1
-  const corners = cornersOf(buttonRadius, imageRadius)
+  const corners = cornersOf(buttonRadius, imageRadius, cardRadius)
   const cols = spec.cols ?? 3
   const count = Number(rows) * cols
   const titles = linesOf(content?.items)

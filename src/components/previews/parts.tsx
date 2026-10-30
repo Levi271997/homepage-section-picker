@@ -84,11 +84,13 @@ export const DEFAULT_RADIUS = 'rounded-xs'
  * section left on the default should look exactly as drawn. Call sites fall
  * back with `??`, or let a component's default parameter do it.
  */
-export type Corners = { button?: string; image?: string }
+export type Corners = { button?: string; image?: string; card?: string }
 
-export const cornersOf = (buttonRadius?: string, imageRadius?: string): Corners => ({
+/** `cardRadius` only on the sections that offer it; cards share the image scale. */
+export const cornersOf = (buttonRadius?: string, imageRadius?: string, cardRadius?: string): Corners => ({
   button: buttonRadius && buttonRadius !== 'subtle' ? BUTTON_RADII[buttonRadius] : undefined,
   image: imageRadius && imageRadius !== 'subtle' ? IMAGE_RADII[imageRadius] : undefined,
+  card: cardRadius && cardRadius !== 'subtle' ? IMAGE_RADII[cardRadius] : undefined,
 })
 
 /**
