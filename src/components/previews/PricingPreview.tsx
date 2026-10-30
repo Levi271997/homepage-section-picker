@@ -10,6 +10,7 @@ export type PricingChoice = {
   design: PricingDesign
   buttonRadius?: string
   imageRadius?: string
+  cardRadius?: string
 }
 
 const GREEN = 'var(--brand,#4b7b35)'
@@ -204,7 +205,7 @@ function Plan({
   return (
     <li
       // 24px of padding, as every card in the set is drawn.
-      className={`flex flex-col ${spec.card ? 'rounded-xs border p-[1.65cqw]' : ''}`}
+      className={`flex flex-col ${spec.card ? `${corners.card ?? 'rounded-xs'} border p-[1.65cqw]` : ''}`}
       style={{
         borderColor: spec.card ? HAIRLINE : undefined,
         background: tinted ? TINT : undefined,
@@ -280,10 +281,11 @@ export default function PricingPreview({
   design,
   buttonRadius,
   imageRadius,
+  cardRadius,
   content,
 }: PricingChoice & { content?: SectionContent }) {
   const spec = SPECS[design] ?? SPECS.v1
-  const corners = cornersOf(buttonRadius, imageRadius)
+  const corners = cornersOf(buttonRadius, imageRadius, cardRadius)
 
   return (
     // 80px of margin top and bottom, 120 either side, as all six are drawn —

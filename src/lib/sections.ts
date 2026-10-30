@@ -469,6 +469,8 @@ export const PRICING_GROUPS: OptionGroup[] = [
   },
   buttonRadiusGroup(),
   imageRadiusGroup(onDesigns('v5')),
+  // The designs that set each plan in an outlined card.
+  cardRadiusGroup(onDesigns('v2', 'v4', 'v5', 'v6')),
 ]
 
 /**

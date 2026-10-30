@@ -85,7 +85,7 @@ export default function SectionPreview({
     case 'client-quote':
       return <TestimonialsPreview design={choice.design} buttonRadius={choice.buttonRadius} imageRadius={choice.imageRadius} content={c} />
     case 'pricing':
-      return <PricingPreview design={choice.design} buttonRadius={choice.buttonRadius} imageRadius={choice.imageRadius} content={c} />
+      return <PricingPreview design={choice.design} buttonRadius={choice.buttonRadius} imageRadius={choice.imageRadius} cardRadius={choice.cardRadius} content={c} />
     case 'blogs':
       return <BlogsPreview design={choice.design} buttonRadius={choice.buttonRadius} imageRadius={choice.imageRadius} content={c} />
     case 'contact-form':
