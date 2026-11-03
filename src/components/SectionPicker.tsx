@@ -17,6 +17,7 @@ import { contentOf, profileToContent } from '@/lib/content'
 import type { SectionContent } from '@/lib/content'
 import type { Choice } from '@/lib/sections'
 import type { SiteProfile } from '@/lib/siteProfile'
+import { publishAiDesign } from '@/lib/aiDesign'
 import type { AiDesign } from '@/lib/aiDesign'
 
 /**
@@ -149,6 +150,17 @@ export default function SectionPicker() {
    */
   const build = () => {
     if (!openWindow()) setBuilt(true)
+  }
+
+  // The AI design's own tab reads it from storage, so it follows every
+  // generate and discard — including one made before the tab was opened.
+  useEffect(() => {
+    publishAiDesign(aiDesign)
+  }, [aiDesign])
+
+  /** The AI design full-size in a tab of its own, named so a second click reuses it. */
+  const openAiTab = () => {
+    window.open(asset('/ai-preview/'), 'homepage-ai-design')?.focus()
   }
 
   const unused = CATALOG.filter((s) => !s.required && !ids.includes(s.id))
@@ -289,7 +301,9 @@ export default function SectionPicker() {
           contentStore={contentStore}
           onOpenWindow={openWindow}
         />
-        {aiDesign && <AiDesignPreview design={aiDesign} onDiscard={() => setAiDesign(null)} />}
+        {aiDesign && (
+          <AiDesignPreview design={aiDesign} onDiscard={() => setAiDesign(null)} onOpenTab={openAiTab} />
+        )}
         {shareFailed && (
           <p className="text-xs text-ink-muted">
             This page is now too large to hand to a second window — usually a large uploaded image. A window opened
@@ -298,7 +312,9 @@ export default function SectionPicker() {
         )}
       </div>
 
-      <div className="w-full shrink-0 rounded-2xl border border-hairline bg-card p-5 shadow-2xl shadow-black/40 sm:p-6 lg:w-190">
+      {/* The builder, with the AI designer as a panel of its own beneath it. */}
+      <div className="flex w-full shrink-0 flex-col gap-6 lg:w-190">
+      <div className="w-full rounded-2xl border border-hairline bg-card p-5 shadow-2xl shadow-black/40 sm:p-6">
       <div className="flex items-start justify-between gap-4">
         <div>
           <h2 className="text-[17px] font-semibold text-ink">Your homepage, as we&rsquo;d build it</h2>
@@ -520,9 +536,35 @@ export default function SectionPicker() {
         )}
       </div>
 
+      <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-3">
+        <button
+          type="button"
+          onClick={build}
+          className="inline-flex items-center gap-1.5 rounded-xl bg-go px-4 py-2.5 text-[15px] font-medium text-go-ink transition-colors hover:bg-go-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-go-ink"
+        >
+          Build my homepage
+          <Icon name="external" className="size-4" />
+        </button>
+        <p className="text-sm text-ink-muted">
+          {ids.length} section{ids.length === 1 ? '' : 's'} &middot; takes about a minute
+        </p>
+      </div>
+
+      </div>
+
       {canGenerate && (
-        <div className="mt-5 rounded-xl border border-hairline bg-row px-4 py-3">
-          <label htmlFor="business" className="text-sm text-ink">
+        <section
+          aria-labelledby="ai-designer"
+          className="w-full rounded-2xl border border-hairline bg-card p-5 shadow-2xl shadow-black/40 sm:p-6"
+        >
+          <h2 id="ai-designer" className="text-[17px] font-semibold text-ink">
+            Generate with AI
+          </h2>
+          <p className="mt-1 text-sm text-ink-muted">
+            A fresh design on the same layouts &mdash; the AI picks the colours, fonts and copy.
+          </p>
+
+          <label htmlFor="business" className="mt-5 block text-sm text-ink">
             What does the business do?
           </label>
           <div className="mt-2 flex gap-2">
@@ -560,23 +602,24 @@ export default function SectionPicker() {
               section and design above. Your own page stays as it is; the AI design appears as a second preview.
             </p>
           )}
-        </div>
+
+          {aiDesign && !generating && (
+            <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-3">
+              <button
+                type="button"
+                onClick={openAiTab}
+                className="inline-flex items-center gap-1.5 rounded-xl border border-hairline bg-row px-4 py-2.5 text-[15px] font-medium text-ink transition-colors hover:bg-row-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-badge-ink"
+              >
+                Preview in a new tab
+                <Icon name="external" className="size-4" />
+              </button>
+              <p className="text-sm text-ink-muted">
+                {aiDesign.theme.name} &middot; {aiDesign.theme.headingFont} &amp; {aiDesign.theme.bodyFont}
+              </p>
+            </div>
+          )}
+        </section>
       )}
-
-      <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-3">
-        <button
-          type="button"
-          onClick={build}
-          className="inline-flex items-center gap-1.5 rounded-xl bg-go px-4 py-2.5 text-[15px] font-medium text-go-ink transition-colors hover:bg-go-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-go-ink"
-        >
-          Build my homepage
-          <Icon name="external" className="size-4" />
-        </button>
-        <p className="text-sm text-ink-muted">
-          {ids.length} section{ids.length === 1 ? '' : 's'} &middot; takes about a minute
-        </p>
-      </div>
-
       </div>
 
       {built && (
