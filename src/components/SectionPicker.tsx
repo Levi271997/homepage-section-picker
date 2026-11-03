@@ -6,15 +6,18 @@ import PagePreview from '@/components/PagePreview'
 import PageView from '@/components/PageView'
 import SectionRow from '@/components/SectionRow'
 import SectionMenu from '@/components/SectionMenu'
+import AiDesignPreview from '@/components/AiDesignPreview'
 import { Icon } from '@/components/icons'
 import { CATALOG, SUGGESTED_IDS, byId, choiceOf, describeChoice } from '@/lib/sections'
 import { brandVariables } from '@/lib/siteProfile'
 import { asset } from '@/lib/asset'
 import { publishPage } from '@/lib/share'
+import { outlineSections } from '@/lib/outline'
 import { contentOf, profileToContent } from '@/lib/content'
 import type { SectionContent } from '@/lib/content'
 import type { Choice } from '@/lib/sections'
 import type { SiteProfile } from '@/lib/siteProfile'
+import type { AiDesign } from '@/lib/aiDesign'
 
 /**
  * The "read my site" panel, hidden for now.
@@ -41,16 +44,16 @@ export default function SectionPicker() {
   const [siteUrl, setSiteUrl] = useState('')
   const [profile, setProfile] = useState<SiteProfile | null>(null)
   const [analyzing, setAnalyzing] = useState(false)
-  /** A one-line description of the business, which is all the AI copy needs beyond the layout. */
+  /** A one-line description of the business, which is all the AI designer needs beyond the layout. */
   const [business, setBusiness] = useState('')
   /**
-   * The AI draft, kept apart from `contentStore` on purpose.
+   * The AI design, kept apart from everything the client has built on purpose.
    *
-   * Generating never overwrites what the client has written or laid out — the
-   * draft is shown as a second preview beside the real one, so the two can be
-   * compared and the draft thrown away.
+   * Generating never touches the sections, their designs or their content —
+   * the model's page is shown as a second preview below the real one, so the
+   * two can be compared and the AI one thrown away.
    */
-  const [aiContent, setAiContent] = useState<Record<string, SectionContent> | null>(null)
+  const [aiDesign, setAiDesign] = useState<AiDesign | null>(null)
   const [generating, setGenerating] = useState(false)
   const [aiError, setAiError] = useState<string | null>(null)
   const [dragIndex, setDragIndex] = useState<number | null>(null)
@@ -59,27 +62,13 @@ export default function SectionPicker() {
   const [overIndex, setOverIndex] = useState<number | null>(null)
   const cardRef = useRef<HTMLDivElement>(null)
 
-  /**
-   * What the draft preview renders: the page as it stands, with the AI copy
-   * laid over it. Only the words the model wrote are replaced, so uploaded
-   * pictures and anything edited by hand still show.
-   */
-  const aiStore = useMemo(() => {
-    if (!aiContent) return null
-    const merged: Record<string, SectionContent> = { ...contentStore }
-    for (const [sectionId, values] of Object.entries(aiContent)) {
-      merged[sectionId] = { ...contentOf(sectionId, contentStore), ...values }
-    }
-    return merged
-  }, [aiContent, contentStore])
-
   /** The analysed site, but only while it was readable. */
   const activeProfile = profile && !profile.error ? profile : null
 
   // The static GitHub Pages build has no server to run the analyser, so the
   // control is hidden there rather than offered and then failing.
   const canAnalyze = process.env.NEXT_PUBLIC_STATIC_BUILD !== 'true'
-  // Same reason the analyser is hidden on Pages: writing the copy needs a
+  // Same reason the analyser is hidden on Pages: designing the page needs a
   // server, because the API key may never reach the browser.
   const canGenerate = process.env.NEXT_PUBLIC_STATIC_BUILD !== 'true'
 
@@ -234,27 +223,29 @@ export default function SectionPicker() {
   }
 
   /**
-   * Asks the model to write the copy for the page as it currently stands.
+   * Asks the model to design the page as it currently stands.
    *
-   * The layout is the brief, so the request is just the section order and the
-   * chosen designs; the route decides which fields each design actually shows.
-   * The answer lands in its own state, never in `contentStore`.
+   * The layout is the brief: each section is measured off its wireframe here,
+   * where the previews can be rendered, and the route is handed those outlines
+   * to follow while it chooses the colours, type and copy itself. The answer
+   * lands in its own state and nothing the client has built changes.
    */
   const generate = async () => {
     if (generating) return
     setGenerating(true)
     setAiError(null)
     try {
+      const outlines = outlineSections(ids, layouts, contentStore)
       const response = await fetch('/api/generate', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ ids, layouts, business }),
+        body: JSON.stringify({ ids, layouts, outlines, business }),
       })
-      const result = (await response.json()) as { content?: Record<string, SectionContent>; error?: string }
+      const result = (await response.json()) as Partial<AiDesign> & { error?: string }
       if (result.error) setAiError(result.error)
-      if (result.content && Object.keys(result.content).length) setAiContent(result.content)
+      else if (result.html && result.theme) setAiDesign(result as AiDesign)
     } catch {
-      setAiError('Couldn’t reach the writer.')
+      setAiError('Couldn’t reach the designer.')
     } finally {
       setGenerating(false)
     }
@@ -287,8 +278,8 @@ export default function SectionPicker() {
       {/* Left: the page as it currently stands. Right: what builds it. */}
       <div
         // Pinning the column only works while it fits the screen; with the AI
-        // draft below the live page it no longer does, so it scrolls instead.
-        className={`flex w-full min-w-0 flex-col gap-2 lg:flex-1 ${aiStore ? '' : 'lg:sticky lg:top-8'}`}
+        // design below the live page it no longer does, so it scrolls instead.
+        className={`flex w-full min-w-0 flex-col gap-2 lg:flex-1 ${aiDesign ? '' : 'lg:sticky lg:top-8'}`}
       >
         <PagePreview
           ids={ids}
@@ -298,30 +289,7 @@ export default function SectionPicker() {
           contentStore={contentStore}
           onOpenWindow={openWindow}
         />
-        {aiStore && (
-          <div className="mt-2 flex flex-col gap-2">
-            <div className="flex items-center justify-between gap-3">
-              <p className="text-sm text-ink">
-                AI draft <span className="text-ink-muted">&mdash; the same layout, written for your business</span>
-              </p>
-              <button
-                type="button"
-                onClick={() => setAiContent(null)}
-                className="shrink-0 rounded-lg border border-hairline bg-card px-2.5 py-1 text-xs text-ink transition-colors hover:bg-row-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-badge-ink"
-              >
-                Discard
-              </button>
-            </div>
-            <PagePreview
-              ids={ids}
-              layouts={layouts}
-              activeId={choosingLayout}
-              address={previewAddress}
-              contentStore={aiStore}
-              label="AI draft"
-            />
-          </div>
-        )}
+        {aiDesign && <AiDesignPreview design={aiDesign} onDiscard={() => setAiDesign(null)} />}
         {shareFailed && (
           <p className="text-xs text-ink-muted">
             This page is now too large to hand to a second window — usually a large uploaded image. A window opened
@@ -575,21 +543,21 @@ export default function SectionPicker() {
               disabled={generating}
               className="shrink-0 rounded-lg border border-hairline bg-card px-3.5 py-2 text-sm text-ink transition-colors hover:bg-row-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-badge-ink disabled:cursor-not-allowed disabled:text-ink-faint disabled:hover:bg-card"
             >
-              {generating ? 'Writing…' : 'Generate with AI'}
+              {generating ? 'Designing…' : 'Generate with AI'}
             </button>
           </div>
 
           {generating ? (
             <p className="mt-1.5 text-xs text-ink-muted">
-              Writing copy for {ids.length} section{ids.length === 1 ? '' : 's'} in the designs you&rsquo;ve
-              picked&hellip;
+              Choosing a look, then designing {ids.length} section{ids.length === 1 ? '' : 's'} on the layouts
+              you&rsquo;ve picked &mdash; this takes a minute or two&hellip;
             </p>
           ) : aiError ? (
-            <p className="mt-1.5 text-xs text-ink-muted">Couldn&rsquo;t write it &mdash; {aiError}</p>
+            <p className="mt-1.5 text-xs text-ink-muted">Couldn&rsquo;t design it &mdash; {aiError}</p>
           ) : (
             <p className="mt-1.5 text-xs text-ink-muted">
-              Writes the words for the sections and designs above. Your own copy and layout stay as they are &mdash;
-              the draft appears as a second preview.
+              Designs a fresh page &mdash; its own colours, fonts and copy &mdash; that keeps the structure of every
+              section and design above. Your own page stays as it is; the AI design appears as a second preview.
             </p>
           )}
         </div>

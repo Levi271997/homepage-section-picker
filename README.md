@@ -7,7 +7,7 @@ npm run dev     # http://localhost:3000
 npm run build
 ```
 
-Two features need keys — reading a client's existing site, and writing the copy with AI. Copy `.env.example` to `.env.local` (git-ignored) and fill them in:
+Two features need keys — reading a client's existing site, and designing the page with AI. Copy `.env.example` to `.env.local` (git-ignored) and fill them in:
 
 ```
 OPENAI_API_KEY=sk-proj-...
@@ -81,7 +81,7 @@ Never move the model call into the browser to work around this: the API key woul
 | [src/components/previews/](src/components/previews/) | Miniature page wireframes — shared `parts.tsx`, one file per section, dispatched by `SectionPreview.tsx` |
 | [src/components/icons.tsx](src/components/icons.tsx) | Inline SVG icon set (no icon dependency) |
 | [src/app/api/analyze/route.ts](src/app/api/analyze/route.ts) | `POST { url }` → `SiteProfile`; fetches the page, then asks the model for the judgement calls |
-| [src/app/api/generate/route.ts](src/app/api/generate/route.ts) | `POST { ids, layouts, business }` → copy per section; the layout is the brief, and only content fields come back |
+| [src/app/api/generate/route.ts](src/app/api/generate/route.ts) | `POST { ids, layouts, outlines, business }` → one AI-designed HTML page. DeepSeek picks a palette and font pair, then draws each section from the outline [src/lib/outline.tsx](src/lib/outline.tsx) measured off its wireframe, so the structure is the chosen designs and the look is the model's. Shown in a sandboxed iframe by [AiDesignPreview.tsx](src/components/AiDesignPreview.tsx) |
 | [src/lib/extractPage.ts](src/lib/extractPage.ts) | Deterministic half: fetch, strip, and pull out titles, icons, images and candidate colours |
 | [src/lib/siteProfile.ts](src/lib/siteProfile.ts) | The `SiteProfile` shape plus the guards that keep model output honest |
 | [src/lib/content.ts](src/lib/content.ts) | Per-section content fields, their placeholder copy, and the list helpers |

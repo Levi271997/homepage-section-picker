@@ -21,6 +21,7 @@ This is a Next.js 15 (App Router), React 19, TypeScript and Tailwind v4 tool. A 
 - `src/components/previews/XxxPreview.tsx` is the live wireframe per section, driven by a `SPECS` table.
 - `src/components/previews/parts.tsx` has the shared preview building blocks.
 - `src/components/SectionPicker.tsx` holds all editor state and the swap/add/remove/move logic.
+- `src/lib/outline.tsx` renders the chosen sections off-screen at 1440px and measures each into a text outline; `POST /api/generate` (DeepSeek) designs a fresh page that follows those outlines, shown by `AiDesignPreview` in a sandboxed iframe. It never edits the layouts, previews or content.
 - `src/app/globals.css` has the theme tokens (`@theme`), the `.page-view [data-role]` behaviour, and the heading scale.
 
 ## Rules and gotchas
