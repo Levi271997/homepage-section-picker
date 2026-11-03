@@ -1,0 +1,51 @@
+# CLAUDE.md
+
+Context for AI coding assistants working in this repo. The full handover is [HANDOVER.md](HANDOVER.md), and the design rationale is in [README.md](README.md).
+
+## Project
+
+This is a Next.js 15 (App Router), React 19, TypeScript and Tailwind v4 tool. A client assembles a homepage from 14 approved sections, picks each section's Figma design, edits its content, and sees it live. `/preview` is the finished page in a second window, synced via `localStorage`. `POST /api/analyze` reads a client's existing site with OpenAI, but its UI is hidden (`SHOW_SITE_AUDIT = false` in `src/components/SectionPicker.tsx`).
+
+## Commands
+
+- `npm run dev`: dev server on :3000.
+- `npm run build`: production build, and the only automated check (type-checks). There are no tests and no ESLint.
+- Static Pages build: CI sets `NEXT_PUBLIC_STATIC_BUILD=true` and deletes `src/app/api` (see `.github/workflows/pages.yml`).
+
+## Where things live
+
+- `src/lib/sections.ts` is the section catalogue (`CATALOG`), each section's option groups (`*_GROUPS`), corner-radius groups with `appliesTo`, and the default order (`SUGGESTED_IDS`).
+- `src/lib/content.ts` has the editable fields and placeholder copy per section (`CONTENT`).
+- `src/lib/previewImages.ts` maps each design option to its Figma SVG in `public/design-sets/section-cogs/`.
+- `src/components/previews/aspect.ts` holds each design's artboard height ratio.
+- `src/components/previews/XxxPreview.tsx` is the live wireframe per section, driven by a `SPECS` table.
+- `src/components/previews/parts.tsx` has the shared preview building blocks.
+- `src/components/SectionPicker.tsx` holds all editor state and the swap/add/remove/move logic.
+- `src/app/globals.css` has the theme tokens (`@theme`), the `.page-view [data-role]` behaviour, and the heading scale.
+
+## Rules and gotchas
+
+- **Adding a design** touches five places: an option in `sections.ts`, an entry in `previewImages.ts`, a ratio in `aspect.ts`, a `SPECS` row in the preview, and an `appliesTo` update on the corner groups if needed.
+- **Tailwind arbitrary values must be literal strings** in the source, e.g. `'aspect-[1440/613]'`. Never build them by interpolation: Tailwind can't see the class, so it never exists.
+- **Every `public/` path goes through `asset()`** from `src/lib/asset.ts`. It adds the Pages basePath and percent-encodes `=` and spaces in Figma filenames. Never rename the Figma SVGs.
+- **Images are plain `<img>`**, not `next/image`.
+- **Square corners need `rounded-none!`**, because `ImageBlock` brings its own `rounded-xs`.
+- **Colours on previews come from CSS variables**, e.g. `var(--brand, #3f6b30)` and `--brand-soft`, `--brand-accent`. Don't pass colours as props. Use the `@theme` tokens for app chrome.
+- **`SectionPreview` has two renderings.** `screenshot` shows the Figma SVG, used in choosers. Without it you get the wireframe, used on the assembled page. Thumbnails must be wrapped in `PreviewFrame decorative` (inert, aria-hidden).
+- **Previews use real semantic markup:** landmarks, one `h1` in the hero, `h2` for sections, `h3` for cards, plus lists, `details`, `form` and `label`. Wireframe bars are `aria-hidden`.
+- **Content conventions:** lists are one item per line and wrap to fill a grid; paired lists line up by index; `A · B` splits a pair within one line.
+- **Size inside previews in `cqw`**, never px, so a preview scales from a thumbnail to full width.
+- **Carousels only move in interactive mode** (`usePreviewMode`), and must respect `prefers-reduced-motion`.
+- **Never call the model from the browser.** The API key has to stay server-side.
+
+## Style
+
+- Match the existing code: no semicolons, single quotes, 2-space indent, and the `@/` import alias.
+- Comments explain *why* in full sentences, at the density of the surrounding code.
+- UI copy uses British spelling ("colour", "centred").
+
+## Git
+
+- Work on `main`. Pushing to `main` deploys to GitHub Pages.
+- Commit messages are one plain imperative sentence, matching `git log`.
+- The author is `Levi271997`, and messages have no `Co-Authored-By` trailer.
