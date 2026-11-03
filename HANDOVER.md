@@ -20,7 +20,7 @@ There's also an optional analyser that reads the client's current website (brand
 | | |
 | --- | --- |
 | Stack | Next.js 15.5 (App Router), React 19, TypeScript 5, Tailwind CSS v4, Swiper 14, `openai` SDK |
-| Backend | One route handler, `POST /api/analyze`. There's no database and no auth. All other state lives in React and `localStorage` |
+| Backend | Two route handlers, `POST /api/analyze` and `POST /api/generate`. There's no database and no auth. All other state lives in React and `localStorage` |
 | Repo | `https://github.com/Levi271997/homepage-section-picker` (branch `main`) |
 | Live (static) | GitHub Pages, built by `.github/workflows/pages.yml` on every push to `main` |
 | Tests | None |
@@ -35,10 +35,12 @@ npm run build    # production build (server mode, analyser included)
 npm start        # serve that build
 ```
 
-The analyser needs an OpenAI key in `.env.local`, which is git-ignored. Everything else works without it.
+The analyser needs an OpenAI key in `.env.local`, which is git-ignored, and the AI copywriter needs a DeepSeek one. Everything else works without them.
 
 ```
 OPENAI_API_KEY=sk-proj-...
+DEEPSEEK_API_KEY=sk-...
+DEEPSEEK_MODEL=deepseek-chat   # optional; this is the default
 ```
 
 **Static build (GitHub Pages).** Set `NEXT_PUBLIC_STATIC_BUILD=true` and delete `src/app/api` first. Only the CI workflow does this. The flag switches `next.config.mjs` to `output: 'export'` with `basePath: '/homepage-section-picker'`, and it hides the analyser UI. **Never move the model call into the browser:** the API key would ship in the bundle. If you want the analyser live, host on something that runs Node (Vercel works) and set the key as a server env var.
@@ -80,6 +82,7 @@ homepage-section-picker/
 ├── src/
 │   ├── app/                       Next.js App Router: routes, layout, global CSS
 │   │   ├── api/analyze/route.ts   POST /api/analyze (server only)
+│   │   ├── api/generate/route.ts  POST /api/generate (server only)
 │   │   ├── fonts/satoshi/         Self-hosted Satoshi 400/500/700/900 .woff2
 │   │   ├── preview/               /preview, the pop-out "finished page" window
 │   │   │   ├── layout.tsx
@@ -114,6 +117,7 @@ homepage-section-picker/
 | `public/fonts/recoleta/` | Slot for the licensed heading font | Just a README listing the four expected filenames. `@font-face` rules in `globals.css` already point here |
 | `src/app/` | Routes and app-wide setup | Root layout (fonts, metadata), global CSS and theme tokens, the editor route `/`, the pop-out route `/preview`, the API route |
 | `src/app/api/analyze/` | Server-side site analyser | `route.ts`. Removed from the static build |
+| `src/app/api/generate/` | Server-side AI copywriter | `route.ts`. Removed from the static build |
 | `src/app/fonts/satoshi/` | Body/UI font, free licence, committed | Four `.woff2` weights, loaded through `next/font/local` in `layout.tsx` |
 | `src/app/preview/` | The second window that shows the finished page full-width | Reads the page from `localStorage` and re-renders on every change |
 | `src/components/` | The editor UI | Shell, list rows, menus, option picker, content editor, in-app and pop-out page renderers, icons |

@@ -7,13 +7,14 @@ npm run dev     # http://localhost:3000
 npm run build
 ```
 
-Reading a client's existing site needs an API key in `.env.local` (git-ignored):
+Two features need keys — reading a client's existing site, and writing the copy with AI. Copy `.env.example` to `.env.local` (git-ignored) and fill them in:
 
 ```
 OPENAI_API_KEY=sk-proj-...
+DEEPSEEK_API_KEY=sk-...
 ```
 
-Without it every other feature works; the analyser reports that the key is missing and the previews stay as wireframes.
+Without them every other feature works; each one reports that its key is missing and the previews stay on placeholder copy. Both calls are server-side route handlers, so neither key reaches the browser.
 
 ## Fonts
 
@@ -80,6 +81,7 @@ Never move the model call into the browser to work around this: the API key woul
 | [src/components/previews/](src/components/previews/) | Miniature page wireframes — shared `parts.tsx`, one file per section, dispatched by `SectionPreview.tsx` |
 | [src/components/icons.tsx](src/components/icons.tsx) | Inline SVG icon set (no icon dependency) |
 | [src/app/api/analyze/route.ts](src/app/api/analyze/route.ts) | `POST { url }` → `SiteProfile`; fetches the page, then asks the model for the judgement calls |
+| [src/app/api/generate/route.ts](src/app/api/generate/route.ts) | `POST { ids, layouts, business }` → copy per section; the layout is the brief, and only content fields come back |
 | [src/lib/extractPage.ts](src/lib/extractPage.ts) | Deterministic half: fetch, strip, and pull out titles, icons, images and candidate colours |
 | [src/lib/siteProfile.ts](src/lib/siteProfile.ts) | The `SiteProfile` shape plus the guards that keep model output honest |
 | [src/lib/content.ts](src/lib/content.ts) | Per-section content fields, their placeholder copy, and the list helpers |

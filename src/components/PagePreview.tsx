@@ -22,6 +22,8 @@ type Props = {
   contentStore?: Record<string, SectionContent>
   /** Opens the same page in its own window. Omitted where that isn't offered. */
   onOpenWindow?: () => void
+  /** What the chrome calls this preview, for when a page is shown twice over. */
+  label?: string
 }
 
 /** Bare domain for the address bar — no scheme, no trailing slash. */
@@ -35,6 +37,7 @@ export default function PagePreview({
   address = '',
   contentStore = {},
   onOpenWindow,
+  label = 'Live preview',
 }: Props) {
   const rows = useRef(new Map<string, HTMLDivElement>())
   const scrolled = useScrolled()
@@ -57,7 +60,7 @@ export default function PagePreview({
         <span className="ml-2 flex-1 truncate rounded-md bg-row px-2.5 py-1 text-xs text-ink-faint">
           {tidy(address) || 'yoursite.com'}
         </span>
-        <span className="text-xs text-ink-muted">Live preview</span>
+        <span className="text-xs text-ink-muted">{label}</span>
         {onOpenWindow && (
           <button
             type="button"

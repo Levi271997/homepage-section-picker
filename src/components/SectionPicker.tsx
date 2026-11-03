@@ -41,11 +41,37 @@ export default function SectionPicker() {
   const [siteUrl, setSiteUrl] = useState('')
   const [profile, setProfile] = useState<SiteProfile | null>(null)
   const [analyzing, setAnalyzing] = useState(false)
+  /** A one-line description of the business, which is all the AI copy needs beyond the layout. */
+  const [business, setBusiness] = useState('')
+  /**
+   * The AI draft, kept apart from `contentStore` on purpose.
+   *
+   * Generating never overwrites what the client has written or laid out — the
+   * draft is shown as a second preview beside the real one, so the two can be
+   * compared and the draft thrown away.
+   */
+  const [aiContent, setAiContent] = useState<Record<string, SectionContent> | null>(null)
+  const [generating, setGenerating] = useState(false)
+  const [aiError, setAiError] = useState<string | null>(null)
   const [dragIndex, setDragIndex] = useState<number | null>(null)
   /** Set when the page is too large to hand to another window. */
   const [shareFailed, setShareFailed] = useState(false)
   const [overIndex, setOverIndex] = useState<number | null>(null)
   const cardRef = useRef<HTMLDivElement>(null)
+
+  /**
+   * What the draft preview renders: the page as it stands, with the AI copy
+   * laid over it. Only the words the model wrote are replaced, so uploaded
+   * pictures and anything edited by hand still show.
+   */
+  const aiStore = useMemo(() => {
+    if (!aiContent) return null
+    const merged: Record<string, SectionContent> = { ...contentStore }
+    for (const [sectionId, values] of Object.entries(aiContent)) {
+      merged[sectionId] = { ...contentOf(sectionId, contentStore), ...values }
+    }
+    return merged
+  }, [aiContent, contentStore])
 
   /** The analysed site, but only while it was readable. */
   const activeProfile = profile && !profile.error ? profile : null
@@ -53,6 +79,9 @@ export default function SectionPicker() {
   // The static GitHub Pages build has no server to run the analyser, so the
   // control is hidden there rather than offered and then failing.
   const canAnalyze = process.env.NEXT_PUBLIC_STATIC_BUILD !== 'true'
+  // Same reason the analyser is hidden on Pages: writing the copy needs a
+  // server, because the API key may never reach the browser.
+  const canGenerate = process.env.NEXT_PUBLIC_STATIC_BUILD !== 'true'
 
   /** The agreed build in one line — what the page view copies to the clipboard. */
   const spec = [
@@ -204,6 +233,33 @@ export default function SectionPicker() {
     }
   }
 
+  /**
+   * Asks the model to write the copy for the page as it currently stands.
+   *
+   * The layout is the brief, so the request is just the section order and the
+   * chosen designs; the route decides which fields each design actually shows.
+   * The answer lands in its own state, never in `contentStore`.
+   */
+  const generate = async () => {
+    if (generating) return
+    setGenerating(true)
+    setAiError(null)
+    try {
+      const response = await fetch('/api/generate', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ ids, layouts, business }),
+      })
+      const result = (await response.json()) as { content?: Record<string, SectionContent>; error?: string }
+      if (result.error) setAiError(result.error)
+      if (result.content && Object.keys(result.content).length) setAiContent(result.content)
+    } catch {
+      setAiError('Couldn’t reach the writer.')
+    } finally {
+      setGenerating(false)
+    }
+  }
+
   const endDrag = () => {
     setDragIndex(null)
     setOverIndex(null)
@@ -229,7 +285,11 @@ export default function SectionPicker() {
       className="flex w-full flex-col items-start gap-6 lg:flex-row"
     >
       {/* Left: the page as it currently stands. Right: what builds it. */}
-      <div className="flex w-full min-w-0 flex-col gap-2 lg:sticky lg:top-8 lg:flex-1">
+      <div
+        // Pinning the column only works while it fits the screen; with the AI
+        // draft below the live page it no longer does, so it scrolls instead.
+        className={`flex w-full min-w-0 flex-col gap-2 lg:flex-1 ${aiStore ? '' : 'lg:sticky lg:top-8'}`}
+      >
         <PagePreview
           ids={ids}
           layouts={layouts}
@@ -238,6 +298,30 @@ export default function SectionPicker() {
           contentStore={contentStore}
           onOpenWindow={openWindow}
         />
+        {aiStore && (
+          <div className="mt-2 flex flex-col gap-2">
+            <div className="flex items-center justify-between gap-3">
+              <p className="text-sm text-ink">
+                AI draft <span className="text-ink-muted">&mdash; the same layout, written for your business</span>
+              </p>
+              <button
+                type="button"
+                onClick={() => setAiContent(null)}
+                className="shrink-0 rounded-lg border border-hairline bg-card px-2.5 py-1 text-xs text-ink transition-colors hover:bg-row-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-badge-ink"
+              >
+                Discard
+              </button>
+            </div>
+            <PagePreview
+              ids={ids}
+              layouts={layouts}
+              activeId={choosingLayout}
+              address={previewAddress}
+              contentStore={aiStore}
+              label="AI draft"
+            />
+          </div>
+        )}
         {shareFailed && (
           <p className="text-xs text-ink-muted">
             This page is now too large to hand to a second window — usually a large uploaded image. A window opened
@@ -467,6 +551,49 @@ export default function SectionPicker() {
           />
         )}
       </div>
+
+      {canGenerate && (
+        <div className="mt-5 rounded-xl border border-hairline bg-row px-4 py-3">
+          <label htmlFor="business" className="text-sm text-ink">
+            What does the business do?
+          </label>
+          <div className="mt-2 flex gap-2">
+            <input
+              id="business"
+              type="text"
+              value={business}
+              onChange={(e) => setBusiness(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') generate()
+              }}
+              placeholder="Family-run roofing firm in Leeds, 20 years"
+              className="min-w-0 flex-1 rounded-lg border border-hairline bg-card px-3 py-2 text-sm text-ink placeholder:text-ink-faint focus-visible:border-ink-faint focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-badge-ink"
+            />
+            <button
+              type="button"
+              onClick={generate}
+              disabled={generating}
+              className="shrink-0 rounded-lg border border-hairline bg-card px-3.5 py-2 text-sm text-ink transition-colors hover:bg-row-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-badge-ink disabled:cursor-not-allowed disabled:text-ink-faint disabled:hover:bg-card"
+            >
+              {generating ? 'Writing…' : 'Generate with AI'}
+            </button>
+          </div>
+
+          {generating ? (
+            <p className="mt-1.5 text-xs text-ink-muted">
+              Writing copy for {ids.length} section{ids.length === 1 ? '' : 's'} in the designs you&rsquo;ve
+              picked&hellip;
+            </p>
+          ) : aiError ? (
+            <p className="mt-1.5 text-xs text-ink-muted">Couldn&rsquo;t write it &mdash; {aiError}</p>
+          ) : (
+            <p className="mt-1.5 text-xs text-ink-muted">
+              Writes the words for the sections and designs above. Your own copy and layout stay as they are &mdash;
+              the draft appears as a second preview.
+            </p>
+          )}
+        </div>
+      )}
 
       <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-3">
         <button
