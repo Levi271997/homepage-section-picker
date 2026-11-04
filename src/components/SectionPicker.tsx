@@ -55,6 +55,15 @@ export default function SectionPicker() {
    * two can be compared and the AI one thrown away.
    */
   const [aiDesign, setAiDesign] = useState<AiDesign | null>(null)
+  /**
+   * Which preview the main panel is showing.
+   *
+   * The two are the same page — the layouts the client chose, and what the AI
+   * made of them — so they share the panel rather than stacking, and switching
+   * between them is how you compare. There is nothing to switch to until a
+   * design exists, so the tabs only appear once one does.
+   */
+  const [previewTab, setPreviewTab] = useState<'layout' | 'ai'>('layout')
   const [generating, setGenerating] = useState(false)
   const [aiError, setAiError] = useState<string | null>(null)
   const [dragIndex, setDragIndex] = useState<number | null>(null)
@@ -163,6 +172,9 @@ export default function SectionPicker() {
     window.open(asset('/ai-preview/'), 'homepage-ai-design')?.focus()
   }
 
+  /** The AI design has the panel only once there is one and its tab is the chosen one. */
+  const showAi = Boolean(aiDesign) && previewTab === 'ai'
+
   const unused = CATALOG.filter((s) => !s.required && !ids.includes(s.id))
 
   /** Everything a row could become: any optional section other than itself. */
@@ -255,7 +267,12 @@ export default function SectionPicker() {
       })
       const result = (await response.json()) as Partial<AiDesign> & { error?: string }
       if (result.error) setAiError(result.error)
-      else if (result.html && result.theme) setAiDesign(result as AiDesign)
+      else if (result.html && result.theme) {
+        setAiDesign(result as AiDesign)
+        // Show the thing that was just asked for, rather than leaving it
+        // behind a tab the client has to find.
+        setPreviewTab('ai')
+      }
     } catch {
       setAiError('Couldn’t reach the designer.')
     } finally {
@@ -288,22 +305,69 @@ export default function SectionPicker() {
       className="flex w-full flex-col items-start gap-6 lg:flex-row"
     >
       {/* Left: the page as it currently stands. Right: what builds it. */}
-      <div
-        // Pinning the column only works while it fits the screen; with the AI
-        // design below the live page it no longer does, so it scrolls instead.
-        className={`flex w-full min-w-0 flex-col gap-2 lg:flex-1 ${aiDesign ? '' : 'lg:sticky lg:top-8'}`}
-      >
-        <PagePreview
-          ids={ids}
-          layouts={layouts}
-          activeId={choosingLayout}
-          address={previewAddress}
-          contentStore={contentStore}
-          onOpenWindow={openWindow}
-        />
+      <div className="flex w-full min-w-0 flex-col gap-2 lg:sticky lg:top-8 lg:flex-1">
         {aiDesign && (
-          <AiDesignPreview design={aiDesign} onDiscard={() => setAiDesign(null)} onOpenTab={openAiTab} />
+          <div role="tablist" aria-label="Preview" className="flex gap-1 rounded-xl border border-hairline bg-card p-1">
+            {(
+              [
+                ['layout', 'Layout'],
+                ['ai', 'AI design'],
+              ] as const
+            ).map(([key, label]) => (
+              <button
+                key={key}
+                type="button"
+                role="tab"
+                id={`preview-tab-${key}`}
+                aria-selected={previewTab === key}
+                aria-controls={`preview-panel-${key}`}
+                onClick={() => setPreviewTab(key)}
+                className={`flex-1 rounded-lg px-3 py-1.5 text-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-badge-ink ${
+                  previewTab === key ? 'bg-row font-medium text-ink' : 'text-ink-muted hover:bg-row/60'
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
         )}
+
+        {/* Both stay mounted: hiding the inactive one keeps the iframe from
+            reloading, and the layout preview from losing where it was. */}
+        <div
+          role="tabpanel"
+          id="preview-panel-layout"
+          aria-labelledby="preview-tab-layout"
+          className={showAi ? 'hidden' : 'flex min-w-0 flex-col'}
+        >
+          <PagePreview
+            ids={ids}
+            layouts={layouts}
+            activeId={choosingLayout}
+            address={previewAddress}
+            contentStore={contentStore}
+            onOpenWindow={openWindow}
+          />
+        </div>
+
+        {aiDesign && (
+          <div
+            role="tabpanel"
+            id="preview-panel-ai"
+            aria-labelledby="preview-tab-ai"
+            className={showAi ? 'flex min-w-0 flex-col' : 'hidden'}
+          >
+            <AiDesignPreview
+              design={aiDesign}
+              onDiscard={() => {
+                setAiDesign(null)
+                setPreviewTab('layout')
+              }}
+              onOpenTab={openAiTab}
+            />
+          </div>
+        )}
+
         {shareFailed && (
           <p className="text-xs text-ink-muted">
             This page is now too large to hand to a second window — usually a large uploaded image. A window opened
@@ -599,7 +663,8 @@ export default function SectionPicker() {
           ) : (
             <p className="mt-1.5 text-xs text-ink-muted">
               Designs a fresh page &mdash; its own colours, fonts and copy &mdash; that keeps the structure of every
-              section and design above. Your own page stays as it is; the AI design appears as a second preview.
+              section and design above. Your own page stays as it is; the AI design opens as a tab beside it in the
+              preview.
             </p>
           )}
 

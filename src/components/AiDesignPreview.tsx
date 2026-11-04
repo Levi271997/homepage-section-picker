@@ -74,7 +74,7 @@ export default function AiDesignPreview({ design, onDiscard, onOpenTab }: Props)
   const swatches = [colors.primary, colors.accent, colors.background, colors.surface, colors.text]
 
   return (
-    <div className="mt-2 flex flex-col gap-2">
+    <div className="flex flex-col gap-2">
       <div className="flex items-center justify-between gap-3">
         <div className="min-w-0">
           <p className="truncate text-sm text-ink">
