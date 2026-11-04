@@ -21,6 +21,10 @@ export type AiTheme = {
     onPrimary: string
     accent: string
     border: string
+    /** The bar behind the site header. */
+    headerBackground: string
+    /** The logo and nav links on it, forced to contrast with `headerBackground`. */
+    headerText: string
   }
 }
 

@@ -117,7 +117,7 @@ homepage-section-picker/
 | `public/fonts/recoleta/` | Slot for the licensed heading font | Just a README listing the four expected filenames. `@font-face` rules in `globals.css` already point here |
 | `src/app/` | Routes and app-wide setup | Root layout (fonts, metadata), global CSS and theme tokens, the editor route `/`, the pop-out route `/preview`, the API route |
 | `src/app/api/analyze/` | Server-side site analyser | `route.ts`. Removed from the static build |
-| `src/app/api/generate/` | Server-side AI designer: theme, then one HTML/CSS section per outline, joined into a sandboxed document | `route.ts`. Removed from the static build |
+| `src/app/api/generate/` | Server-side AI designer: theme, then one HTML/CSS section per outline, joined into a sandboxed document that carries one hash-pinned slider script | `route.ts`. Removed from the static build |
 | `src/app/fonts/satoshi/` | Body/UI font, free licence, committed | Four `.woff2` weights, loaded through `next/font/local` in `layout.tsx` |
 | `src/app/preview/` | The second window that shows the finished page full-width | Reads the page from `localStorage` and re-renders on every change |
 | `src/components/` | The editor UI | Shell, list rows, menus, option picker, content editor, in-app and pop-out page renderers, icons |

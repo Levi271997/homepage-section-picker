@@ -22,6 +22,8 @@ This is a Next.js 15 (App Router), React 19, TypeScript and Tailwind v4 tool. A 
 - `src/components/previews/parts.tsx` has the shared preview building blocks.
 - `src/components/SectionPicker.tsx` holds all editor state and the swap/add/remove/move logic.
 - `src/lib/outline.tsx` renders the chosen sections off-screen at 1440px and measures each into a text outline; `POST /api/generate` (DeepSeek) designs a fresh page that follows those outlines, shown by `AiDesignPreview` in a sandboxed iframe, and full-size at `/ai-preview` (handed over through `localStorage`, like `/preview`). It never edits the layouts, previews or content.
+- **The AI design's iframe runs one script, and it is ours.** The frame has `sandbox="allow-scripts"` and no `allow-same-origin`, so it is an opaque origin that can't reach the editor; the document's CSP admits only the `SLIDER` in `route.ts` by sha256 hash, and `cleanHtml` still strips anything the model writes. Carousels in the generated page use `.carousel > .track > .slide` with `.carousel-prev`/`.carousel-next`/`.carousel-dots`, and the dots are built by that script. Don't widen the sandbox or loosen `script-src`.
+- **Colours the model picks are contrast-checked, not trusted.** `readable()` in `route.ts` replaces `headerText` and `onPrimary` when they fall below 4.5:1 against what they sit on.
 - `src/app/globals.css` has the theme tokens (`@theme`), the `.page-view [data-role]` behaviour, and the heading scale.
 
 ## Rules and gotchas

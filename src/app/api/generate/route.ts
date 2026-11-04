@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto'
 import OpenAI from 'openai'
 import { byId, choiceOf, describeChoice } from '@/lib/sections'
 import { DESIGN_WIDTH } from '@/lib/aiDesign'
@@ -37,7 +38,10 @@ const FONTS = [
   'Spectral', 'Syne', 'Unbounded', 'Urbanist', 'Work Sans',
 ]
 
-const COLOR_KEYS = ['background', 'surface', 'text', 'muted', 'primary', 'onPrimary', 'accent', 'border'] as const
+const COLOR_KEYS = [
+  'background', 'surface', 'text', 'muted', 'primary', 'onPrimary', 'accent', 'border',
+  'headerBackground', 'headerText',
+] as const
 
 const THEME_SYSTEM = `You are an art director setting the visual direction for a small business's new homepage. You reply with json.
 
@@ -57,7 +61,9 @@ Reply with json only, in exactly this shape:
     "primary": "#hex, the brand colour, used for buttons and highlights",
     "onPrimary": "#hex, text on primary, with strong contrast",
     "accent": "#hex, a second colour that works with primary",
-    "border": "#hex, hairlines and dividers"
+    "border": "#hex, hairlines and dividers",
+    "headerBackground": "#hex, the bar behind the site header",
+    "headerText": "#hex, the logo and nav links on that bar, with strong contrast against it"
   }
 }
 
@@ -69,7 +75,10 @@ You are given the section's STRUCTURE as an outline measured from the approved w
 - Keep every element in the outline, in the same order and the same nesting, and add no new content blocks.
 - Keep the arrangement: the same number of columns, the same side for images, the same count of cards, list items, logos, fields and buttons, the same alignment, and overlays stay layered over what they sit on.
 - Keep the proportions close to the boxes: widths, the image sizes, where things sit, and the section's overall height.
-- A "carousel" is drawn as the visible slides in a row; a "shape" is a decorative block or placeholder; an "icon" is a small inline SVG you draw.
+- A "shape" is a decorative block or placeholder; an "icon" is a small inline SVG you draw.
+- A "carousel" stays a working carousel. Build it with exactly this markup, because the page's own slider script drives it:
+  <div class="carousel"><div class="track"><div class="slide">…</div><div class="slide">…</div></div><button class="carousel-prev" aria-label="Previous">…</button><button class="carousel-next" aria-label="Next">…</button><div class="carousel-dots"></div></div>
+  Write about twice as many slides as fit across at once, so there is something to slide to, and give .slide the width one slide should take. Leave .carousel-dots empty: the dots are built and kept in step for you. Include the arrows only where the outline shows them. Style all of it to match the design.
 
 The VISUAL DESIGN is entirely yours, within the page's design direction: colour, typography, type scale, weights, spacing, backgrounds, borders, shadows, gradients, decorative details and corner radii. Make it look like a polished, premium, real website — not a wireframe.
 
@@ -81,12 +90,39 @@ Technical rules:
 - There are no photos. Draw every image as <div class="img" role="img" aria-label="what the photo would show"></div> sized to its box, and style it with CSS gradients or shapes from the palette. Never use <img>, url(), or any external resource.
 - Links use href="#". No scripts, no event attributes, no inline style attributes — all styling goes in the css.
 - The css is nested inside the section's own scope automatically, so write plain selectors (".card", "h2", "& > header") and never target html, body or :root. Design for a 1440px-wide desktop viewport. No media queries, no @import, no @font-face.
-- Use the page's custom properties: var(--background), var(--surface), var(--text), var(--muted), var(--primary), var(--on-primary), var(--accent), var(--border), var(--font-heading), var(--font-body).`
+- Use the page's custom properties: var(--background), var(--surface), var(--text), var(--muted), var(--primary), var(--on-primary), var(--accent), var(--border), var(--font-heading), var(--font-body).
+- A site header sits on var(--header-bg), and its logo, navigation links, dropdown carets and plain icons use var(--header-text), which is guaranteed to read against it. Never leave the header transparent, never let the section below decide its contrast, and never put the logo or a nav link in a colour close to the bar behind them. A solid button in the header may use primary with on-primary.`
 
 /** How many times a section is asked for before the page goes ahead without it. */
 const ATTEMPTS = 2
 
 const HEX = /^#[0-9a-f]{6}$/i
+
+/** WCAG relative luminance, which is what a contrast ratio is built from. */
+function luminance(hex: string): number {
+  const n = parseInt(hex.slice(1), 16)
+  const channels = [(n >> 16) & 255, (n >> 8) & 255, n & 255].map((value) => {
+    const v = value / 255
+    return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4
+  })
+  return 0.2126 * channels[0] + 0.7152 * channels[1] + 0.0722 * channels[2]
+}
+
+const contrast = (a: string, b: string) => {
+  const [light, dark] = [luminance(a), luminance(b)].sort((x, y) => y - x)
+  return (light + 0.05) / (dark + 0.05)
+}
+
+/**
+ * The model's text colour if it can actually be read on `background`, and
+ * otherwise black or white, whichever reads better.
+ *
+ * 4.5:1 is the WCAG AA threshold for body-sized text.
+ */
+const readable = (background: string, preferred: string): string => {
+  if (contrast(background, preferred) >= 4.5) return preferred
+  return contrast(background, '#ffffff') >= contrast(background, '#111111') ? '#ffffff' : '#111111'
+}
 
 type Brief = { id: string; label: string; design: string; outline: string }
 
@@ -133,15 +169,25 @@ function themeFrom(raw: Record<string, unknown>): AiTheme {
     onPrimary: '#ffffff',
     accent: '#d98e3f',
     border: '#e2ddd2',
+    headerBackground: '#fbfaf7',
+    headerText: '#1d1c1a',
   }
+  const chosen = Object.fromEntries(
+    COLOR_KEYS.map((key) => [key, typeof colors[key] === 'string' && HEX.test(colors[key] as string) ? colors[key] : fallback[key]]),
+  ) as AiTheme['colors']
+
+  // The model picks colours by eye and will happily pair two light ones, which
+  // leaves a header's nav links or a button's label unreadable. The two
+  // colours that sit directly on another are checked and replaced if they fail.
+  chosen.headerText = readable(chosen.headerBackground, chosen.headerText)
+  chosen.onPrimary = readable(chosen.primary, chosen.onPrimary)
+
   return {
     name: str(raw.name, 'AI design', 60),
     direction: str(raw.direction, 'Clean and confident, with generous spacing.', 500),
     headingFont: font(raw.headingFont, 'Fraunces'),
     bodyFont: font(raw.bodyFont, 'Inter'),
-    colors: Object.fromEntries(
-      COLOR_KEYS.map((key) => [key, typeof colors[key] === 'string' && HEX.test(colors[key] as string) ? colors[key] : fallback[key]]),
-    ) as AiTheme['colors'],
+    colors: chosen,
   }
 }
 
@@ -222,11 +268,50 @@ const fontLink = (theme: AiTheme) => {
   return `https://fonts.googleapis.com/css2?${families}&display=swap`
 }
 
+/**
+ * The slider behind every `.carousel` the model draws.
+ *
+ * Ours, not the model's: the document still strips any script the model writes
+ * and the CSP below only admits this one by hash, so enabling scripts in the
+ * frame doesn't mean running generated code. It drives the track by scrolling,
+ * which keeps it honest whatever slide width the design chose, and holds still
+ * when the viewer would rather it did — the same rule the wireframe carousels
+ * follow.
+ */
+const SLIDER = `(function(){
+var reduced=matchMedia('(prefers-reduced-motion: reduce)').matches
+Array.prototype.forEach.call(document.querySelectorAll('.carousel'),function(carousel){
+var track=carousel.querySelector('.track')
+if(!track||track.children.length<2)return
+var pages=function(){return Math.max(1,Math.ceil(track.scrollWidth/track.clientWidth-0.02))}
+var at=function(){return Math.round(track.scrollLeft/track.clientWidth)}
+var timer=null
+var stop=function(){clearInterval(timer);timer=null}
+var play=function(){if(!reduced&&!timer&&pages()>1)timer=setInterval(function(){go(at()+1>=pages()?0:at()+1)},5000)}
+var hold=function(){stop();play()}
+var go=function(i){track.scrollTo({left:Math.min(Math.max(i,0),pages()-1)*track.clientWidth,behavior:reduced?'auto':'smooth'})}
+var dots=carousel.querySelector('.carousel-dots')
+var buttons=[]
+if(dots){for(var i=0;i<pages();i++){(function(n){var dot=document.createElement('button')
+dot.type='button';dot.setAttribute('aria-label','Go to slide '+(n+1))
+dot.addEventListener('click',function(){go(n);hold()})
+dots.appendChild(dot);buttons.push(dot)})(i)}}
+var mark=function(){var now=at();buttons.forEach(function(dot,i){dot.setAttribute('aria-current',i===now?'true':'false')})}
+mark();track.addEventListener('scroll',mark,{passive:true})
+var prev=carousel.querySelector('.carousel-prev'),next=carousel.querySelector('.carousel-next')
+if(prev)prev.addEventListener('click',function(){go(at()-1);hold()})
+if(next)next.addEventListener('click',function(){go(at()+1);hold()})
+carousel.addEventListener('mouseenter',stop);carousel.addEventListener('mouseleave',play)
+play()})})()`
+
+/** The CSP admits the slider by hash, so nothing else inline can run even if it slips past `cleanHtml`. */
+const SLIDER_HASH = `'sha256-${createHash('sha256').update(SLIDER).digest('base64')}'`
+
 /** The page as one document: theme, base styles, then each section scoped under its own id. */
 function documentFor(theme: AiTheme, business: string, sections: { id: string; html: string; css: string }[]) {
   const c = theme.colors
   const base = `
-:root{--background:${c.background};--surface:${c.surface};--text:${c.text};--muted:${c.muted};--primary:${c.primary};--on-primary:${c.onPrimary};--accent:${c.accent};--border:${c.border};--font-heading:'${theme.headingFont}',Georgia,serif;--font-body:'${theme.bodyFont}',system-ui,sans-serif}
+:root{--background:${c.background};--surface:${c.surface};--text:${c.text};--muted:${c.muted};--primary:${c.primary};--on-primary:${c.onPrimary};--accent:${c.accent};--border:${c.border};--header-bg:${c.headerBackground};--header-text:${c.headerText};--font-heading:'${theme.headingFont}',Georgia,serif;--font-body:'${theme.bodyFont}',system-ui,sans-serif}
 *,*::before,*::after{box-sizing:border-box}
 html,body{margin:0}
 body{min-width:${DESIGN_WIDTH}px;background:var(--background);color:var(--text);font-family:var(--font-body);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
@@ -236,7 +321,17 @@ ul,ol{padding:0;list-style:none}
 a{color:inherit;text-decoration:none}
 svg{display:block}
 button,input,textarea,select{font:inherit;color:inherit}
-.img{display:block;background:linear-gradient(135deg,var(--primary),var(--accent))}`
+.img{display:block;background:linear-gradient(135deg,var(--primary),var(--accent))}
+/* Defaults for the carousels the slider drives. The model's own rules are
+   scoped under an id, so anything it sets here still wins. */
+.carousel{position:relative}
+.carousel .track{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;-ms-overflow-style:none}
+.carousel .track::-webkit-scrollbar{display:none}
+.carousel .track>*{flex:0 0 auto;scroll-snap-align:start}
+.carousel-dots{display:flex;gap:8px;justify-content:center}
+.carousel-dots button{width:10px;height:10px;padding:0;border:1px solid var(--border);border-radius:50%;background:none;cursor:pointer}
+.carousel-dots button[aria-current="true"]{background:var(--primary);border-color:var(--primary)}
+.carousel-prev,.carousel-next{cursor:pointer;background:none;border:0;padding:0}`
 
   const body = sections
     .map((s) => `<style>#s-${s.id}{${s.css}}</style>\n<div id="s-${s.id}">${s.html}</div>`)
@@ -246,7 +341,7 @@ button,input,textarea,select{font:inherit;color:inherit}
 <html lang="en-GB">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src data:">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src data:; script-src ${SLIDER_HASH}">
 <meta name="viewport" content="width=${DESIGN_WIDTH}">
 <title>${business.replace(/[<>&"]/g, '').slice(0, 80) || 'AI homepage'}</title>
 <link rel="stylesheet" href="${fontLink(theme)}">
@@ -254,6 +349,7 @@ button,input,textarea,select{font:inherit;color:inherit}
 </head>
 <body>
 ${body}
+<script>${SLIDER}</script>
 </body>
 </html>`
 }

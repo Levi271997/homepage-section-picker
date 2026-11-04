@@ -16,8 +16,11 @@ type Props = {
  * The model's page, scaled to fill whatever box it's put in.
  *
  * The page is the model's own HTML, so it never shares a document with the
- * editor: it renders in an iframe with an empty `sandbox` — no scripts, no
- * same-origin access, no forms — on top of the CSP the document carries.
+ * editor. `allow-scripts` is the only permission it gets, and only so the
+ * carousels slide: without `allow-same-origin` the frame is an opaque origin,
+ * so nothing in it can reach the editor's document, cookies or storage. The
+ * document's own CSP then admits one script by hash — ours — and the route
+ * strips any the model wrote, so the markup still can't bring code with it.
  *
  * It's designed at the 1440px the artboards were drawn at and scaled to the
  * box's width, the way the wireframes scale with `cqw`, so what shows is the
@@ -40,7 +43,7 @@ export function AiDesignFrame({ html, className = '' }: { html: string; classNam
     <div ref={box} className={`relative overflow-hidden bg-white ${className}`}>
       <iframe
         srcDoc={html}
-        sandbox=""
+        sandbox="allow-scripts"
         title="AI-designed homepage"
         className="absolute top-0 left-0 origin-top-left border-0"
         // Laid out at full design width and shrunk to the box, so the frame's

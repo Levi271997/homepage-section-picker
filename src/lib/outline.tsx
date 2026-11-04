@@ -173,7 +173,7 @@ function walk(el: Element, frame: DOMRect, depth: number, lines: string[]) {
 
   const words = [
     semantic ? tag : 'group',
-    carousel ? 'carousel (slides sideways; the visible slides are shown)' : '',
+    carousel ? 'carousel (a real slider; only the slides on screen are measured, so draw more than these)' : '',
     layout,
     panel ? 'panel' : '',
     overlay ? 'overlay' : '',
